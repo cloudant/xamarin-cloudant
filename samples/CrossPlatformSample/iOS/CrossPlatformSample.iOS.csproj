@@ -87,10 +87,6 @@
       <Project>{CF6444A4-AB29-4117-B59D-B82BC1CC9838}</Project>
       <Name>CrossPlatformSample</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\src\CloudantClient.PCL\CloudantClient.PCL.csproj">
-      <Project>{FD75F05F-7BB5-4735-A0F2-901CCDD7722D}</Project>
-      <Name>CloudantClient.PCL</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\Default.png" />

@@ -17,11 +17,17 @@ namespace Com.Cloudant.Client.Model
 	/// <summary>
 	/// IndexField is a class for creating an index field with options (e.g. sort order) for querying.
 	/// </summary>
+	/// <remarks>
+	/// This class is used for creating an index field with options.
+	/// </remarks>
 	public class IndexField
 	{
 		/// <summary>
 		/// SortOrder is an enum that specifies the sort order.
 		/// </summary>
+		/// <remarks>
+		/// This enumerates the sort order values.
+		/// </remarks>
 		public enum SortOrder{
 			/// <summary>
 			/// Ascending sort order

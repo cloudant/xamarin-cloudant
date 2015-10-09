@@ -24,6 +24,9 @@ namespace Com.Cloudant.Client
 	/// <summary>
 	/// The main object for the Cloudant client public API.
 	/// </summary>
+	/// <remarks>
+	/// This class is used for creating, deleting, or connecting to a Cloudant database.
+	/// </remarks>
 	public class CloudantClient
 	{
 		private Uri accountUri;

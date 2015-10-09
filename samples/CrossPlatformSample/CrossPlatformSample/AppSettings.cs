@@ -14,11 +14,11 @@ using System;
 
 namespace CrossPlatformSample
 {
-	public class AppSettings
+	public static class AppSettings
 	{
 		/// <summary>
 		/// The cloudant.com account hostname to connect to. For example
-		/// sampleaccount.cloudant.com or http://sampleaccount.cloudant.com:1234
+		/// sampleaccount.cloudant.com
 		/// </summary>
 		public static readonly string account = "your-cloudant-username.cloudant.com";
 

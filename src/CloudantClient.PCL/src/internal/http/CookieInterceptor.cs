@@ -36,6 +36,9 @@ namespace Com.Cloudant.Client.Internal.Http
 	/// If the request to get the cookie for use in future request fails with a 401 status code
 	///	(or any status that indicates client error) cookie authentication will not be attempted again.
 	/// </summary>
+	/// <remarks>
+	/// This class is used for adding cookie authentication to HTTP requests.
+	/// </remarks>
 	public class CookieInterceptor : IHttpConnectionRequestInterceptor, IHttpConnectionResponseInterceptor
 	{
 		private HttpClient client = new HttpClient();

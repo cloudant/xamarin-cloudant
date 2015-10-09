@@ -3,9 +3,9 @@ Getting Started
 
 ## Before you begin
 
-To run this sample you will need access to a Cloudant system. You will need to provide your Cloudant `account` and a valid `user name` and `password` credentials for the user.
+To run this sample you will need a valid [IBM Cloudant](https://cloudant.com) account in either a local system or in the cloud service. You will need to provide your Cloudant **account** and a valid **user name** and **password** credentials for the user.
 
-To learn more visit https://cloudant.com
+If you don't have an account, you can sign up for a free trial [here](https://cloudant.com/sign-up/).
 
 ## Configure the sample
 
@@ -27,3 +27,6 @@ Right-click over the desired project (for example `CrossPlatformSample.iOS`) and
 
 ## Understand the sample
 
+This sample contains working code snippets that showcase how to use this library.
+
+The class `HomePage.cs` contains the sample code snippets.  For example, if you want to see the source for how to create a database, see the function `OnCreateDB`.

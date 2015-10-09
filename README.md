@@ -1,6 +1,6 @@
 # Cloudant C# Portable Class Library
 
-## Overview
+### Overview
 
 This project provides a Portable Class Library to enable your C# (Xamarin) applications to interact with [IBM Cloudant](https://cloudant.com/) services.
 
@@ -10,7 +10,7 @@ Read the [Getting Started](./component/GettingStarted.md) document for informati
 
 ### Contrbuting to this project
 
-If you are a developer interested in contributing to this project, please read the [CONTRIBUTING.md](./CONTRIBUTING.md) document.
+If you are a developer interested in contributing to this project, please read the [CONTRIBUTING](./CONTRIBUTING.md) document.
 
 ### License
 

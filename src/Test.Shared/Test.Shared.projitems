@@ -16,5 +16,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)InterceptorsTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CloudantClientDatabaseTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DatabaseCRUDTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SnippetTests\GettingStartedSnippetTest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)SnippetTests\" />
   </ItemGroup>
 </Project>

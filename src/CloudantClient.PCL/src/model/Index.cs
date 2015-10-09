@@ -21,6 +21,9 @@ namespace Com.Cloudant.Client.Model
 	/// Additional information about indexes in the Cloudant documentation at: 
 	/// <a href="https://docs.cloudant.com/cloudant_query.html#creating-an-index">https://docs.cloudant.com/cloudant_query.html#creating-an-index</a>
 	/// </summary>
+	/// <remarks>
+	/// This class contains metadata and information for a Cloudant Index.
+	/// </remarks>
 	public class Index
 	{
 		/// <summary>

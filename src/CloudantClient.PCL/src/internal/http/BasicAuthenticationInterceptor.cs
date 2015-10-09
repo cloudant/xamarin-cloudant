@@ -16,10 +16,13 @@ using System.Net.Http.Headers;
 namespace Com.Cloudant.Client.Internal.Http
 {
 	/// <summary>
-	/// Sample interceptor implementation that adds basic authentication to http requests.
+	/// Sample interceptor implementation that adds basic authentication to HTTP requests.
 	/// 
 	/// It does this by adding an Authentication header with Basic authentication using the provided username and password.
 	/// </summary>
+	/// <remarks>
+	/// This class is used for adding basic authentication to HTTP requests.
+	/// </remarks>
 	public class BasicAuthenticationInterceptor : IHttpConnectionRequestInterceptor, IHttpConnectionResponseInterceptor
 	{
 		

@@ -4,7 +4,6 @@ using System.Linq;
 
 using Foundation;
 using UIKit;
-using Com.Cloudant.Client;
 
 namespace CrossPlatformSample.iOS
 {

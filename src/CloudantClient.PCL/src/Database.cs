@@ -28,6 +28,9 @@ namespace Com.Cloudant.Client
 	/// <summary>
 	/// Contains a Database Public API implementation.
 	/// </summary>
+	/// <remarks>
+	/// This class is used for performing CRUD, index, and query operations on a Cloudant database.
+	/// </remarks>
 	public class Database
 	{
 		// Special document fields

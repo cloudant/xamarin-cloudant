@@ -20,6 +20,9 @@ namespace Com.Cloudant.Client.Internal.Http
 	/// <summary>
 	/// Internal interface to define the http connection.
 	/// </summary>
+	/// <remarks>
+	/// This is the interface implemented by the HTTPHelper class.
+	/// </remarks>
 	public interface IHttpHelper {
 
 		/// <summary>

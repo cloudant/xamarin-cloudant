@@ -31,8 +31,7 @@ namespace CrossPlatformSample
 						username = AppSettings.username, 
 						password = AppSettings.password
 					}.GetResult ();
-
-					//TODO: Verify Cloudant can be accessed.
+							
 					MainPage = new HomePage (client);
 
 				} catch (Exception e){

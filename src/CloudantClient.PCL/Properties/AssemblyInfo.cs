@@ -4,12 +4,12 @@ using System.Runtime.CompilerServices;
 // Information about this assembly is defined by the following attributes.
 // Change them to the values specific to your project.
 
-[assembly: AssemblyTitle ("CloudantClient.PCL")]
+[assembly: AssemblyTitle ("Cloudant Client")]
 [assembly: AssemblyDescription ("Library to integrate your Xamarin apps with IBM Cloudant.")]
 [assembly: AssemblyConfiguration ("")]
 [assembly: AssemblyCompany ("IBM Corp.")]
 [assembly: AssemblyProduct ("Cloudant")]
-[assembly: AssemblyCopyright ("IBM Corp.")]
+[assembly: AssemblyCopyright ("IBM Corp. 2015")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]
 

@@ -1,29 +1,38 @@
 %YAML 1.2
 ---
-name: Cloudant Client for Xamarin
 id: CloudantClient
+version: 0.1
+name: Cloudant Client
+summary: Integrate your Xamarin apps with IBM Cloudant.
 publisher: IBM Cloudant
+publisher-url: https://www.cloudant.com
 license: ./License.md
 icons: 
   - ./CloudantClient_128x128.png
   - ./CloudantClient_512x512.png
-publisher-url: http://www.cloudant.com
 build:
   - ../src/CloudantClient-Xamarin.sln
 libraries: 
-  pcl: 
+  ios-unified: 
     - ../src/CloudantClient.PCL/bin/Release/CloudantClient.PCL.dll
     - ../src/CloudantClient.PCL/bin/Release/CloudantClient.PCL.xml
-monodocs: ./doc
-summary: Integrate your Xamarin apps with IBM Cloudant.
+  ios: 
+    - ../src/CloudantClient.PCL/bin/Release/CloudantClient.PCL.dll
+    - ../src/CloudantClient.PCL/bin/Release/CloudantClient.PCL.xml
+  android: 
+    - ../src/CloudantClient.PCL/bin/Release/CloudantClient.PCL.dll
+    - ../src/CloudantClient.PCL/bin/Release/CloudantClient.PCL.xml
+  pcl:
+    - ../src/CloudantClient.PCL/bin/Release/CloudantClient.PCL.dll
+    - ../src/CloudantClient.PCL/bin/Release/CloudantClient.PCL.xml
+monodocs: ../doc
 details: ./Details.md
-getting-started: ../GettingStarted.md
-version: 0.1
+getting-started: ./GettingStarted.md
 samples:
   - name: "Cross-platform Sample"
     path: ../samples/CrossPlatformSample/CrossPlatformSample.sln
 #
-#
+#source:                             #TODO: Set to true to include the source.
 #src-url:                            #TODO: URL to github project
 #screenshots: 
 #  - screenshots/screenshot1.png

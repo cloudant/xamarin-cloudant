@@ -1,64 +1,89 @@
 ﻿Contributing
 =======
 
-Cloudant-client is written in C# using the Xamarin environment.
+The **Cloudant Cient** library is written in C# using Xamarin Studio.
 
-## Requirements
+# Requirements
 
-Xamarin Studio
-
-
-### Installing requirements
-
-Follow the instructions at https://xamarin.com/platform
+[Xamarin Studio](https://xamarin.com/platform) with a valid license.
 
 
-## Project Structure
+# Getting Started
 
-### CloudantClient.PCL
+Load the workspace in Xamarin Studio.
+`open ./CloudantClient-Xamarin.mdw`.
 
-Portable Class Library (PCL) project for Cloudant Client.
+The workspace contains 2 solutions:
+  - **CloudantClient-Xamarin** -
+  Contains the source code of this library and automated tests.
+  - **CrossPlatformSample** - Contains the sample application for the Xamarin component store.
 
-### Sample
+**Important:** If you experience problems after loading the workspace, see the **Frequent Problems** topic in this file.
 
-Xamarin sample application that showcases the use of the Cloudant Client.  To run the sample follow the instructions at `./Sample/README.md`
+## Automated tests
 
-### Test.Shared
+Automated Test are written using the NUnit framework.
 
-Project used to share tests cases among platforms (iOS and Android).  All new tests cases in this solution must be common for all platforms.
+#### Configure tests
+Before you begin, you need to configure your Cloudant account.
+Open `Test.Shared/TestConstants.cs` and provide valid values for **account**, **username**, and **password**.
 
-### Test.iOS
+#### Run tests
+There's a test project for each supported platform (iOS and Android).  To run the tests for a platform, just right-click over the project for the platform and select `Run Item`.
 
-Project to run the test cases in the iOS environment.  DO NOT add tests cases here, tests should be added to the Test.Shared project.
+#### Contribute additional tests
 
-### Test.Android
+New tests must be added in the `Tests.Shared` project. All tests must be platform independent.
 
-Project to run the test cases in the Android environment.  DO NOT add tests cases here, tests should be added to the Test.Shared project.
+## Build the Xamarin store component
 
-## Test Suite
+The elements to build the component configured at `./component/component.yaml`. In this file you can change properties like **version, name, or contents** of the component.
 
-Test are written using the Xamarin, which uses the NUnit framework.
+To build the component, run the script at `./component/packageComponent.sh`.
 
-#### Configuration
+The output of this script is `./component/CloudantClient-[a].[b].xam`, where *a* and *b* represent the version.
 
-Open the solution `CloudantClient.sln` in Xamarin Studio.
+#### Install component into local Xamarin Studio
 
-Modify TestConstants.cs  to add your Cloudant account and credentials.
+Run `./component mono xamarin-component.exe install CloudantClient-[a].[b].xam`
 
-~~~ cs
-public static readonly string cloudantHost = "your-cloudant-username.cloudant.com";
-public static readonly string cloudantUser = "your-cloudant-username";
-public static readonly string cloudantPassword = "your-cloudant-password";
-~~~
+**IMPORTANT:** See the **Frequent Problems** section for known problems while reinstalling a component.
 
-#### Running the tests
 
-Tests should run in any supported platform.  The solution contains iOS and Android projects to launch the tests from these platforms.
+## Writing documentation
 
-### iOS
+Source code must be documented using C# [XML Documentation Comments](https://msdn.microsoft.com/en-us/library/b2s063f7.aspx).
 
-Right-click on project Test.iOS, then select `Run With -> [iOS simulator or device]`
+Additional documentation could be provided with XML files in the `./doc` directory.  For example, XML documentation comments are not supported on namespaces. You can provide documentation for a namespace by editing the file `.doc/ns.[the-namespace].xml`.
 
-### Android
+## Frequent Problems
 
-Right-click on project Test.Android, then select `Run With -> [Android simulator or device]`
+#### 1. Package dependency libraries not being updated
+
+**Problem:** Errors appear when building the solution because the package referenced libraries do not exist.
+
+**Reason:** This usually happens when you load the solution for the first time. There is an issue where the package referenced libraries are not correctly updated.
+
+**Solution:** Run the following 2 commands:
+- `nuget restore ./src/CloudantToolkit-Xamarin.sln`
+- `nuget restore ./samples/CrossPlatformSample/CrossPlatformSample.sln`
+
+#### 2. 'mono <component> install' fails to update existing component in Xamarin Studio
+
+**Problem:** Xamarin Studio doesn't show the updated component after installing with `mono xamarin-component.exe install CloudantClient.*.*.xam`.
+
+**Reason:** This happens if you have already added the component to any project in the solution.  Xamarin Studio caches a copy of the component and it doesn't get updated unless it has a new version.
+
+**Solution:**
+- Remove the component from any projects using it.
+- Go to the `./Components` directory for the solution and remove all references to CloudantClient*. Note that projects also have a `./Components` directory, but this must be done in the `./Components` directory that exists in the solution.
+- Close and reopen the solution.
+- Run the install command `mono xamarin-component.exe install CloudantClient.*.*.xam`
+
+#### 3. Project compiles with warning 'All projects referencing CloudantClient.PCL.csproj must install nuget package Microsoft.Bcl.Build.' even when Microsoft.Bcl.Build is referenced in the project.
+
+**Problem:** The warning shows up even with the correct package referenced.
+
+**Reason:** This is a known Xamarin bug.  See https://bugzilla.xamarin.com/show_bug.cgi?id=29809 for details.
+
+**Solution:** This should be resolved when the Xamarin bug is fixed.

@@ -22,6 +22,9 @@ namespace Com.Cloudant.Client
 	/// <summary>
 	/// Cloudant client builder.
 	/// </summary>
+	/// <remarks>
+	/// This class is used for building a CloudantClient with specified options.
+	/// </remarks>
 	public class CloudantClientBuilder
 	{
 		/* Required parameters */

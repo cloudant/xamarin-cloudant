@@ -21,8 +21,11 @@ using Newtonsoft.Json;
 namespace Com.Cloudant.Client.Internal.Http
 {
 	/// <summary>
-	/// Internal class to manage the http connection.
+	/// Internal class to manage the HTTP connection.
 	/// </summary>
+	/// <remarks>
+	/// This class is used to manage HTTP requests and responses.
+	/// </remarks>
 	public class HttpHelper : IHttpHelper
 	{
 		private HttpClient client = new HttpClient (new HttpClientHandler (){ UseCookies = false });// By setting UseCookies = false, we allow
@@ -46,7 +49,7 @@ namespace Com.Cloudant.Client.Internal.Http
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Com.Cloudant.Client.Internal.Http.HttpHelper"/> class.
 		/// </summary>
-		/// <param name="baseUri">Base URI for the HttpClient in this helper.</param>
+		/// <param name="baseUri">Base URI for the HttpClient in this helper. All http requests must be relative to this URI.</param>
 		public HttpHelper (Uri baseUri){
 			client.BaseAddress = baseUri;
 		}
@@ -56,6 +59,7 @@ namespace Com.Cloudant.Client.Internal.Http
 		/// </summary>
 		/// <param name="requestInterceptors">Request interceptors.</param>
 		/// <param name="responseInterceptors">Response interceptors.</param>
+		/// <param name="baseUri">Base URI for the HttpClient in this helper. All http requests must be relative to this URI.</param>
 		public HttpHelper(Uri baseUri, List<IHttpConnectionRequestInterceptor> requestInterceptors, List<IHttpConnectionResponseInterceptor> responseInterceptors){
 			Debug.WriteLine ("ENTRY HttpHelper: Constructor() - requestInterceptors: "+requestInterceptors+"  responseInterceptors: "+responseInterceptors);
 			client.BaseAddress = baseUri;
@@ -202,8 +206,8 @@ namespace Com.Cloudant.Client.Internal.Http
 								return response;
 								
 						} catch (AggregateException ae) {
-							Debug.WriteLine ("=== Sent request, got EXCEPTION response. Message: " + ae.InnerException.Message);
-							throw ae.InnerException;
+							Debug.WriteLine ("=== Sent request, got EXCEPTION response. Message: " + ae.GetBaseException().Message);
+							throw ae.GetBaseException();
 						}
 					}
 				}

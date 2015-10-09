@@ -1,0 +1,7 @@
+*.source
+*.tree
+*.zip
+Com.Cloudant.Client/*
+Com.Cloudant.Client.Internal.Http/*
+Com.Cloudant.Client.Model/*
+index.xml

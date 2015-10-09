@@ -16,8 +16,11 @@ using System.Net.Http;
 namespace Com.Cloudant.Client.Internal.Http
 {
 	/// <summary>
-	/// Class used to pass the current state of an Http connection to <see cref="Com.Cloudant.Client.Internal.Http.IHttpConnectionInterceptor"/> 
+	/// Class used to pass the current state of an HTTP connection to <see cref="Com.Cloudant.Client.Internal.Http.IHttpConnectionInterceptor"/> 
 	/// </summary>
+	/// <remarks>
+	/// This class is used for passing the context for a HTTP connection.
+	/// </remarks>
 	public class HttpConnectionInterceptorContext
 	{
 		/// <summary>

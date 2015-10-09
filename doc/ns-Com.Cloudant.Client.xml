@@ -1,0 +1,12 @@
+<Namespace Name="Com.Cloudant.Client">
+  <Docs>
+    <summary>
+        This package provides the API needed to interact with Cloudant services.
+    </summary>
+    <remarks>
+        You should start by instantiating the CloudantClient object, this is the main object for the Cloudant Client API and provides the methods to create and connect to your database.
+        
+        For information about how to use this library and usage examples, refer to the 'Getting Started' documentation.
+    </remarks>
+  </Docs>
+</Namespace>

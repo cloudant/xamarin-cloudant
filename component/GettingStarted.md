@@ -1,110 +1,124 @@
-# Cloudant Xamarin Client
+# Getting Started with Cloudant Client
 
-This is the official Cloudant library for Xamarin
+## Overview
 
-* [Installation and Usage](#installation-and-usage)
-* [Getting Started](#getting-started)
-* [API Reference](#api-reference)
-* [Development](#development)
-* [License](#license)
+[IBM Cloudant®](https://cloudant.com) is a NoSQL database platform built for the cloud.
 
-## Installation and Usage
+The **Cloudant Client** component enables your Xamarin applications to interact with databases in the Cloudant service.
 
-Xamarin Store:
+To use this library you will need a valid Cloudant account in either a local system or in the cloud service.  If you don't have an account, you can sign up for a free trial [here](https://cloudant.com/sign-up/).
 
-Install from Xamarin component store.
 
 ## Getting Started
 
-Now it's time to begin doing real work with Cloudant and Xamarin. For working code samples of any of the API's please go to our Test suite.
+First, instantiate a `CloudantClient` object using your Cloudant account information.
 
-Initialize your Cloudant connection by constructing a *Com.Cloudant.Client.CloudantClient* . If you are connecting the managed service on cloudant.com, supply the *account* to connect to, *userName* and *password*. If you are connecting to Cloudant Local supply its URL, the *userName* and  *password*
+```csharp
+using Com.Cloudant.Client;
+...
+Uri accountUri = new Uri("https://my-cloudant-account.cloudant.com");
+			CloudantClient client = new CloudantClientBuilder (accountUri) {
+				username = "my-username",
+				password = "my-password"
+			}.GetResult ();
+```
 
-Connecting to the managed service at cloudant.com example
-~~~ cs
+Then, we get a `Database` object.
 
-CloudantClient client = new CloudantClientBuilder("mdb")
-   {loginUsername = "mdb",
-    password = "passw0rd"}.GetResult();
+```csharp
+Database db = client.database ("my-database", true);
+```
 
-Console.WriteLine("Connected to Cloudant");
-~~~
+Once we have the `Database` we can save, update, and retrieve documents. We can also create indexes to search the database.
 
+#### Saving Data
 
-Connecting to Cloudant Local example
-~~~ cs
+For this example, we'll store the following data.
 
-CloudantClient client = new CloudantClientBuilder("https://9.149.23.12")
-   {loginUsername = "mdb",
-    password = "passw0rd"}.GetResult();
+```csharp
+//Data to be saved
+Dictionary<string, object> person = new Dictionary<string, object> ();
+person.Add ("name", "Mike");
+person.Add ("age", 32);
+person.Add ("married", false);
+```
 
-Console.WriteLine("Connected to Cloudant");
+First, create a 'DocumentRevision' and set the data to be saved in the `body` property.
+**Tip:** `docId` is an optional property, however, if you don't provide it, Cloudant will generate one for you.  This could complicate the logic of your application because you may have to track the docIdif you want to reference the document in the future.
 
-~~~
+```csharp
+DocumentRevision personDoc = new DocumentRevision (){
+			docId = "person",
+			body = person
+		};
+```
 
-### Complete example
+Then save the data.
 
-Here is simple but complete example of working with data:
+```csharp
+personDoc = db.save (personDoc).Result;
+```
 
-~~~ cs
+#### Retrieving Data
 
-string password = System.getProperty("cloudant_password");
-CloudantClient client = new CloudantClientBuilder("mdb")
-   {loginUsername = "mdb",
-    password = password}.GetResult();
+Now you want to retrieve the data.  You start by finding your document and creating a `DocumentRevision`.
 
-// Clean up the database we created previously.
-client.deleteDB("alice");
+```csharp
+DocumentRevision retrievedDoc = db.find("person").Result;
+```
 
-// Create a new database.
-client.createDB("alice");
+Then you can access the data from the `body` of the `DocumentRevision`
 
-// specify the database we are going to use
-Database db = client.database("alice", false);
+```csharp
+Dictionary<string,object> retrievedPerson = retrievedDoc.body;
 
-// and insert a document in it
-db.save(new Rabbit(true));
-Console.WriteLine("You have inserted the Rabbit");
-Rabbit r = db.find(Rabbit.class,"rabbit");
-Console.WriteLine(r);
+Console.WriteLine("Name: "+retrievedPerson["name"]);
+Console.WriteLine("Age: "+retrievedPerson["age"]);
+Console.WriteLine("Married: "+retrievedPerson["married"]);
+```
 
-   ...
-public class Rabbit {
-	private boolean crazy;
-	private string _id = "rabbit";
+#### Updating Saved Data
 
-	public Rabbit(boolean isCrazy) {
-		crazy = isCrazy;
-	}
+To update your document, modify the data in the `DocumentRevision body` property and then use the `update()` API.
 
-	public string ToString() {
-		return " { id : " + _id + ", rev : " + _rev + ", crazy : " + crazy + "}";
-	}
-}
-~~~
+```csharp
+personDoc.body ["married"] = true;
+personDoc = db.update (personDoc).Result;
+```
 
-If you run this example, you will see:
+#### Searching your Data
 
-    you have inserted the rabbit.
-    { crazy: true,
-      id: rabbit,
-      rev: 1-6e4cb465d49c0368ac3946506d26335d
-    }
+We want to search the database for documents that meet a certain criteria.  For example, we want to find all married people.
 
-## API Reference
+We start by creating an index for the `married` field.
 
-Refer to XML documentation at ...
+```csharp
+db.createIndex ("index_married",
+				"index_married_design", "json",
+				new IndexField[]{ new IndexField ("married") }
+).Wait();
+```
 
-## Development
+Then, create a selector with your search criteria.  
 
-Details about this project and development information, including how to run the automated tests is included in [CONTRIBUTING.md](./CONTRIBUTING.md)
+```csharp
+string selectorJSON = "\"selector\": {\"married\": {\"$eq\":true} }";
+```
+**Tip:** To learn more about selectors, refer to the [Cloudant documentation](https://docs.cloudant.com/cloudant_query.html#query-parameters).  
 
-## License
+Finally, call the `findByIndex()` API and display your results.
 
-Copyright 2014-2015 Cloudant, an IBM company.
+```csharp
+Task <List<DocumentRevision>> findTask = db.findByIndex(selectorJSON,
+				new FindByIndexOptions()
+				.sort(new IndexField("married", IndexField.SortOrder.desc))
+			);
+findTask.Wait ();
 
-Licensed under the apache license, version 2.0 (the "license"); you may not use this file except in compliance with the license.  you may obtain a copy of the license at
+List<DocumentRevision> searchResult = findTask.Result;
 
-    http://www.apache.org/licenses/LICENSE-2.0.html
-
-Unless required by applicable law or agreed to in writing, software distributed under the license is distributed on an "as is" basis, without warranties or conditions of any kind, either express or implied. See the license for the specific language governing permissions and limitations under the license.
+//Display the result
+Console.WriteLine ("Number of records found where married==true : " + searchResult.Count);
+foreach(DocumentRevision d in searchResult)
+		Console.WriteLine (string.Format("Name: {0}  Age: {1}", d.body ["name"], d.body["age"]));
+```

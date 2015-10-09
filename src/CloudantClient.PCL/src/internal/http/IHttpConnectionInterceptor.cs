@@ -22,6 +22,9 @@ namespace Com.Cloudant.Client.Internal.Http
 	/// 	<item><term><see cref="Com.Cloudant.Client.Internal.Http.IHttpConnectionResponseInterceptor"/></term></item>
 	/// </list>
 	/// </summary>
+	/// <remarks>
+	/// This is the base interface for HTTP connection interceptors.
+	/// </remarks>
 	public interface IHttpConnectionInterceptor
 	{
 		

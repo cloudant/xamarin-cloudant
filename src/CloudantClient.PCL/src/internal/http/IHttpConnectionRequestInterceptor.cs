@@ -22,6 +22,9 @@ namespace Com.Cloudant.Client.Internal.Http
 	/// 
 	/// See <see cref="Com.Cloudant.Client.Internal.Http.CookieInterceptor"/> for an example.
 	/// </summary>
+	/// <remarks>
+	/// This is the interface for HTTP request interceptors.
+	/// </remarks>
 	public interface IHttpConnectionRequestInterceptor : IHttpConnectionInterceptor
 	{
 
