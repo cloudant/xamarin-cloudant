@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>{D7EBB0EC-6AF0-4543-982D-1BB97201F7AB}</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Test.Shared</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)TestConstants.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HttpHelperTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IndexTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CloudantClientTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)InterceptorsTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CloudantClientDatabaseTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Documentation\CloudantClientSnippetTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DatabaseCRUDTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Documentation\" />
+  </ItemGroup>
+</Project>

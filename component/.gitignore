@@ -1,0 +1,4 @@
+*.xam
+NamespaceSummaries.xml
+/doc/
+/doc-html/

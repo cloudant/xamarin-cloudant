@@ -1,0 +1,1 @@
+# CloudantClient component details

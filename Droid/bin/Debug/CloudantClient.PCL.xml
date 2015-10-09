@@ -1,0 +1,247 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CloudantClient.PCL</name>
+    </assembly>
+    <members>
+        <member name="M:Com.Cloudant.Client.DataException.getDomain">
+                 	* @return the domain</member>
+        <member name="M:Com.Cloudant.Client.Model.FindByIndexOptions.limit(System.Int32)">
+                 * @param limit limit the number of results return</member>
+        <member name="M:Com.Cloudant.Client.Model.FindByIndexOptions.skip(System.Int32)">
+                 * @param skip Skips <i>n</i> number of results.</member>
+        <member name="M:Com.Cloudant.Client.Model.FindByIndexOptions.readQuorum(System.Int32)">
+                 * @param readQuorum set the readQuorum</member>
+        <member name="M:Com.Cloudant.Client.Model.FindByIndexOptions.fields(System.String)">
+                 * Can be called multiple times to set the list of return fields
+                 *
+                 * @param field set the return fields</member>
+        <member name="M:Com.Cloudant.Client.Model.FindByIndexOptions.sort(Com.Cloudant.Client.Model.IndexField)">
+                 * Can be called multiple times to set the sort syntax
+                 *
+                 * @param sort add a sort syntax field</member>
+        <member name="M:Com.Cloudant.Client.Model.FindByIndexOptions.useIndex(System.String)">
+                 * Specify a specific index to run the query against
+                 *
+                 * @param designDocument set the design document to use</member>
+        <member name="M:Com.Cloudant.Client.Model.FindByIndexOptions.useIndex(System.String,System.String)">
+                 * Specify a specific index to run the query against
+                 *
+                 * @param designDocument set the design document to use
+                 * @param indexName set the index name to use</member>
+        <member name="T:Com.Cloudant.Client.CloudantClient">
+            <summary>
+            The main object for the Cloudant client public API.
+            </summary></member>
+        <member name="M:Com.Cloudant.Client.CloudantClient.#ctor(Com.Cloudant.Client.CloudantClientBuilder)">
+            <summary>
+            Constructs a new instance of this class and connects to the cloudant server using a builder class.
+            </summary>
+            <param name="builder">Builder class. <see cref="T:Com.Cloudant.Client.CloudantClientBuilder" /> </param></member>
+        <member name="M:Com.Cloudant.Client.CloudantClient.database(System.String,System.Boolean)">
+            <summary>
+            Gets a Database reference
+            </summary>
+            <param name="dbname">name of database to access</param>
+            <param name="create">flag indicating whether to create the database if it does not exist.</param>
+            <returns>A Task with the Database object instance.</returns></member>
+        <member name="M:Com.Cloudant.Client.CloudantClient.deleteDB(Com.Cloudant.Client.Database)">
+            <summary>
+            Deletes the database.
+            </summary>
+            <returns>A Task to mointor this action.</returns>
+            <param name="db">Database</param></member>
+        <member name="T:Com.Cloudant.Client.DocumentRevision">
+            <summary>
+            DocumentRevision is a class representing a document revision.
+            </summary></member>
+        <member name="M:Com.Cloudant.Client.DocumentRevision.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Com.Cloudant.Client.DocumentRevision" /> class.
+            </summary></member>
+        <member name="M:Com.Cloudant.Client.DocumentRevision.#ctor(System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Com.Cloudant.Client.DocumentRevision" /> class with document contents.
+            </summary>
+            <param name="documentId">Document identifier.</param>
+            <param name="revisionId">Revision identifier.</param>
+            <param name="documentBody">Document body.</param></member>
+        <member name="T:Com.Cloudant.Client.Database">
+            <summary>
+            Contains a Database Public API implementation.
+            </summary></member>
+        <member name="M:Com.Cloudant.Client.Database.#ctor(Com.Cloudant.Client.CloudantClient,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Com.Cloudant.Client.Database" /> class.
+            </summary>
+            <param name="client">The CloudantClient instance.</param>
+            <param name="name">The name of the database.</param></member>
+        <member name="M:Com.Cloudant.Client.Database.save(Com.Cloudant.Client.DocumentRevision)">
+            <summary>
+            Save the specified revisionToSave using HTTP <tt>PUT</tt> request.
+            </summary>
+            <param name="revisionToSave">Revision to save.</param></member>
+        <member name="M:Com.Cloudant.Client.Database.update(Com.Cloudant.Client.DocumentRevision)">
+            <summary>
+            Update the specified revisionToUpdate.  The revision must have the correct <code>_id</code> and
+            <code>_rev</code> values.
+            </summary>
+            <param name="revisionToUpdate">Revision to update.</param></member>
+        <member name="M:Com.Cloudant.Client.Database.find(System.String)">
+            <summary>
+            Find the specified document.
+            </summary>
+            <param name="documentId">The id of the object to find.</param></member>
+        <member name="M:Com.Cloudant.Client.Database.remove(Com.Cloudant.Client.DocumentRevision)">
+            <summary>
+            Remove the specified DocumentRevision.
+            </summary>
+            <param name="revisionToRemove">Revision to remove.</param></member>
+        <member name="M:Com.Cloudant.Client.Database.createIndex(System.String,System.String,System.String,Com.Cloudant.Client.Model.IndexField[])">
+            <summary>
+            Create a new index.
+            Also see: <a href="http://docs.cloudant.com/api/cloudant-query.html#creating-a-new-index">
+            http://docs.cloudant.com/api/cloudant-query.html#creating-a-new-index</a>
+            </summary>
+            <param name="indexName">optional name of the index (if not provided one will be generated)</param>
+            <param name="designDocName">optional name of the design doc in which the index will be created</param>
+            <param name="indexType">optional, type of index (only "json" as of now)</param>
+            <param name="fields">array of fields in the index</param></member>
+        <member name="M:Com.Cloudant.Client.Database.createIndex(System.String)">
+            <summary>
+            Create a new Index
+            See <a href="http://docs.cloudant.com/api/cloudant-query.html#creating-a-new-index">
+            http://docs.cloudant.com/api/cloudant-query.html#creating-a-new-index</a>
+            </summary>
+            <param name="indexDefinition"> Index definition. See documentation for correct format.</param></member>
+        <member name="M:Com.Cloudant.Client.Database.findByIndex(System.String,Com.Cloudant.Client.Model.FindByIndexOptions)">
+            <summary>
+            Finds documents based using an index.
+            See <a href="https://docs.cloudant.com/cloudant_query.html#finding-documents-using-an-index">
+            https://docs.cloudant.com/cloudant_query.html#finding-documents-using-an-index</a>
+            </summary>
+            <returns>List of matching documents.</returns>
+            <param name="selectorJson">JSON String describing criteria used to select documents.
+            Is of the form "selector": your data here </param>
+            <param name="options">Options describing the query options to apply.  </param></member>
+        <member name="M:Com.Cloudant.Client.Database.listIndices">
+            <summary>
+            Lists all indices.
+            </summary>
+            <returns>List of Index</returns></member>
+        <member name="M:Com.Cloudant.Client.Database.deleteIndex(System.String,System.String)">
+            <summary>
+            Delete an index
+            </summary>
+            <returns>A Task</returns>
+            <param name="indexName">name of the index</param>
+            <param name="designDocId">ID of the design doc</param></member>
+        <member name="M:Com.Cloudant.Client.Database.getIndexDefinition(System.String,System.String,System.String,Com.Cloudant.Client.Model.IndexField[])">
+            <summary>
+            Form a create index json from parameters
+            </summary>
+            <returns>The index definition.</returns>
+            <param name="indexName">Index name.</param>
+            <param name="designDocName">Design document name.</param>
+            <param name="indexType">Index type.</param>
+            <param name="fields">Fields.</param></member>
+        <member name="T:Com.Cloudant.Client.Model.Index">
+            <summary>
+            Encapsulates a Cloudant Index definition.
+            Additional information about indexes in the Cloudant documentation at:
+            <a href="https://docs.cloudant.com/cloudant_query.html#creating-an-index">https://docs.cloudant.com/cloudant_query.html#creating-an-index</a>
+            </summary></member>
+        <member name="P:Com.Cloudant.Client.Model.Index.ddoc">
+            <summary>
+            Design document identifier for this index
+            </summary></member>
+        <member name="P:Com.Cloudant.Client.Model.Index.name">
+            <summary>
+            Name of the index
+            </summary></member>
+        <member name="P:Com.Cloudant.Client.Model.Index.type">
+            <summary>
+            Index type e.g. json
+            </summary></member>
+        <member name="P:Com.Cloudant.Client.Model.Index.indexFields">
+            <summary>
+            Index Fields for this index
+            </summary></member>
+        <member name="M:Com.Cloudant.Client.Model.Index.addIndexField(System.String,Com.Cloudant.Client.Model.IndexField.SortOrder)">
+            <summary>
+            Adds a new index field
+            </summary>
+            <param name="fieldName">Name of the index field</param>
+            <param name="order">Sort order</param></member>
+        <member name="T:Com.Cloudant.Client.Model.IndexField">
+            <summary>
+            IndexField is a class for creating an index field with options (e.g. sort order) for querying.
+            </summary></member>
+        <member name="T:Com.Cloudant.Client.Model.IndexField.SortOrder">
+            <summary>
+            SortOrder is an enum that specifies the sort order.
+            </summary></member>
+        <member name="F:Com.Cloudant.Client.Model.IndexField.SortOrder.asc">
+            <summary>
+            Ascending sort order
+            </summary></member>
+        <member name="F:Com.Cloudant.Client.Model.IndexField.SortOrder.desc">
+            <summary>
+            Descending sort order
+            </summary></member>
+        <member name="P:Com.Cloudant.Client.Model.IndexField.name">
+            <summary>
+            Name of the index field.
+            </summary></member>
+        <member name="P:Com.Cloudant.Client.Model.IndexField.sortOrder">
+            <summary>
+            Sort order of this index field.
+            </summary></member>
+        <member name="M:Com.Cloudant.Client.Model.IndexField.#ctor(System.String)">
+            <summary>
+            Represents a Cloudant Sort Syntax for a json field. Used to specify
+            an element of the 'index.fields' array (POST db/_index) and 'sort' array (db/_find).
+            Sort syntax documentation at
+            <a href="http://docs.cloudant.com/api/cloudant-query.html#cloudant-query-sort-syntax">
+            http://docs.cloudant.com/api/cloudant-query.html#cloudant-query-sort-syntax</a>
+            </summary>
+            <param name="fieldName">The name of the field.</param></member>
+        <member name="M:Com.Cloudant.Client.Model.IndexField.#ctor(System.String,Com.Cloudant.Client.Model.IndexField.SortOrder)">
+            <summary>
+            Create an IndexField
+            </summary>
+            <param name="fieldName">The name of the field.</param>
+            <param name="sortOrder">The sort order (ascending|descending)</param></member>
+        <member name="T:Com.Cloudant.Client.CloudantClientBuilder">
+            <summary>
+            Cloudant client builder.
+            </summary></member>
+        <member name="P:Com.Cloudant.Client.CloudantClientBuilder.accountName">
+            <summary>
+            The cloudant.com account hostname to connect to. For example
+            sampleaccount.cloudant.com or http://sampleaccount.cloudant.com:1234
+            </summary></member>
+        <member name="P:Com.Cloudant.Client.CloudantClientBuilder.loginUsername">
+            <summary>
+            The apiKey (if using an APIKey, else pass in the account for this parameter also)
+            </summary></member>
+        <member name="P:Com.Cloudant.Client.CloudantClientBuilder.password">
+            <summary>
+            The Password credential
+            </summary></member>
+        <member name="P:Com.Cloudant.Client.CloudantClientBuilder.interceptors">
+            <summary>
+            The HTTP connection interceptors. <see cref="T:Com.Cloudant.Client.Http.HttpConnectionInterceptor" />
+            </summary></member>
+        <member name="M:Com.Cloudant.Client.CloudantClientBuilder.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Com.Cloudant.Client.CloudantClientBuilder" /> class with the given account value.
+            </summary>
+            <param name="account">The cloudant.com account hostname to connect to. For example: sampleaccount.cloudant.com</param></member>
+        <member name="M:Com.Cloudant.Client.CloudantClientBuilder.GetResult">
+            <summary>
+            Builds a CloudantClient with the given parameters.
+            </summary>
+            <returns>A CloudantClient for the given account.</returns></member>
+    </members>
+</doc>

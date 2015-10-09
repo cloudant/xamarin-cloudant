@@ -1,0 +1,6 @@
+<WorkspaceItem ctype="Workspace">
+  <Items>
+    <Item>CloudantClient-Xamarin.sln</Item>
+    <Item>samples/CrossPlatformSample/CrossPlatformSample.sln</Item>
+  </Items>
+</WorkspaceItem>
