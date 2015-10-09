@@ -13,12 +13,15 @@
 rm -r ./doc
 rm -r ./doc-html
 
+
+# Need to Clean the project because API help isn't always recreated.
+/Applications/"Xamarin Studio.app"/Contents/MacOS/mdtool build -t:Clean ../src/CloudantClient.PCL/CloudantClient.PCL.csproj
 # Build the library
-mdtool build -c:Release ../CloudantClient-Xamarin.sln
+/Applications/"Xamarin Studio.app"/Contents/MacOS/mdtool build  -c:Release ../src/CloudantClient.PCL/CloudantClient.PCL.csproj
 
 # Assemble the help
-mdoc update "-L/Developer/MonoAndroid/usr/lib/mandroid/platforms/android-21" "-L/Developer/MonoTouch/usr/lib/mono/2.1/Facades" "-L/Developer/MonoTouch/usr/lib/mono/Xamarin.iOS/" "--import=./../CloudantClient.PCL/bin/Release/CloudantClient.PCL.xml" "-o" "./doc" "./../CloudantClient.PCL/bin/Release/CloudantClient.PCL.dll"
+mdoc update "-L/Developer/MonoAndroid/usr/lib/mandroid/platforms/android-21" "-L/Developer/MonoTouch/usr/lib/mono/2.1/Facades" "-L/Developer/MonoTouch/usr/lib/mono/Xamarin.iOS/" "--import=../src/CloudantClient.PCL/bin/Release/CloudantClient.PCL.xml" "-o" "./doc" "../src/CloudantClient.PCL/bin/Release/CloudantClient.PCL.dll"
 mdoc export-html --out="./doc-html/" ./doc
 
 # Assemble component for Xamarin store.
-mono xamarin-component.exe package
+mono xamarin-component.exe package 

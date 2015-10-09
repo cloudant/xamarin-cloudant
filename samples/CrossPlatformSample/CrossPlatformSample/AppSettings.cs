@@ -16,8 +16,20 @@ namespace CrossPlatformSample
 {
 	public class AppSettings
 	{
+		/// <summary>
+		/// The cloudant.com account hostname to connect to. For example
+		/// sampleaccount.cloudant.com or http://sampleaccount.cloudant.com:1234
+		/// </summary>
 		public static readonly string account = "your-cloudant-username.cloudant.com";
-		public static readonly string loginUsername = "your-cloudant-username";
+
+		/// <summary>
+		/// The cloudant user ID.
+		/// </summary>
+		public static readonly string username = "your-cloudant-username";
+
+		/// <summary>
+		/// The authentication credential for user ID speficied in <see cref="CrossPlatformSample.username"/>
+		/// </summary>
 		public static readonly string password = "your-cloudant-password";
 	}
 }

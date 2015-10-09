@@ -3,20 +3,20 @@
 name: Cloudant Client for Xamarin
 id: CloudantClient
 publisher: IBM Cloudant
-license: ./../License.md
+license: ./License.md
 icons: 
   - ./CloudantClient_128x128.png
   - ./CloudantClient_512x512.png
 publisher-url: http://www.cloudant.com
 build:
-  - ./../CloudantClient-Xamarin.sln
+  - ../src/CloudantClient-Xamarin.sln
 libraries: 
   pcl: 
-    - ../CloudantClient.PCL/bin/Release/CloudantClient.PCL.dll
-    - ../CloudantClient.PCL/bin/Release/CloudantClient.PCL.xml
+    - ../src/CloudantClient.PCL/bin/Release/CloudantClient.PCL.dll
+    - ../src/CloudantClient.PCL/bin/Release/CloudantClient.PCL.xml
 monodocs: ./doc
 summary: Integrate your Xamarin apps with IBM Cloudant.
-details: ../Details.md
+details: ./Details.md
 getting-started: ../GettingStarted.md
 version: 0.1
 samples:

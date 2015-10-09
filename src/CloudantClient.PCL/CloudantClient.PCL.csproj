@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <ProjectGuid>{FD75F05F-7BB5-4735-A0F2-901CCDD7722D}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Com.Cloudant.Client</RootNamespace>
+    <AssemblyName>CloudantClient.PCL</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Profile7</TargetFrameworkProfile>
+    <Description>Library to integrate your Xamarin apps with IBM Cloudant.</Description>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <DocumentationFile>bin\Release\CloudantClient.PCL.xml</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\internal\http\HttpHelper.cs" />
+    <Compile Include="src\internal\http\IHttpHelper.cs" />
+    <Compile Include="src\internal\http\CookieInterceptor.cs" />
+    <Compile Include="src\internal\http\HttpConnectionInterceptorContext.cs" />
+    <Compile Include="src\internal\http\BasicAuthenticationInterceptor.cs" />
+    <Compile Include="src\model\FindByIndexOptions.cs" />
+    <Compile Include="src\CloudantClient.cs" />
+    <Compile Include="src\DocumentRevision.cs" />
+    <Compile Include="src\Database.cs" />
+    <Compile Include="src\model\Index.cs" />
+    <Compile Include="src\model\IndexField.cs" />
+    <Compile Include="src\CloudantClientBuilder.cs" />
+    <Compile Include="src\DataException.cs" />
+    <Compile Include="src\internal\http\IHttpConnectionInterceptor.cs" />
+    <Compile Include="src\internal\http\IHttpConnectionResponseInterceptor.cs" />
+    <Compile Include="src\internal\http\IHttpConnectionRequestInterceptor.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <Import Project="..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\portable-net45+wp80+win8+wpa81+dnxcore50\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="src\" />
+    <Folder Include="src\internal\" />
+    <Folder Include="src\internal\http\" />
+    <Folder Include="src\model\" />
+  </ItemGroup>
+</Project>

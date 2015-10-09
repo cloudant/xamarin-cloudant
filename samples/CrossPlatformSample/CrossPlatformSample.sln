@@ -7,7 +7,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrossPlatformSample.iOS", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrossPlatformSample.Droid", "Droid\CrossPlatformSample.Droid.csproj", "{F06722B5-5A3D-4BE0-AA79-E418842A16F5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudantClient.PCL", "..\..\CloudantClient.PCL\CloudantClient.PCL.csproj", "{FD75F05F-7BB5-4735-A0F2-901CCDD7722D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudantClient.PCL", "..\..\src\CloudantClient.PCL\CloudantClient.PCL.csproj", "{FD75F05F-7BB5-4735-A0F2-901CCDD7722D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DD1DF76C-7478-44C3-B0F5-11BB37B3883A}"
+	ProjectSection(SolutionItems) = preProject
+		GettingStarted.md = GettingStarted.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -67,6 +72,8 @@ Global
 		{FD75F05F-7BB5-4735-A0F2-901CCDD7722D}.Release|iPhone.Build.0 = Release|Any CPU
 		{FD75F05F-7BB5-4735-A0F2-901CCDD7722D}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
 		{FD75F05F-7BB5-4735-A0F2-901CCDD7722D}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		description = Sample for the Cloudant Client library.

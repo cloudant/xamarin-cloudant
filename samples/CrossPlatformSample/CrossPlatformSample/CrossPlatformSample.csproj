@@ -58,7 +58,7 @@
     <EmbeddedResource Include="app.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\CloudantClient.PCL\CloudantClient.PCL.csproj">
+    <ProjectReference Include="..\..\..\src\CloudantClient.PCL\CloudantClient.PCL.csproj">
       <Project>{FD75F05F-7BB5-4735-A0F2-901CCDD7722D}</Project>
       <Name>CloudantClient.PCL</Name>
     </ProjectReference>

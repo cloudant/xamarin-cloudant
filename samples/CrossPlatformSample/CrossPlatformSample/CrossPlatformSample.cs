@@ -22,13 +22,13 @@ namespace CrossPlatformSample
 		public App ()
 		{
 			//Validate configuration on AppSettings.cs has been changed
-			if (AppSettings.account.StartsWith ("your-cloudant") || AppSettings.loginUsername.StartsWith ("your-cloudant") || AppSettings.password.StartsWith ("your-cloudant"))
+			if (AppSettings.account.StartsWith ("your-cloudant") || AppSettings.username.StartsWith ("your-cloudant") || AppSettings.password.StartsWith ("your-cloudant"))
 				MainPage = new ConfigErrorPage ("To run this sample, you must first modify AppSettings.cs to provide your Cloudant account.");
 
 			else {
 				try{
 					CloudantClient client = new CloudantClientBuilder (AppSettings.account) {
-						loginUsername = AppSettings.loginUsername, 
+						username = AppSettings.username, 
 						password = AppSettings.password
 					}.GetResult ();
 

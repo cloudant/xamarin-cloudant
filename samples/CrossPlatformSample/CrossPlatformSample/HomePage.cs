@@ -29,12 +29,16 @@ namespace CrossPlatformSample
 		};
 
 		private CloudantClient client { get;}
+		private Boolean docCreated { set; get; }
+		private Boolean indexCreated { set; get; }
 
 
 		public HomePage (CloudantClient client)
 		{
 
 			this.client = client;
+			this.docCreated = false;
+			this.indexCreated = false;
 
 			List<CommandItem> items = new List<CommandItem> {
 				new CommandItem { Title = " 1. Create Database", ItemSelected = OnCreateDB },
@@ -120,11 +124,19 @@ namespace CrossPlatformSample
 			await dbTask; 
 			db = dbTask.Result;
 
-			await DisplayAlert ("Created Database","Database name: " + db.dbname,"OK");
+			if (dbTask.IsFaulted)
+				await DisplayAlert ("Create Database failed", "Database name: " + db.dbname, "OK");
+			else {
+				await DisplayAlert ("Created Database","Database name: " + db.dbname,"OK");
+			}
 		}
 
 		private async void OnSaveDocument ()
 		{
+			if (db == null) {
+				await DisplayAlert ("Error","DB must be created first", "OK");
+				return;
+			}
 			Dictionary<string, object> docContents = new Dictionary<string, object> ();
 			docContents.Add ("item1", "value1");
 			docContents.Add ("item2", "value2");
@@ -139,23 +151,41 @@ namespace CrossPlatformSample
 
 			if (saveTask.IsFaulted)
 				await DisplayAlert ("Error saving document", saveTask.Exception.Message, "OK");
-			else
-				await DisplayAlert ("Saved document", lastSaved.body.ToString(), "OK");
+			else {
+				docCreated = true;
+				DocumentRevision rev = saveTask.Result;
+				await DisplayAlert ("Saved document", "docId:\n"+rev.docId+"\nrevId:\n"+rev.revId, "OK");
+			}
 		}
 
 		private async void OnRetrieveDocument ()
 		{
+			if (db == null) {
+				await DisplayAlert ("Error","DB must be created first", "OK");
+				return;
+			} else if (docCreated == false){
+				await DisplayAlert ("Error","Document must be saved first", "OK");
+				return;
+			}				
+
 			Task<DocumentRevision> findTask = db.find (lastSaved.docId);
 			findTask.Wait ();
 
 			if (findTask.IsFaulted)
 				await DisplayAlert ("Error on find document", findTask.Exception.Message, "OK");
-			else
-				await DisplayAlert ("Retrieved document", findTask.Result.body.ToString(), "OK");
+			else {
+				DocumentRevision rev = findTask.Result;
+				await DisplayAlert ("Retrieved document", "docId:\n"+rev.docId+"\nrevId:\n"+rev.revId, "OK");
+			}
 		}
 
 		private async void OnCreateIndex ()
 		{
+			if (db == null) {
+				await DisplayAlert ("Error","DB must be created first", "OK");
+				return;
+			}
+
 			string indexName = "sampleIndex";
 			string designDocName = "sampleIndexDoc";
 			string indexField = "sampleIndexField";
@@ -166,11 +196,18 @@ namespace CrossPlatformSample
 
 			if (indexTask.IsFaulted)
 				await DisplayAlert ("Error creating index", indexTask.Exception.Message, "OK");
-			else
+			else {
+				this.indexCreated = true;
 				await DisplayAlert ("Created Index", "index name: " + indexName, "OK");
+			}
 		}
 
 		private async void OnListIndexes(){
+			if (db == null) {
+				await DisplayAlert ("Error","DB must be created first", "OK");
+				return;
+			}
+
 			Task<List<Index>> indexListTask = db.listIndices ();
 
 			List<Index> indexList = indexListTask.Result;
@@ -178,7 +215,7 @@ namespace CrossPlatformSample
 			if (indexList != null && indexList.Count > 0) {
 				string displayString="";
 				foreach (Index index in indexList) {
-					displayString += index.ToString () + "\n";
+					displayString += index.name + "\n";
 				}
 				await DisplayAlert ("Indexes", displayString, "OK");
 			} else {
@@ -188,6 +225,10 @@ namespace CrossPlatformSample
 
 		private async void OnFindByIndex ()
 		{
+			if (db == null) {
+				await DisplayAlert ("Error","DB must be created first", "OK");
+				return;
+			}
 			string indexName = "index1";
 			string designDocName = "index1design";
 			string indexField = "int1";
@@ -198,21 +239,30 @@ namespace CrossPlatformSample
 
 			String selectorJSON = "\"selector\": {\"int1\": {\"$eq\":1} }";
 
-			Task <List<DocumentRevision>> task = db.findByIndex(selectorJSON,
+			Task <List<DocumentRevision>> findTask = db.findByIndex(selectorJSON,
 				new FindByIndexOptions()
 				.sort(new IndexField(indexField, IndexField.SortOrder.desc))
 			);
 
-			task.Wait ();
+			findTask.Wait ();
 
-			if (task.IsFaulted)
-				await DisplayAlert ("Error finding by index", task.Exception.Message, "OK");
-			else
-				await DisplayAlert ("Find By Index", "index name: " + indexName, "OK");
+			if (findTask.IsFaulted)
+				await DisplayAlert ("Error finding by index", findTask.Exception.Message, "OK");
+			else {
+				DocumentRevision rev = findTask.Result [0];
+				await DisplayAlert ("Find By Index succeeded", "docId:\n"+rev.docId+"\nrevId:\n"+rev.revId, "OK");
+			}
 		}
 
 		private async void OnDeleteIndex ()
 		{
+			if (db == null) {
+				await DisplayAlert ("Error","DB must be created first", "OK");
+				return;
+			} else if (indexCreated == false){
+				await DisplayAlert ("Error","Index must be created first", "OK");
+				return;
+			}				
 			string indexName = "sampleIndex";
 			string designDocName = "sampleIndexDoc";
 
@@ -228,6 +278,10 @@ namespace CrossPlatformSample
 
 		private async void OnDeleteDB ()
 		{
+			if (db == null) {
+				await DisplayAlert ("Error","DB must be created first", "OK");
+				return;
+			}
 			string name = db.dbname;
 			Task deleteDbTask = client.deleteDB (db);
 			deleteDbTask.Wait ();
