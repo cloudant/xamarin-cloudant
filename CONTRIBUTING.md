@@ -65,7 +65,7 @@ Additional documentation could be provided with XML files in the `./doc` directo
 **Reason:** This usually happens when you load the solution for the first time. There is an issue where the package referenced libraries are not correctly updated.
 
 **Solution:** Run the following 2 commands:
-- `nuget restore ./src/CloudantToolkit-Xamarin.sln`
+- `nuget restore ./src/CloudantClient-Xamarin.sln`
 - `nuget restore ./samples/CrossPlatformSample/CrossPlatformSample.sln`
 
 #### 2. 'mono <component> install' fails to update existing component in Xamarin Studio
