@@ -60,7 +60,7 @@ namespace IBM.Cloudant.Client
 		/// </summary>
 		/// <param name="fieldName">Name of the index field</param>
 		/// <param name="order">Sort order</param>
-		public void addIndexField(string fieldName, IndexField.SortOrder order) {
+		public void AddIndexField(string fieldName, IndexField.SortOrder order) {
 			indexFields.Add(new IndexField(fieldName, order));
 		}
 

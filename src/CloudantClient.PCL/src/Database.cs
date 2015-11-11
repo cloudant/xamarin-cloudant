@@ -70,7 +70,7 @@ namespace IBM.Cloudant.Client
 		/// Save the specified revisionToSave using HTTP <tt>PUT</tt> request.
 		/// </summary>
 		/// <param name="revisionToSave">Revision to save.</param>
-		public Task<DocumentRevision> save(DocumentRevision revisionToSave)
+		public Task<DocumentRevision> Save(DocumentRevision revisionToSave)
 		{
 			Debug.WriteLine ("==== enter Database::save(Object)");
 			if (revisionToSave == null) {
@@ -79,7 +79,7 @@ namespace IBM.Cloudant.Client
 			}
 
 			Debug.WriteLine ("==== exit Database::save");
-			return createDocumentRevision (revisionToSave);
+			return CreateDocumentRevision (revisionToSave);
 		}
 
 		/// <summary>
@@ -87,7 +87,7 @@ namespace IBM.Cloudant.Client
 		/// <code>_rev</code> values.
 		/// </summary>
 		/// <param name="revisionToUpdate">Revision to update.</param>
-		public Task<DocumentRevision> update(DocumentRevision revisionToUpdate)
+		public Task<DocumentRevision> Update(DocumentRevision revisionToUpdate)
 		{
 			Debug.WriteLine ("==== enter Database::update(Object)"); 
 			if (revisionToUpdate == null) {
@@ -96,14 +96,14 @@ namespace IBM.Cloudant.Client
 			}
 
 			Debug.WriteLine ("==== exit Database::remove");
-			return updateDocumentRevision (revisionToUpdate);
+			return UpdateDocumentRevision (revisionToUpdate);
 		}
 
 		/// <summary>
 		/// Find the specified document.
 		/// </summary>
 		/// <param name="documentId">The id of the object to find.</param>
-		public Task<DocumentRevision> find(String documentId){
+		public Task<DocumentRevision> Find(String documentId){
 			Debug.WriteLine ("==== enter Database::find(String)");
 			try {
 				if(string.IsNullOrWhiteSpace(documentId)){
@@ -179,7 +179,7 @@ namespace IBM.Cloudant.Client
 		/// Remove the specified DocumentRevision.
 		/// </summary>
 		/// <param name="revisionToRemove">Revision to remove.</param>
-		public Task<String> remove(DocumentRevision revisionToRemove){
+		public Task<String> Remove(DocumentRevision revisionToRemove){
 			Debug.WriteLine ("==== enter Database::delete(Object)");
 
 			try {
@@ -244,7 +244,7 @@ namespace IBM.Cloudant.Client
 		/// <param name="designDocName">optional name of the design doc in which the index will be created</param>
 		/// <param name="indexType">optional, type of index (only "json" as of now)</param>
 		/// <param name="fields">array of fields in the index</param>
-		public Task createIndex(String indexName, String designDocName, String indexType,
+		public Task CreateIndex(String indexName, String designDocName, String indexType,
 				IndexField[] fields) {
 
 			if (fields == null || fields.Length == 0)
@@ -257,8 +257,8 @@ namespace IBM.Cloudant.Client
 			
 				
 			Task result = Task.Run( () => {
-				String indexDefn = getIndexDefinition(indexName, designDocName, indexType, fields);
-				createIndex(indexDefn).Wait();
+				String indexDefn = GetIndexDefinition(indexName, designDocName, indexType, fields);
+				CreateIndex(indexDefn).Wait();
 			});
 
 			return result;
@@ -271,7 +271,7 @@ namespace IBM.Cloudant.Client
 		/// http://docs.cloudant.com/api/cloudant-query.html#creating-a-new-index</a>
 		/// </summary>
 		/// <param name="indexDefinition"> Index definition. See documentation for correct format.</param>
-		public Task createIndex(String indexDefinition) {
+		public Task CreateIndex(String indexDefinition) {
 			
 			if(string.IsNullOrWhiteSpace (indexDefinition))
 				throw new DataException(DataException.Database_IndexModificationFailure, "indexDefinition may not be null or empty");
@@ -318,7 +318,7 @@ namespace IBM.Cloudant.Client
 		/// <param name="selectorJson">JSON String describing criteria used to select documents.
 		///                     Is of the form "selector": your data here </param>
 		/// <param name="options">Options describing the query options to apply.  </param>
-		public Task<List<DocumentRevision>> findByIndex(String selectorJson, FindByIndexOptions
+		public Task<List<DocumentRevision>> FindByIndex(String selectorJson, FindByIndexOptions
 			options) {
 			if(selectorJson == null){
 				throw new DataException(DataException.Database_QueryError, "selectorJson parameter cannot be null");
@@ -330,7 +330,7 @@ namespace IBM.Cloudant.Client
 			// POST query
 			Task<List<DocumentRevision>> result = Task.Run <List<DocumentRevision>> ( () => {
 				Uri indexUri = new Uri(dbNameUrlEncoded + "/_find", UriKind.Relative);
-				String queryBody = getFindByIndexBody(selectorJson, options);
+				String queryBody = GetFindByIndexBody(selectorJson, options);
 				Dictionary<string,string> headers = new Dictionary<string,string> ();
 				Dictionary <string,object> body = JsonConvert.DeserializeObject<Dictionary<string,object>> (queryBody);
 
@@ -397,7 +397,7 @@ namespace IBM.Cloudant.Client
 		/// Lists all indices.
 		/// </summary>
 		/// <returns>List of Index</returns>
-		public Task<List<Index>> listIndices() {
+		public Task<List<Index>> ListIndices() {
 
 			Task<List<Index>> result = Task.Run <List<Index>> (() => {
 				List<Index> taskResult = new List<Index>();
@@ -425,9 +425,9 @@ namespace IBM.Cloudant.Client
 							foreach(JProperty prop in indexArray.Properties()){
 
 								if(prop.Value.ToString() == IndexField.SortOrder.asc.ToString())
-									index.addIndexField(prop.Name, IndexField.SortOrder.asc );
+									index.AddIndexField(prop.Name, IndexField.SortOrder.asc );
 								else if(prop.Value.ToString() == IndexField.SortOrder.desc.ToString())
-									index.addIndexField(prop.Name, IndexField.SortOrder.desc );
+									index.AddIndexField(prop.Name, IndexField.SortOrder.desc );
 								else
 									throw new DataException(DataException.Database_IndexModificationFailure, "invalid index field sort order value.");
 							}
@@ -451,7 +451,7 @@ namespace IBM.Cloudant.Client
 		/// <returns>A Task</returns>
 		/// <param name="indexName">name of the index</param>
 		/// <param name="designDocId">ID of the design doc</param>
-		public Task deleteIndex(String indexName, String designDocId) {
+		public Task DeleteIndex(String indexName, String designDocId) {
 
 			if(string.IsNullOrWhiteSpace (indexName))
 				throw new DataException(DataException.Database_IndexModificationFailure, "indexName may not be null or empty.");
@@ -479,7 +479,7 @@ namespace IBM.Cloudant.Client
 
 		// ======== PRIVATE HELPERS =============
 
-		private Dictionary<String,Object> convertDocToJSONPayload(DocumentRevision rev){
+		private Dictionary<String,Object> ConvertDocToJSONPayload(DocumentRevision rev){
 			Debug.WriteLine ("==== enter Database::convertDocToJSONPayload(DocumentRevision)");
 			Dictionary<String,Object> result = new Dictionary<String, object> ();
 
@@ -509,7 +509,7 @@ namespace IBM.Cloudant.Client
 			return result;
 		}
 
-		private Task<DocumentRevision> createDocumentRevision(DocumentRevision doc){
+		private Task<DocumentRevision> CreateDocumentRevision(DocumentRevision doc){
 			Debug.WriteLine ("=== enter Database::createDocumentRevision()");
 			try {
 				Uri uri = null;
@@ -525,7 +525,7 @@ namespace IBM.Cloudant.Client
 					doc.body = empty;
 				}
 
-				Dictionary<String,Object> payload = convertDocToJSONPayload (doc);
+				Dictionary<String,Object> payload = ConvertDocToJSONPayload (doc);
 				Debug.WriteLine ("Create document payload is: "+JsonConvert.SerializeObject(payload));
 				Task<DocumentRevision> result = Task.Run (() => {
 					// Send the HTTP request
@@ -594,7 +594,7 @@ namespace IBM.Cloudant.Client
 			}
 
 		}
-		private Task<DocumentRevision> updateDocumentRevision(DocumentRevision doc){
+		private Task<DocumentRevision> UpdateDocumentRevision(DocumentRevision doc){
 			Debug.WriteLine ("=== enter updateDocumentRevision()");
 			try {
 				Uri uri = null;
@@ -611,7 +611,7 @@ namespace IBM.Cloudant.Client
 					doc.body =empty;
 				}
 
-				Dictionary<String,Object> payload = convertDocToJSONPayload (doc);
+				Dictionary<String,Object> payload = ConvertDocToJSONPayload (doc);
 
 				Debug.WriteLine ("Update document payload is: "+JsonConvert.SerializeObject(payload));
 				Task<DocumentRevision> result = Task.Run (() => {
@@ -681,7 +681,7 @@ namespace IBM.Cloudant.Client
 		/// <param name="designDocName">Design document name.</param>
 		/// <param name="indexType">Index type.</param>
 		/// <param name="fields">Fields.</param>
-		private String getIndexDefinition(String indexName, String designDocName,
+		private String GetIndexDefinition(String indexName, String designDocName,
 			string indexType, IndexField[] fields) {
 
 			if (fields == null || fields.Length == 0)
@@ -722,14 +722,14 @@ namespace IBM.Cloudant.Client
 			return json + "] }}";
 		}
 
-		private String getFindByIndexBody(String selectorJson,
+		private String GetFindByIndexBody(String selectorJson,
 			FindByIndexOptions options) {
 
 			StringBuilder rf = null;
-			if (options.getFields().Count > 0) {
+			if (options.GetFields().Count > 0) {
 				rf = new StringBuilder("\"fields\": [");
 				int i = 0;
-				foreach (String s in options.getFields()) {
+				foreach (String s in options.GetFields()) {
 					if (i > 0) {
 						rf.Append(",");
 					}
@@ -740,10 +740,10 @@ namespace IBM.Cloudant.Client
 			}
 
 			StringBuilder so = null;
-			if (options.getSort().Count > 0) {
+			if (options.GetSort().Count > 0) {
 				so = new StringBuilder("\"sort\": [");
 				int i = 0;
-				foreach (IndexField idxfld in options.getSort()) {
+				foreach (IndexField idxfld in options.GetSort()) {
 					if (i > 0) {
 						so.Append(",");
 					}
@@ -773,25 +773,25 @@ namespace IBM.Cloudant.Client
 				finalbody.Append(",")
 					.Append(so.ToString());
 			}
-			if (options.getLimit() > 0) {
+			if (options.GetLimit() > 0) {
 				finalbody.Append(",")
 					.Append("\"limit\": ")
-					.Append(options.getLimit());
+					.Append(options.GetLimit());
 			}
-			if (options.getSkip() > 0) {
+			if (options.GetSkip() > 0) {
 				finalbody.Append(",")
 					.Append("\"skip\": ")
-					.Append(options.getSkip());
+					.Append(options.GetSkip());
 			}
-			if (options.getReadQuorum() > 0) {
+			if (options.GetReadQuorum() > 0) {
 				finalbody.Append(",")
 					.Append("\"r\": ")
-					.Append(options.getReadQuorum());
+					.Append(options.GetReadQuorum());
 			}
-			if (options.getUseIndex() != null) {
+			if (options.GetUseIndex() != null) {
 				finalbody.Append(",")
 					.Append("\"use_index\": ")
-					.Append(options.getUseIndex());
+					.Append(options.GetUseIndex());
 			}
 			finalbody.Append("}");
 

@@ -71,7 +71,7 @@ namespace IBM.Cloudant.Client
 
 			if (shouldAttemptCookieRequest) {
 				if (cookie == null) {
-					cookie = getCookie (context.requestMsg.RequestUri);
+					cookie = GetCookie (context.requestMsg.RequestUri);
 				}
 			
 				context.requestMsg.Headers.Add ("Cookie", cookie);
@@ -92,7 +92,7 @@ namespace IBM.Cloudant.Client
 			try {
 				if ((int)responseMsg.StatusCode == 401) {
 					//we need to get a new cookie
-					cookie = getCookie(responseMsg.RequestMessage.RequestUri);
+					cookie = GetCookie(responseMsg.RequestMessage.RequestUri);
 					//don't resend request, failed to get cookie
 					if(cookie != null) {
 						context.replayRequest = true;
@@ -108,7 +108,7 @@ namespace IBM.Cloudant.Client
 		}
 
 
-		private string getCookie(Uri uri){
+		private string GetCookie(Uri uri){
 			try {
 				Uri sessionUri = new Uri(uri.Scheme+"://"+uri.Host+"/_session");
 

@@ -48,7 +48,7 @@ namespace IBM.Cloudant.Client
 			this.username = builder.username;
 			this.password = builder.password;
 
-			initHttpHelper (builder.interceptors);
+			InitHttpHelper (builder.interceptors);
 
 			if (!string.IsNullOrWhiteSpace (username) && !string.IsNullOrWhiteSpace (password)) {
 				httpHelper.addGlobalHeaders ("Authorization", "Basic " + Convert.ToBase64String (System.Text.UTF8Encoding.UTF8.GetBytes (username + ":" + password)));
@@ -62,13 +62,13 @@ namespace IBM.Cloudant.Client
 		/// <param name="dbname">name of database to access</param>
 		/// <param name="create">flag indicating whether to create the database if it does not exist.</param>
 		/// <returns>A Task with the Database object instance.</returns>
-		public Task<Database> database(String dbname, Boolean create) {
+		public Task<Database> Database(String dbname, Boolean create) {
 
 			if(string.IsNullOrEmpty(dbname))
 				throw new DataException(DataException.Database_DatabaseModificationFailure, "Database name parameter may not be null or empty.");
 
 			if (create) {
-				return createDB (this, dbname);
+				return CreateDB (this, dbname);
 			} else {
 				return Task<Database>.Run (() => {
 					return new Database (this, dbname);
@@ -83,7 +83,7 @@ namespace IBM.Cloudant.Client
 		/// </summary>
 		/// <returns>A Task to mointor this action.</returns>
 		/// <param name="db">Database</param>
-		public Task deleteDB(Database db){
+		public Task DeleteDB(Database db){
 			Debug.WriteLine("enter CloudantClient::deleteDB() name:"+db.dbname);
 
 			Task result = Task.Run (() => {
@@ -110,7 +110,7 @@ namespace IBM.Cloudant.Client
 		// ======== PRIVATE HELPERS =============
 
 
-		private Task<Database> createRemoteDatabase(Database db, Uri uri){
+		private Task<Database> CreateRemoteDatabase(Database db, Uri uri){
 			Debug.WriteLine ("CloudantClient::createRemoteDatabase(Uri)");
 			Database outerself = db;
 			Task<Database> result = Task.Run (() => {
@@ -140,7 +140,7 @@ namespace IBM.Cloudant.Client
 			return result;
 		}
 
-		private static Task<Database> createDB(CloudantClient client, String dbname){
+		private static Task<Database> CreateDB(CloudantClient client, String dbname){
 			Debug.WriteLine ("==== enter CloudantClient::createDB(CloudantClient,String)");
 			Uri uri = new Uri (client.accountUri, WebUtility.UrlEncode(dbname));
 			Debug.WriteLine ("Database::createDB  uri: " + uri);
@@ -174,11 +174,11 @@ namespace IBM.Cloudant.Client
 			Database db = new Database (client, dbname);
 
 			Debug.WriteLine ("==== exit CloudantClient::createDB");
-			return client.createRemoteDatabase(db,actualUri);
+			return client.CreateRemoteDatabase(db,actualUri);
 		}
 
 
-		private void initHttpHelper(List<IHttpConnectionInterceptor> interceptors){
+		private void InitHttpHelper(List<IHttpConnectionInterceptor> interceptors){
 			if (interceptors != null) {
 				List<IHttpConnectionRequestInterceptor> requestInterceptors = new List<IHttpConnectionRequestInterceptor> ();
 				List<IHttpConnectionResponseInterceptor> responseInterceptors = new List<IHttpConnectionResponseInterceptor> ();
