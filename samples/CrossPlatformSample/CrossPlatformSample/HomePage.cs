@@ -15,8 +15,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Xamarin.Forms;
-using Com.Cloudant.Client;
-using Com.Cloudant.Client.Model;
+using IBM.Cloudant.Client;
 using System.Net;
 
 namespace CrossPlatformSample

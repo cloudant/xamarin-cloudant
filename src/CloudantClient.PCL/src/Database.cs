@@ -20,10 +20,8 @@ using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-using Com.Cloudant.Client.Model;
-using Com.Cloudant.Client.Internal.Http;
 
-namespace Com.Cloudant.Client
+namespace IBM.Cloudant.Client
 {
 	/// <summary>
 	/// Contains a Database Public API implementation.

@@ -14,7 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections;
 
-namespace Com.Cloudant.Client.Model
+namespace IBM.Cloudant.Client
 {
 	/// <summary>
 	/// Encapsulates a Cloudant Index definition.

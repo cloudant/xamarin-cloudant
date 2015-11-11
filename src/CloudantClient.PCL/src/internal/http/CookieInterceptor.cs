@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 
 using Newtonsoft.Json;
 
-namespace Com.Cloudant.Client.Internal.Http
+namespace IBM.Cloudant.Client
 {
 	/// <summary>
 	/// Adds cookie authentication support to http requests.

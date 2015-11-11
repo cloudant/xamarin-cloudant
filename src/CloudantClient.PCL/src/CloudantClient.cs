@@ -17,9 +17,9 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-using Com.Cloudant.Client.Internal.Http;
 
-namespace Com.Cloudant.Client
+
+namespace IBM.Cloudant.Client
 {
 	/// <summary>
 	/// The main object for the Cloudant client public API.

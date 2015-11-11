@@ -13,7 +13,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Com.Cloudant.Client.Model
+namespace IBM.Cloudant.Client
 {
 	/// <summary>
 	/// Class to encapsulate options for FindByIndex operations.

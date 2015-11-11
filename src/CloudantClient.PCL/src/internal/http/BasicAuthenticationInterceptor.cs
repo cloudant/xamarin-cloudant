@@ -13,7 +13,7 @@
 using System;
 using System.Net.Http.Headers;
 
-namespace Com.Cloudant.Client.Internal.Http
+namespace IBM.Cloudant.Client
 {
 	/// <summary>
 	/// Sample interceptor implementation that adds basic authentication to HTTP requests.

@@ -12,7 +12,7 @@
 //  and limitations under the License.
 using System;
 
-namespace Com.Cloudant.Client.Internal.Http
+namespace IBM.Cloudant.Client
 {
 	/// <summary>
 	/// This interface is not intended to be implemented by consumers. You must implement one of the sub-interfaces:

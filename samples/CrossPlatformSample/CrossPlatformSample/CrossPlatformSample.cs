@@ -13,7 +13,7 @@
 using System;
 
 using Xamarin.Forms;
-using Com.Cloudant.Client;
+using IBM.Cloudant.Client;
 
 namespace CrossPlatformSample
 {
