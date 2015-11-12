@@ -29,7 +29,7 @@ namespace IBM.Cloudant.Client
 	/// </remarks>
 	public class CloudantClient
 	{
-		private Uri accountUri;
+		internal Uri accountUri;
 		private String username;
 		private String password;
 
@@ -57,126 +57,26 @@ namespace IBM.Cloudant.Client
 
 
 		/// <summary>
-		/// Gets a Database reference
+		/// Creates a database object that represents a database on the server. 
+		/// However the database may not exist on the server yet. You should
+		/// call <see cref="IBM.Cloudant.Client.Database.EnsureExists"/> to
+		/// ensure the database exists on the server before performing
+		/// reads or writes.
 		/// </summary>
 		/// <param name="dbname">name of database to access</param>
-		/// <param name="create">flag indicating whether to create the database if it does not exist.</param>
-		/// <returns>A Task with the Database object instance.</returns>
-		public Task<Database> Database(String dbname, Boolean create) {
+		/// <returns>A database object that represents a database on the server</returns>
+		public Database  Database(String dbname) {
 
-			if(string.IsNullOrEmpty(dbname))
-				throw new DataException(DataException.Database_DatabaseModificationFailure, "Database name parameter may not be null or empty.");
-
-			if (create) {
-				return CreateDB (this, dbname);
-			} else {
-				return Task<Database>.Run (() => {
-					return new Database (this, dbname);
-				});
+			if(string.IsNullOrEmpty(dbname)){
+				throw new DataException(DataException.Database_DatabaseModificationFailure, 
+					"Database name parameter may not be null or empty.");
 			}
+
+			return new Database (this, dbname);
 		}
-
-
-
-		/// <summary>
-		/// Deletes the database.
-		/// </summary>
-		/// <returns>A Task to mointor this action.</returns>
-		/// <param name="db">Database</param>
-		public Task DeleteDB(Database db){
-			Debug.WriteLine("enter CloudantClient::deleteDB() name:"+db.dbname);
-
-			Task result = Task.Run (() => {
-				Task<HttpResponseMessage> deleteTask = httpHelper.sendDelete (new Uri(WebUtility.UrlEncode(db.dbname), UriKind.Relative) , null);
-
-				deleteTask.ContinueWith( (antecedent) => {
-					if(deleteTask.IsFaulted){
-						throw new DataException(DataException.Database_DatabaseModificationFailure, deleteTask.Exception.Message, deleteTask.Exception);
-					}
-
-					var httpStatus = deleteTask.Result.StatusCode;
-					if(deleteTask.Result.StatusCode != System.Net.HttpStatusCode.OK){
-						string errorMessage = String.Format("Failed to delete remote database.\nHTTP_Status: {0}\nJSON Body: {1}",
-							httpStatus, deleteTask.Result.ReasonPhrase);
-						throw new DataException(DataException.Database_DatabaseModificationFailure, errorMessage);
-					}
-				});
-
-			});
-			Debug.WriteLine ("==== exit CloudantClient::deleteDB");
-			return result;
-		}
+			
 
 		// ======== PRIVATE HELPERS =============
-
-
-		private Task<Database> CreateRemoteDatabase(Database db, Uri uri){
-			Debug.WriteLine ("CloudantClient::createRemoteDatabase(Uri)");
-			Database outerself = db;
-			Task<Database> result = Task.Run (() => {
-				Task<HttpResponseMessage> httpTask = httpHelper.sendPut (uri, null, null);
-				httpTask.Wait ();
-
-				if (httpTask.IsFaulted) {
-					string errorMessage = string.Format ("Error occurred during creation of remote database at URL: {0}",
-						uri.ToString () + ".  Error: " + httpTask.Exception.Message);
-					Debug.WriteLine (errorMessage);
-					throw new DataException (DataException.Database_DatabaseModificationFailure, errorMessage);
-
-				} else {
-
-					int httpStatus = (int)httpTask.Result.StatusCode;
-					if (httpStatus != 200 && httpStatus != 201 && httpStatus != 412) {
-						String errorMessage = String.Format("Failed to create remote database.\nHTTP_Status: {0}\nJSON Body: {1}",
-							httpStatus, httpTask.Result.ReasonPhrase);
-						Debug.WriteLine(errorMessage);
-						throw new DataException(DataException.Database_DatabaseModificationFailure,
-							errorMessage, httpTask.Exception);
-					}
-				}
-				return (Database)outerself;
-			});
-			Debug.WriteLine ("==== exit CloudantClient::createRemoteDatabase");
-			return result;
-		}
-
-		private static Task<Database> CreateDB(CloudantClient client, String dbname){
-			Debug.WriteLine ("==== enter CloudantClient::createDB(CloudantClient,String)");
-			Uri uri = new Uri (client.accountUri, WebUtility.UrlEncode(dbname));
-			Debug.WriteLine ("Database::createDB  uri: " + uri);
-
-			if (uri == null) {
-				Debug.WriteLine ("ERROR: url parameter cannot be null");
-				throw new DataException(DataException.Database_DatabaseModificationFailure, "url parameter cannot be null");
-			}
-
-			string urlString = uri.ToString();
-			if(urlString.EndsWith("/"))
-				urlString = urlString.Substring(0, urlString.Length-1);
-
-
-			Uri actualUri;
-			if(!Uri.TryCreate(urlString, UriKind.Absolute, out actualUri)){
-				Debug.WriteLine("ERROR:url parameter invalid");
-				throw new DataException(DataException.Database_DatabaseModificationFailure, "url parameter invalid");
-			}
-
-
-			String remoteName = actualUri.AbsolutePath;
-			if (remoteName == null || remoteName.Length==0 || remoteName.Equals("/") ) {
-				Debug.WriteLine("ERROR: database name cannot be null or empty string.");
-				throw new DataException(DataException.Database_DatabaseModificationFailure, "database name cannot be null or empty string.");
-			}
-
-			string [] paths = remoteName.Split("/".ToCharArray());
-			remoteName = paths[paths.Length - 1];
-
-			Database db = new Database (client, dbname);
-
-			Debug.WriteLine ("==== exit CloudantClient::createDB");
-			return client.CreateRemoteDatabase(db,actualUri);
-		}
-
 
 		private void InitHttpHelper(List<IHttpConnectionInterceptor> interceptors){
 			if (interceptors != null) {

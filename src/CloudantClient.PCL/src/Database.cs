@@ -19,6 +19,7 @@ using System.Net.Http;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Text.RegularExpressions;
 
 
 namespace IBM.Cloudant.Client
@@ -56,14 +57,84 @@ namespace IBM.Cloudant.Client
 
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Com.Cloudant.Client.Database"/> class.
+		/// Initializes a new instance of the <see cref="IBM.Cloudant.Client.Database"/> class.
 		/// </summary>
 		/// <param name="client">The CloudantClient instance.</param>
 		/// <param name="name">The name of the database.</param>
 		public Database(CloudantClient client, String name) {
+			//validate the dbName
+
+			Regex strPattern = new Regex("^[a-z][a-z0-9_"+Regex.Escape ("$")+ Regex.Escape ("(")+Regex.Escape (")")+
+				Regex.Escape ("+")+ Regex.Escape ("/")+ "-]*$");
+
+			if(!strPattern.IsMatch (name)){
+				throw new ArgumentException ("A database must be named with all lowercase letters (a-z), digits (0-9)," +
+					" or any of the _$()+-/ characters. The name has to start with a lowercase letter (a-z). ");
+			}
+
 			this.client = client;
 			dbname = name;
 			dbNameUrlEncoded = WebUtility.UrlEncode (name);
+		}
+
+		/// <summary>
+		/// Ensures the database exists, this method blocks until complete. 
+		/// </summary>
+		public void EnsureExists(){
+			Task<Database> result = Task.Run (() => {
+				var dbUri = new Uri (client.accountUri.ToString () + dbNameUrlEncoded);
+				Task<HttpResponseMessage> httpTask = client.httpHelper.sendPut (dbUri, null, null);
+				httpTask.Wait ();
+
+				if (httpTask.IsFaulted) {
+					string errorMessage = string.Format ("Error occurred during creation of remote database at URL: {0}",
+						dbUri.ToString () + ".  Error: " + httpTask.Exception.Message);
+					Debug.WriteLine (errorMessage);
+					throw new DataException (DataException.Database_DatabaseModificationFailure, errorMessage);
+
+				} else {
+
+					int httpStatus = (int)httpTask.Result.StatusCode;
+					if (httpStatus != 200 && httpStatus != 201 && httpStatus != 412) {
+						String errorMessage = String.Format("Failed to create remote database.\nHTTP_Status: {0}\nJSON Body: {1}",
+							httpStatus, httpTask.Result.ReasonPhrase);
+						Debug.WriteLine(errorMessage);
+						throw new DataException(DataException.Database_DatabaseModificationFailure,
+							errorMessage, httpTask.Exception);
+					}
+				}
+
+				return this;
+			});
+			result.Wait ();
+		}
+
+		/// <summary>
+		/// Deletes the database this object represents.
+		/// </summary>
+		/// <returns>A Task to mointor this action.</returns>
+		public Task Delete(){
+		
+			Task result = Task.Run (() => {
+				Task<HttpResponseMessage> deleteTask = client.httpHelper.sendDelete (new Uri(WebUtility.UrlEncode(dbname), UriKind.Relative) , null);
+
+				deleteTask.ContinueWith( (antecedent) => {
+					if(deleteTask.IsFaulted){
+						throw new DataException(DataException.Database_DatabaseModificationFailure, deleteTask.Exception.Message, deleteTask.Exception);
+					}
+
+					var httpStatus = deleteTask.Result.StatusCode;
+					if(deleteTask.Result.StatusCode != System.Net.HttpStatusCode.OK){
+						string errorMessage = String.Format("Failed to delete remote database.\nHTTP_Status: {0}\nJSON Body: {1}",
+							httpStatus, deleteTask.Result.ReasonPhrase);
+						throw new DataException(DataException.Database_DatabaseModificationFailure, errorMessage);
+					}
+				});
+
+			});
+
+			return result;
+		
 		}
 			
 		/// <summary>

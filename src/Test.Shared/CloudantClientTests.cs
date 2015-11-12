@@ -15,8 +15,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
-using Com.Cloudant.Client;
-using Com.Cloudant.Client.Internal.Http;
+using IBM.Cloudant.Client;
 
 namespace Test.Shared
 {
@@ -40,32 +39,40 @@ namespace Test.Shared
 		public void TestGreenPath(){
 			//Test CloudantClient creation with valid parms.
 			CloudantClient testClient = null;
-			Assert.DoesNotThrow( () => 
+			Assert.DoesNotThrow (() => 
 				testClient = new CloudantClientBuilder (TestConstants.account) {
-					username = TestConstants.username,
-					password = TestConstants.password }.GetResult (),
+				username = TestConstants.username,
+				password = TestConstants.password
+			}.GetResult (),
 				"Test failed while instantiationg a CloudantClient using valid parameters.");
 			Assert.IsNotNull (testClient, "Test failed because client object must not be null after it has been built with valid parms.");
 
-
+		} 
+		[Test()]
+		public void TestClientCreationValidAccount(){
 			//Test CloudantClient creation with valid accountUri
-			testClient = null;
+			CloudantClient testClient = null;
 			Uri validUri = new Uri (string.Format ("https://{0}", TestConstants.account));
-			Assert.DoesNotThrow( () => 
+			Assert.DoesNotThrow (() => 
 				testClient = new CloudantClientBuilder (validUri).GetResult (),
 				"Test failed while instantiationg a CloudantClient using a valid uri.");
 			Assert.IsNotNull (testClient, "Test failed because client object must not be null after it has been built with a valid uri.");
 
-
+		}
+		[Test()]
+		public void TestClienturlEncodesUsername(){
 			//Test loginUsername is url encoded and accepts any characters.
 			string user = "My u$erN@m3 !#:/%";
-			Assert.DoesNotThrow( () => 
-				new CloudantClientBuilder (TestConstants.account){
-					username = user,
-					password = TestConstants.password }.GetResult (),
-				"Test falied creating a client with loginUsername: "+user);
+			Assert.DoesNotThrow (() => 
+				new CloudantClientBuilder (TestConstants.account) {
+				username = user,
+				password = TestConstants.password
+			}.GetResult (),
+				"Test falied creating a client with loginUsername: " + user);
 
-
+		}
+		[Test()]
+		public void TestClienturlEncodesPassword(){
 			//Test password is url encoded and accepts any characters.
 			string pass ="My p@$$w0rd !#:/%";
 			Assert.DoesNotThrow( () => 
@@ -82,8 +89,8 @@ namespace Test.Shared
 		[Test()]
 		public void NonExistentDatabaseException(){
 			string DBName = "database_doesnt_exist";
-			Task<Database> dbTask = client.database (DBName, false);
-			Assert.Throws<AggregateException> (() => dbTask.Result.listIndices ().Wait(),
+			var db = client.Database (DBName);
+			Assert.Throws<AggregateException> (() => db.ListIndices ().Wait(),
 				"Test failed checking that exception is thrown when a database doesn't exist.");
 		}
 
@@ -96,14 +103,14 @@ namespace Test.Shared
 			Database database= null;
 			try {
 				//create a DB for this test
-				Assert.DoesNotThrow(()=> database = client.database("cloudant_client_test", true).Result);
+				Assert.DoesNotThrow(()=> database = client.Database("cloudant_client_test"));
 
 				//do a get with create true for the already existing DB
-				Assert.DoesNotThrow(()=> database = client.database("cloudant_client_test", true).Result,
+				Assert.DoesNotThrow(()=> database = client.Database("cloudant_client_test"),
 				"Test failed because an exception was thrown while attempting to create a database that already exists.");
 			} finally {
 				//clean up the DB created by this test
-				client.deleteDB(database).Wait();
+				database.Delete().Wait();
 			}
 		}
 

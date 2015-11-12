@@ -70,10 +70,8 @@ namespace CrossPlatformSample
 		private void OnCreateDB ()
 		{
 			try{
-				Task<Database> dbTask = client.Database (dbName, true);
-				dbTask.Wait(); 
-
-				db = dbTask.Result;
+				db = client.Database (dbName);
+				db.EnsureExists ();
 				DisplayAlert ("Database Created","Database name: " + db.dbname,"OK");
 			
 			}catch(Exception e){
@@ -318,7 +316,7 @@ namespace CrossPlatformSample
 			string name = db.dbname;
 
 			try{
-				Task deleteDbTask = client.DeleteDB (db);
+				Task deleteDbTask = db.Delete();
 				deleteDbTask.Wait ();
 
 				DisplayAlert ("Database Deleted", "Database name: " + name, "OK");
