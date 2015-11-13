@@ -22,79 +22,79 @@ using IBM.Cloudant.Client;
 
 namespace Test.Shared
 {
-	[TestFixture]
-	public class InterceptorsTests
-	{
-		private CloudantClient client;
-		private Database db;
-		private String DBName;
+    [TestFixture]
+    public class InterceptorsTests
+    {
+        private CloudantClient client;
+        private Database db;
+        private String DBName;
 
-		[SetUp] //Runs before each test.
-		public void Setup ()
-		{
-			DBName = TestConstants.defaultDatabaseName + DateTime.Now.Ticks;
-		}
-			
-		[TearDown] //Runs after each test.
-		protected void tearDown() {
-			if (db != null) {
-				Task deleteDBTask = db.Delete();
-				deleteDBTask.Wait ();
+        [SetUp] //Runs before each test.
+        public void Setup ()
+        {
+            DBName = TestConstants.defaultDatabaseName + DateTime.Now.Ticks;
+        }
+            
+        [TearDown] //Runs after each test.
+        protected void tearDown() {
+            if (db != null) {
+                Task deleteDBTask = db.Delete();
+                deleteDBTask.Wait ();
 
-				if (deleteDBTask.IsFaulted)
-					Debug.WriteLine ("Failed to delete remote DB name: " + DBName + "\nError: " + deleteDBTask.Exception.Message);
-			}
-		}
+                if (deleteDBTask.IsFaulted)
+                    Debug.WriteLine ("Failed to delete remote DB name: " + DBName + "\nError: " + deleteDBTask.Exception.Message);
+            }
+        }
 
-		[Test]
-		public void testBasicAuthInterceptor() {
-			BasicAuthenticationInterceptor basicAuthInterceptor = new BasicAuthenticationInterceptor (TestConstants.username, TestConstants.password);
+        [Test]
+        public void testBasicAuthInterceptor() {
+            BasicAuthenticationInterceptor basicAuthInterceptor = new BasicAuthenticationInterceptor (TestConstants.username, TestConstants.password);
 
-			client = new CloudantClientBuilder (TestConstants.account) {
-				interceptors = new List<IHttpConnectionInterceptor>(){basicAuthInterceptor}
-			}.GetResult ();
+            client = new CloudantClientBuilder (TestConstants.account) {
+                interceptors = new List<IHttpConnectionInterceptor>(){basicAuthInterceptor}
+            }.GetResult ();
 
-			db = client.Database (DBName);
+            db = client.Database (DBName);
 
-			Assert.DoesNotThrow( () => {
-				db.EnsureExists ();},
-				"Exception thrown while creating database using BasicAuth interceptor. ");
+            Assert.DoesNotThrow( () => {
+                db.EnsureExists ();},
+                "Exception thrown while creating database using BasicAuth interceptor. ");
 
-			Assert.NotNull(db);
+            Assert.NotNull(db);
 
-		}
+        }
 
-		[Test]
-		public void testCookieInterceptor() {
-			CookieInterceptor cookieInterceptor = new CookieInterceptor (TestConstants.username, TestConstants.password);
+        [Test]
+        public void testCookieInterceptor() {
+            CookieInterceptor cookieInterceptor = new CookieInterceptor (TestConstants.username, TestConstants.password);
 
-			client = new CloudantClientBuilder (TestConstants.account) {
-				interceptors = new List<IHttpConnectionInterceptor>(){cookieInterceptor}
-			}.GetResult ();
+            client = new CloudantClientBuilder (TestConstants.account) {
+                interceptors = new List<IHttpConnectionInterceptor>(){cookieInterceptor}
+            }.GetResult ();
 
-			db = client.Database (DBName);
+            db = client.Database (DBName);
 
-			Assert.DoesNotThrow( () => {
-				db.EnsureExists ();
-				},
-				"Exception thrown while creating database using cookie interceptor. ");
+            Assert.DoesNotThrow( () => {
+                db.EnsureExists ();
+                },
+                "Exception thrown while creating database using cookie interceptor. ");
 
-			Assert.NotNull(db);
-		}
+            Assert.NotNull(db);
+        }
 
-		[Test]
-		public void negativeTests(){
-			Assert.Throws<DataException> (() => {
-				new CloudantClientBuilder (TestConstants.account) {
-					interceptors = new List<IHttpConnectionInterceptor> (){ new BadInterceptor () }
-				}.GetResult ();
-			});
-		}
+        [Test]
+        public void negativeTests(){
+            Assert.Throws<DataException> (() => {
+                new CloudantClientBuilder (TestConstants.account) {
+                    interceptors = new List<IHttpConnectionInterceptor> (){ new BadInterceptor () }
+                }.GetResult ();
+            });
+        }
 
-	}
+    }
 
-	internal class BadInterceptor : IHttpConnectionInterceptor {
-		public BadInterceptor(){}
-	}
+    internal class BadInterceptor : IHttpConnectionInterceptor {
+        public BadInterceptor(){}
+    }
 }
 

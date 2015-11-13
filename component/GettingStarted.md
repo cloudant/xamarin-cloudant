@@ -17,10 +17,10 @@ First, instantiate a `CloudantClient` object using your Cloudant account informa
 using Com.Cloudant.Client;
 ...
 Uri accountUri = new Uri("https://my-cloudant-account.cloudant.com");
-			CloudantClient client = new CloudantClientBuilder (accountUri) {
-				username = "my-username",
-				password = "my-password"
-			}.GetResult ();
+            CloudantClient client = new CloudantClientBuilder (accountUri) {
+                username = "my-username",
+                password = "my-password"
+            }.GetResult ();
 ```
 
 Then, we get a `Database` object.
@@ -48,9 +48,9 @@ First, create a 'DocumentRevision' and set the data to be saved in the `body` pr
 
 ```csharp
 DocumentRevision personDoc = new DocumentRevision (){
-			docId = "person",
-			body = person
-		};
+            docId = "person",
+            body = person
+        };
 ```
 
 Then save the data.
@@ -94,8 +94,8 @@ We start by creating an index for the `married` field.
 
 ```csharp
 db.createIndex ("index_married",
-				"index_married_design", "json",
-				new IndexField[]{ new IndexField ("married") }
+                "index_married_design", "json",
+                new IndexField[]{ new IndexField ("married") }
 ).Wait();
 ```
 
@@ -110,9 +110,9 @@ Finally, call the `findByIndex()` API and display your results.
 
 ```csharp
 Task <List<DocumentRevision>> findTask = db.findByIndex(selectorJSON,
-				new FindByIndexOptions()
-				.sort(new IndexField("married", IndexField.SortOrder.desc))
-			);
+                new FindByIndexOptions()
+                .sort(new IndexField("married", IndexField.SortOrder.desc))
+            );
 findTask.Wait ();
 
 List<DocumentRevision> searchResult = findTask.Result;
@@ -120,5 +120,5 @@ List<DocumentRevision> searchResult = findTask.Result;
 //Display the result
 Console.WriteLine ("Number of records found where married==true : " + searchResult.Count);
 foreach(DocumentRevision d in searchResult)
-		Console.WriteLine (string.Format("Name: {0}  Age: {1}", d.body ["name"], d.body["age"]));
+        Console.WriteLine (string.Format("Name: {0}  Age: {1}", d.body ["name"], d.body["age"]));
 ```

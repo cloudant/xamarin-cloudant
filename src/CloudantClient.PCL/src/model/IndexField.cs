@@ -14,64 +14,64 @@ using System;
 
 namespace IBM.Cloudant.Client
 {
-	/// <summary>
-	/// IndexField is a class for creating an index field with options (e.g. sort order) for querying.
-	/// </summary>
-	/// <remarks>
-	/// This class is used for creating an index field with options.
-	/// </remarks>
-	public class IndexField
-	{
-		/// <summary>
-		/// SortOrder is an enum that specifies the sort order.
-		/// </summary>
-		/// <remarks>
-		/// This enumerates the sort order values.
-		/// </remarks>
-		public enum SortOrder{
-			/// <summary>
-			/// Ascending sort order
-			/// </summary>
-			asc,
+    /// <summary>
+    /// IndexField is a class for creating an index field with options (e.g. sort order) for querying.
+    /// </summary>
+    /// <remarks>
+    /// This class is used for creating an index field with options.
+    /// </remarks>
+    public class IndexField
+    {
+        /// <summary>
+        /// SortOrder is an enum that specifies the sort order.
+        /// </summary>
+        /// <remarks>
+        /// This enumerates the sort order values.
+        /// </remarks>
+        public enum SortOrder{
+            /// <summary>
+            /// Ascending sort order
+            /// </summary>
+            asc,
 
-			/// <summary>
-			/// Descending sort order
-			/// </summary>
-			desc
-		}
+            /// <summary>
+            /// Descending sort order
+            /// </summary>
+            desc
+        }
 
-		/// <summary>
-		/// Name of the index field.
-		/// </summary>
-		public string name { private set; get; }
+        /// <summary>
+        /// Name of the index field.
+        /// </summary>
+        public string name { private set; get; }
 
-		/// <summary>
-		/// Sort order of this index field.
-		/// </summary>
-		public SortOrder sortOrder { private set; get;}
+        /// <summary>
+        /// Sort order of this index field.
+        /// </summary>
+        public SortOrder sortOrder { private set; get;}
 
-		/// <summary>
-		/// Represents a Cloudant Sort Syntax for a json field. Used to specify
-		/// an element of the 'index.fields' array (POST db/_index) and 'sort' array (db/_find).
-		/// Sort syntax documentation at 
-		/// <a href = "http://docs.cloudant.com/api/cloudant-query.html#cloudant-query-sort-syntax">
-		/// http://docs.cloudant.com/api/cloudant-query.html#cloudant-query-sort-syntax</a>
-		/// </summary>
-		/// <param name="fieldName">The name of the field.</param>
-		public IndexField (string fieldName)
-		{
-			this.name = fieldName;
-		}
+        /// <summary>
+        /// Represents a Cloudant Sort Syntax for a json field. Used to specify
+        /// an element of the 'index.fields' array (POST db/_index) and 'sort' array (db/_find).
+        /// Sort syntax documentation at 
+        /// <a href = "http://docs.cloudant.com/api/cloudant-query.html#cloudant-query-sort-syntax">
+        /// http://docs.cloudant.com/api/cloudant-query.html#cloudant-query-sort-syntax</a>
+        /// </summary>
+        /// <param name="fieldName">The name of the field.</param>
+        public IndexField (string fieldName)
+        {
+            this.name = fieldName;
+        }
 
-		/// <summary>
-		/// Create an IndexField
-		/// </summary>
-		/// <param name="fieldName">The name of the field.</param>
-		/// <param name="sortOrder">The sort order (ascending|descending)</param>
-		public IndexField(String fieldName, SortOrder sortOrder){
-			this.name = fieldName;
-			this.sortOrder = sortOrder;
-		}
-	}
+        /// <summary>
+        /// Create an IndexField
+        /// </summary>
+        /// <param name="fieldName">The name of the field.</param>
+        /// <param name="sortOrder">The sort order (ascending|descending)</param>
+        public IndexField(String fieldName, SortOrder sortOrder){
+            this.name = fieldName;
+            this.sortOrder = sortOrder;
+        }
+    }
 }
 
