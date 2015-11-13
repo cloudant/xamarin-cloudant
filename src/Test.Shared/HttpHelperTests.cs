@@ -18,7 +18,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
-using Com.Cloudant.Client.Internal.Http;
+using IBM.Cloudant.Client;
 
 namespace Test.Shared
 {

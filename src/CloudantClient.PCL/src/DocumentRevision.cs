@@ -14,7 +14,7 @@ using System;
 using System.Collections.Generic;
 
 
-namespace Com.Cloudant.Client
+namespace IBM.Cloudant.Client
 {
 	/// <summary>
 	/// DocumentRevision is a class representing a document revision.

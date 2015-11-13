@@ -12,7 +12,7 @@
 //  and limitations under the License.
 using System;
 
-namespace Com.Cloudant.Client.Model
+namespace IBM.Cloudant.Client
 {
 	/// <summary>
 	/// IndexField is a class for creating an index field with options (e.g. sort order) for querying.

@@ -13,7 +13,7 @@
 using System;
 using System.Net.Http;
 
-namespace Com.Cloudant.Client.Internal.Http
+namespace IBM.Cloudant.Client
 {
 	/// <summary>
 	/// Class used to pass the current state of an HTTP connection to <see cref="Com.Cloudant.Client.Internal.Http.IHttpConnectionInterceptor"/> 

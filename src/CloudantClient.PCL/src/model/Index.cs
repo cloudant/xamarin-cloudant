@@ -14,7 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections;
 
-namespace Com.Cloudant.Client.Model
+namespace IBM.Cloudant.Client
 {
 	/// <summary>
 	/// Encapsulates a Cloudant Index definition.
@@ -60,7 +60,7 @@ namespace Com.Cloudant.Client.Model
 		/// </summary>
 		/// <param name="fieldName">Name of the index field</param>
 		/// <param name="order">Sort order</param>
-		public void addIndexField(string fieldName, IndexField.SortOrder order) {
+		public void AddIndexField(string fieldName, IndexField.SortOrder order) {
 			indexFields.Add(new IndexField(fieldName, order));
 		}
 

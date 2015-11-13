@@ -15,7 +15,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Com.Cloudant.Client.Internal.Http
+namespace IBM.Cloudant.Client
 {
 	/// <summary>
 	/// Internal interface to define the http connection.

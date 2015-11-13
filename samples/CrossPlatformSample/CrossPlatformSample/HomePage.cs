@@ -15,8 +15,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Xamarin.Forms;
-using Com.Cloudant.Client;
-using Com.Cloudant.Client.Model;
+using IBM.Cloudant.Client;
 using System.Net;
 
 namespace CrossPlatformSample
@@ -71,10 +70,8 @@ namespace CrossPlatformSample
 		private void OnCreateDB ()
 		{
 			try{
-				Task<Database> dbTask = client.database (dbName, true);
-				dbTask.Wait(); 
-
-				db = dbTask.Result;
+				db = client.Database (dbName);
+				db.EnsureExists ();
 				DisplayAlert ("Database Created","Database name: " + db.dbname,"OK");
 			
 			}catch(Exception e){
@@ -107,7 +104,7 @@ namespace CrossPlatformSample
 				};
 
 				//Save to the database.
-				Task<DocumentRevision> saveTask = db.save (doc);
+				Task<DocumentRevision> saveTask = db.Save (doc);
 				saveTask.Wait ();
 
 				DocumentRevision rev = saveTask.Result;
@@ -135,7 +132,7 @@ namespace CrossPlatformSample
 				return;
 
 			try{
-				Task<DocumentRevision> findTask = db.find (docName);
+				Task<DocumentRevision> findTask = db.Find (docName);
 				findTask.Wait ();
 
 				DocumentRevision rev = findTask.Result;
@@ -163,7 +160,7 @@ namespace CrossPlatformSample
 			//Retrieve the latest document revision.
 			DocumentRevision doc;
 			try{
-				Task<DocumentRevision> findTask = db.find (docName);
+				Task<DocumentRevision> findTask = db.Find (docName);
 				findTask.Wait ();
 				doc = findTask.Result;
 			} catch{
@@ -176,7 +173,7 @@ namespace CrossPlatformSample
 
 			//Save a new revision in the database.
 			try{
-				Task<DocumentRevision> updateTask = db.update (doc);
+				Task<DocumentRevision> updateTask = db.Update (doc);
 				updateTask.Wait ();
 
 				DocumentRevision rev = updateTask.Result;
@@ -201,7 +198,7 @@ namespace CrossPlatformSample
 
 			// Create the index
 			try{
-				Task indexTask = db.createIndex (indexName, designDocName, "json",
+				Task indexTask = db.CreateIndex (indexName, designDocName, "json",
 					                 new IndexField[]{ new IndexField (indexField) });
 				indexTask.Wait ();
 
@@ -222,7 +219,7 @@ namespace CrossPlatformSample
 				return;
 
 			try{
-				Task<List<Index>> indexListTask = db.listIndices ();
+				Task<List<Index>> indexListTask = db.ListIndices ();
 				indexListTask.Wait();
 
 				List<Index> indexList = indexListTask.Result;
@@ -258,7 +255,7 @@ namespace CrossPlatformSample
 
 			try{
 				//Create an index for the field 'age'.
-				Task indexTask = db.createIndex (indexName, designDocName, "json",
+				Task indexTask = db.CreateIndex (indexName, designDocName, "json",
 					new IndexField[]{ new IndexField (indexField) });
 				indexTask.Wait ();
 
@@ -266,9 +263,9 @@ namespace CrossPlatformSample
 
 				// Find all documents with indexes that atch the given selector.
 				// In this example it returns all documents where 'age' is 28.
-				Task <List<DocumentRevision>> findTask = db.findByIndex(selectorJSON,
+				Task <List<DocumentRevision>> findTask = db.FindByIndex(selectorJSON,
 					new FindByIndexOptions()
-					.sort(new IndexField(indexField, IndexField.SortOrder.desc))
+					.Sort(new IndexField(indexField, IndexField.SortOrder.desc))
 				);
 				findTask.Wait ();
 
@@ -299,7 +296,7 @@ namespace CrossPlatformSample
 			string designDocName = "sampleIndexDoc";
 
 			try{
-				Task indexTask = db.deleteIndex (indexName, designDocName);
+				Task indexTask = db.DeleteIndex (indexName, designDocName);
 				indexTask.Wait ();
 
 				DisplayAlert ("Index Deleted", "index name: " + indexName, "OK");
@@ -319,7 +316,7 @@ namespace CrossPlatformSample
 			string name = db.dbname;
 
 			try{
-				Task deleteDbTask = client.deleteDB (db);
+				Task deleteDbTask = db.Delete();
 				deleteDbTask.Wait ();
 
 				DisplayAlert ("Database Deleted", "Database name: " + name, "OK");

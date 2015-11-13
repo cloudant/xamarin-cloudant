@@ -15,8 +15,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using NUnit.Framework;
-using Com.Cloudant.Client;
-using Com.Cloudant.Client.Model;
+using IBM.Cloudant.Client;
 
 namespace Test.Shared
 {
@@ -34,14 +33,13 @@ namespace Test.Shared
 			}.GetResult ();
 
 			string DBName = "httphelpertests" + DateTime.Now.Ticks;
-			Task<Database> dbTask = client.database(DBName,true);
-			dbTask.Wait();
-			db = dbTask.Result;
+			db = client.Database(DBName);
+			db.EnsureExists ();
 		}
 
 		[TearDown]
 		public void tearDown(){
-			client.deleteDB(db).Wait();
+			db.Delete ().Wait ();
 		}
 
 		[Test]
@@ -50,21 +48,21 @@ namespace Test.Shared
 			string designDocName = "designDocName";
 			string fieldName = "fieldName";
 
-			Task indexTask = db.createIndex(indexName, designDocName, null,
+			Task indexTask = db.CreateIndex(indexName, designDocName, null,
 				new IndexField[]{new IndexField(fieldName, IndexField.SortOrder.asc)});
 			indexTask.Wait ();
 
-			Task<List<Index>> indices = db.listIndices ();
+			Task<List<Index>> indices = db.ListIndices ();
 			indices.Wait ();
 
 			Assert.True (indices.Result.Count == 2, "Should have 2 indices. Found: "+indices.Result.Count);
 			Assert.True (indices.Result [1].name == indexName);
 			Assert.True (indices.Result [1].indexFields.Count == 1, "Should have 1 IndexField. Found: " + indices.Result [1].indexFields.Count);
 
-			Task deleteIndexTask = db.deleteIndex (indexName, designDocName);
+			Task deleteIndexTask = db.DeleteIndex (indexName, designDocName);
 			deleteIndexTask.Wait ();
 
-			Task<List<Index>> newIndices = db.listIndices ();
+			Task<List<Index>> newIndices = db.ListIndices ();
 			newIndices.Wait ();
 
 			Assert.True (newIndices.Result.Count == 1, "Should have 1 index after deletion. Found: "+newIndices.Result.Count);
@@ -80,49 +78,49 @@ namespace Test.Shared
 
 			//Index field not null.
 			Assert.Throws<DataException> (() => {
-				Task indexTask = db.createIndex (indexName, designDocId, null, null);
+				Task indexTask = db.CreateIndex (indexName, designDocId, null, null);
 				indexTask.Wait ();
 			}, "Index field must not be null.");
 
 
 			//Index field not empty.
 			Assert.Throws<DataException> (() => {
-				Task indexTask = db.createIndex (indexName, designDocId, null, new IndexField[]{ });
+				Task indexTask = db.CreateIndex (indexName, designDocId, null, new IndexField[]{ });
 				indexTask.Wait ();
 			}, "Index field must not be empty.");
 				
 
 			//DeleteIndex - indexName must not be empty.
 			Assert.Throws<DataException> (() => {
-				Task indexTask = db.deleteIndex(null, designDocId);
+				Task indexTask = db.DeleteIndex(null, designDocId);
 				indexTask.Wait ();
 			}, "DeleteIndex - indexName must not be empty.");
 
 
 			//DeleteIndex - designDocId must not be empty.
 			Assert.Throws<DataException> (() => {
-				Task indexTask = db.deleteIndex(indexName, "  ");
+				Task indexTask = db.DeleteIndex(indexName, "  ");
 				indexTask.Wait ();
 			}, "DeleteIndex - designDocId must not be empty.");
 
 
 			//DeleteIndex - index does not exist.
 			Assert.Throws<AggregateException> (() => {
-				Task indexTask = db.deleteIndex("doesntExist", "doesntExist");
+				Task indexTask = db.DeleteIndex("doesntExist", "doesntExist");
 				indexTask.Wait ();
 			}, "DeleteIndex - index does not exist.");
 
 
 			//Index name invalid characters.
 			Assert.Throws<AggregateException> (() => {
-				Task indexTask = db.createIndex ("\"", designDocId, null, new IndexField[]{new IndexField (indexFieldName, IndexField.SortOrder.asc) });
+				Task indexTask = db.CreateIndex ("\"", designDocId, null, new IndexField[]{new IndexField (indexFieldName, IndexField.SortOrder.asc) });
 				indexTask.Wait ();
 			}, "Index name contains invalid characters.");
 
 
 			//indexType 'text' not supported.
 			Assert.Throws<DataException> (() => {
-				Task indexTask = db.createIndex (indexName, designDocId, "text",
+				Task indexTask = db.CreateIndex (indexName, designDocId, "text",
 					                 new IndexField[]{ new IndexField (indexFieldName, IndexField.SortOrder.asc) });
 				indexTask.Wait ();
 			});

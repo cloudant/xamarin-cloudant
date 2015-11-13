@@ -14,10 +14,8 @@ using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 
-using Com.Cloudant.Client.Internal.Http;
 
-
-namespace Com.Cloudant.Client
+namespace IBM.Cloudant.Client
 {
 	/// <summary>
 	/// Cloudant client builder.

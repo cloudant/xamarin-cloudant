@@ -14,7 +14,7 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using Com.Cloudant.Client;
+using IBM.Cloudant.Client;
 
 namespace Test.Shared
 {
@@ -39,11 +39,11 @@ namespace Test.Shared
 		{
 			DBName = TestConstants.defaultDatabaseName + DateTime.Now.Ticks;
 		}
-
+			
 		[TearDown] //Runs after each test.
 		protected void tearDown() {
 			if (db != null) {
-				Task deleteDBTask = client.deleteDB(db);
+				Task deleteDBTask = db.Delete ();
 				deleteDBTask.Wait ();
 
 				if (deleteDBTask.IsFaulted)
@@ -52,26 +52,27 @@ namespace Test.Shared
 		}
 
 		[Test]
+		public void testEnsureExistsDoesntErrorWhenCalledTwice(){
+			db = client.Database (DBName);
+			Assert.DoesNotThrow (() => {
+				db.EnsureExists ();
+				db.EnsureExists ();
+			});
+		}
+
+		[Test]
 		public void testDBCreationGreenPath() {
-			Task<Database> remoteDBTask = client.database(DBName, true);
-			remoteDBTask.Wait ();
-
-			if(remoteDBTask.IsFaulted){
-				Assert.Fail ("Create database failed.  Cause: " + remoteDBTask.Exception.Message );
-			}else{
-				Assert.False (remoteDBTask.IsFaulted, "Create database failed.  Cause: " + (remoteDBTask.IsFaulted ? remoteDBTask.Exception.Message : "") );
-				db = remoteDBTask.Result;
-				Assert.NotNull(db);
-			}
-
+			db = client.Database(DBName);
+			db.EnsureExists ();
+			Assert.NotNull(db);
 
 			//Test db names are url encoded
 			string databaseName = "az09_$()+-/";
 			Assert.DoesNotThrow( () => {
-				Task<Database> newDbTask = client.database(databaseName,true);
-				newDbTask.Wait ();
+				var newDb = client.Database(databaseName);
+				newDb.EnsureExists();
 				//Clean up
-				client.deleteDB(newDbTask.Result).Wait(); },
+				newDb.Delete().Wait(); },
 				"Test failed to create a database with name " + databaseName);
 		}
 
@@ -88,8 +89,8 @@ namespace Test.Shared
 			foreach (string name in invalidNames_DataException) {
 
 				Assert.Throws<DataException> (() => {
-					Task<Database> invalidDBNameTask = client.database (name, true);
-					invalidDBNameTask.Wait (); },
+					var db = client.Database (name);
+					db.EnsureExists (); },
 					"Test failed because invalid database name {0} should have produced an error. ", new []{name});
 			}
 
@@ -99,26 +100,11 @@ namespace Test.Shared
 
 			foreach (string name in invalidNames_AggreggateException) {
 
-				Assert.Throws<AggregateException> (() => {
-					Task<Database> invalidDBNameTask = client.database (name, true);
-					invalidDBNameTask.Wait (); },
+				Assert.Throws<ArgumentException> (() => {
+					var db = client.Database (name);
+					db.EnsureExists(); },
 					"Test failed because invalid database name {0} should have produced an error. ", new []{name} );
 			}
-		}
-			
-
-		[Test]
-		/// <summary>
-		/// Tests the database creation method is asynchronous.
-		/// </summary>
-		public void testAsyncDBCreation(){
-			
-			Task<Database> remoteDBTask = client.database(DBName, true);
-			long l = 0;
-			while(!remoteDBTask.IsCompleted){
-				l++;  //This operation is ocurring asynchronous to store creation.
-			}
-			Assert.True (l > 100, "Test failed because database creation didn't completed asynchronously.");
 		}
 	}
 }

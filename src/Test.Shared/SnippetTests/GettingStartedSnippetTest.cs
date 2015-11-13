@@ -12,9 +12,8 @@
 //  and limitations under the License.
 using NUnit.Framework;
 using System;
-using Com.Cloudant.Client;
+using IBM.Cloudant.Client;
 using System.Collections.Generic;
-using Com.Cloudant.Client.Model;
 using System.Threading.Tasks;
 
 namespace Test.Shared
@@ -55,9 +54,11 @@ namespace Test.Shared
 
 			////////////////////  SNIPPET START ////////////////////////////
 			// Create Database
-			Database db = client.database ("my-database", true).Result;
-			client.deleteDB (db).Wait();
-			db = client.database ("my-database", true).Result;
+			Database db = client.Database ("my-database");
+			db.EnsureExists ();
+			db.Delete ().Wait ();
+			db = client.Database ("my-database");
+			db.EnsureExists ();
 			////////////////////  SNIPPET END   ///////////////////////////
 
 
@@ -80,7 +81,7 @@ namespace Test.Shared
 			DocumentRevision personDoc = new DocumentRevision (){
 				docId = "person",
 				body = person};
-			personDoc = db.save (personDoc).Result;
+			personDoc = db.Save (personDoc).Result;
 			////////////////////  SNIPPET END   ///////////////////////////
 
 
@@ -92,7 +93,7 @@ namespace Test.Shared
 			////////////////////  SNIPPET START ////////////////////////////
 			//Update the data
 			personDoc.body ["married"] = true;
-			personDoc = db.update (personDoc).Result;
+			personDoc = db.Update (personDoc).Result;
 			////////////////////  SNIPPET END   ///////////////////////////
 
 
@@ -101,7 +102,7 @@ namespace Test.Shared
 
 			////////////////////  SNIPPET START ////////////////////////////
 			//Retrieve the data
-			DocumentRevision retrievedDoc = db.find("person").Result;
+			DocumentRevision retrievedDoc = db.Find("person").Result;
 
 			Dictionary<string,object> retrievedPerson = retrievedDoc.body;
 
@@ -116,7 +117,7 @@ namespace Test.Shared
 
 			////////////////////  SNIPPET START ////////////////////////////
 			// Create index
-			db.createIndex ("index_married", 
+			db.CreateIndex ("index_married", 
 				"index_married_design", "json",
 				new IndexField[]{ new IndexField ("married") }
 			).Wait();
@@ -133,9 +134,9 @@ namespace Test.Shared
 
 			////////////////////  SNIPPET START ////////////////////////////
 			// Find documents that match the search criteria.
-			Task <List<DocumentRevision>> findTask = db.findByIndex(selectorJSON,
+			Task <List<DocumentRevision>> findTask = db.FindByIndex(selectorJSON,
 				new FindByIndexOptions()
-				.sort(new IndexField("married", IndexField.SortOrder.desc))
+				.Sort(new IndexField("married", IndexField.SortOrder.desc))
 			);
 			findTask.Wait ();
 
@@ -151,7 +152,7 @@ namespace Test.Shared
 			Assert.AreEqual (1, searchResult.Count, "Test failed because findByIndex returned an unexpected number of documents.");
 
 			//Cleanup
-			client.deleteDB (db);
+			db.Delete ().Wait ();
 
 		}
 	}

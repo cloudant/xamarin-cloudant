@@ -18,8 +18,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
-using Com.Cloudant.Client.Internal.Http;
-using Com.Cloudant.Client;
+using IBM.Cloudant.Client;
 
 namespace Test.Shared
 {
@@ -39,7 +38,7 @@ namespace Test.Shared
 		[TearDown] //Runs after each test.
 		protected void tearDown() {
 			if (db != null) {
-				Task deleteDBTask = client.deleteDB(db);
+				Task deleteDBTask = db.Delete();
 				deleteDBTask.Wait ();
 
 				if (deleteDBTask.IsFaulted)
@@ -55,14 +54,12 @@ namespace Test.Shared
 				interceptors = new List<IHttpConnectionInterceptor>(){basicAuthInterceptor}
 			}.GetResult ();
 
-			Task<Database> dbTask = client.database (DBName, true);
+			db = client.Database (DBName);
 
 			Assert.DoesNotThrow( () => {
-				dbTask.Wait ();
-				db = dbTask.Result;},
+				db.EnsureExists ();},
 				"Exception thrown while creating database using BasicAuth interceptor. ");
 
-			Assert.False(dbTask.IsFaulted, "Create database task is failed.  Cause: " + (dbTask.IsFaulted ? dbTask.Exception.Message : "") );
 			Assert.NotNull(db);
 
 		}
@@ -75,14 +72,13 @@ namespace Test.Shared
 				interceptors = new List<IHttpConnectionInterceptor>(){cookieInterceptor}
 			}.GetResult ();
 
-			Task<Database> dbTask = client.database (DBName, true);
+			db = client.Database (DBName);
 
 			Assert.DoesNotThrow( () => {
-				dbTask.Wait ();
-				db = dbTask.Result;},
+				db.EnsureExists ();
+				},
 				"Exception thrown while creating database using cookie interceptor. ");
 
-			Assert.False(dbTask.IsFaulted, "Create database task is failed.  Cause: " + (dbTask.IsFaulted ? dbTask.Exception.Message : "") );
 			Assert.NotNull(db);
 		}
 

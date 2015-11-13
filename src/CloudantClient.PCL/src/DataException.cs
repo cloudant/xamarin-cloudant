@@ -12,7 +12,7 @@
 //  and limitations under the License.
 using System;
 
-namespace Com.Cloudant.Client
+namespace IBM.Cloudant.Client
 {
 	/// <summary>
 	/// Exception type used by the Cloudant Client to report exceptions

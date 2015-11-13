@@ -13,7 +13,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Com.Cloudant.Client.Model
+namespace IBM.Cloudant.Client
 {
 	/// <summary>
 	/// Class to encapsulate options for FindByIndex operations.
@@ -45,7 +45,7 @@ namespace Com.Cloudant.Client.Model
 		/// </summary>
 		/// <param name="limit">Max number of results</param>
 		/// <returns>FindByIndexOptions instance with 'limit' parameter set.</returns>
-		public FindByIndexOptions limit(Int32 limit) {
+		public FindByIndexOptions Limit(Int32 limit) {
 			this.plimit = limit;
 			return this;
 		}
@@ -56,7 +56,7 @@ namespace Com.Cloudant.Client.Model
 		/// </summary>
 		/// <param name="skip">Number of results to skip</param>
 		/// <returns>FindByIndexOptions instance with 'skip' parameter set.</returns>
-		public FindByIndexOptions skip(Int32 skip) {
+		public FindByIndexOptions Skip(Int32 skip) {
 			this.pskip = skip;
 			return this;
 		}
@@ -67,7 +67,7 @@ namespace Com.Cloudant.Client.Model
 		/// </summary>
 		/// <param name="readQuorum">The read quorum</param>
 		/// <returns>FindByIndexOptions instance with 'readQuorum' parameter set.</returns>
-		public FindByIndexOptions readQuorum(Int32 readQuorum) {
+		public FindByIndexOptions ReadQuorum(Int32 readQuorum) {
 			this.preadQuorum = readQuorum;
 			return this;
 		}
@@ -89,7 +89,7 @@ namespace Com.Cloudant.Client.Model
 		/// </summary>
 		/// <param name="sort">add a sort syntax field</param>
 		/// <returns>FindByIndexOptions instance with 'sort' IndexField added.</returns>
-		public FindByIndexOptions sort(IndexField sort) {
+		public FindByIndexOptions Sort(IndexField sort) {
 			this.psort.Add(sort);
 			return this;
 		}
@@ -100,7 +100,7 @@ namespace Com.Cloudant.Client.Model
 		/// </summary>
 		/// <param name="designDocument">set the design document to use</param>
 		/// <returns>FindByIndexOptions instance with design document set.</returns>
-		private FindByIndexOptions useIndex(String designDocument) {
+		private FindByIndexOptions UseIndex(String designDocument) {
 			this.puseIndex = "\"" + designDocument + "\"";
 			return this;
 		}
@@ -113,7 +113,7 @@ namespace Com.Cloudant.Client.Model
 		/// <param name="designDocument">set the design document to use</param>
 		/// <param name="indexName">set the index name to use</param>
 		/// <returns>FindByIndexOptions instance with design document and index set.</returns>
-		public FindByIndexOptions useIndex(String designDocument, String indexName) {
+		public FindByIndexOptions UseIndex(String designDocument, String indexName) {
 			this.puseIndex = "[\"" + designDocument + "\",\"" + indexName + "\"]";
 			return this;
 		}
@@ -122,7 +122,7 @@ namespace Com.Cloudant.Client.Model
 		/// Get a list of the fields.
 		/// </summary>
 		/// <returns>List of fields as String class.</returns>
-		public List<String> getFields() {
+		public List<String> GetFields() {
 			return pfields;
 		}
 
@@ -130,7 +130,7 @@ namespace Com.Cloudant.Client.Model
 		/// Get a list of the sort fields.
 		/// </summary>
 		/// <returns>List of sort fields as IndexField class.</returns>
-		public List<IndexField> getSort() {
+		public List<IndexField> GetSort() {
 			return psort;
 		}
 
@@ -138,7 +138,7 @@ namespace Com.Cloudant.Client.Model
 		/// Gets the limit.
 		/// </summary>
 		/// <returns>The limit setting as an integer.</returns>
-		public Int32 getLimit() {
+		public Int32 GetLimit() {
 			return plimit;
 		}
 
@@ -146,7 +146,7 @@ namespace Com.Cloudant.Client.Model
 		/// Gets the skip.
 		/// </summary>
 		/// <returns>The skip setting as an integer.</returns>
-		public Int32 getSkip() {
+		public Int32 GetSkip() {
 			return pskip;
 		}
 
@@ -154,7 +154,7 @@ namespace Com.Cloudant.Client.Model
 		/// Gets the read quorum.
 		/// </summary>
 		/// <returns>The read quorum setting as an integer.</returns>
-		public Int32 getReadQuorum() {
+		public Int32 GetReadQuorum() {
 			return preadQuorum;
 		}
 
@@ -162,7 +162,7 @@ namespace Com.Cloudant.Client.Model
 		/// Gets the name of the index to be used.
 		/// </summary>
 		/// <returns>The name of the index to be used as a String.</returns>
-		public String getUseIndex() {
+		public String GetUseIndex() {
 			return puseIndex;
 		}
 

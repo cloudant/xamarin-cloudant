@@ -12,7 +12,7 @@
 //  and limitations under the License.
 using System;
 
-namespace Com.Cloudant.Client.Internal.Http
+namespace IBM.Cloudant.Client
 {
 	/// <summary>
 	/// A Response Interceptor is run after the response is obtained from the

@@ -12,7 +12,7 @@
 //  and limitations under the License.
 using System;
 
-namespace Com.Cloudant.Client.Internal.Http
+namespace IBM.Cloudant.Client
 {
 	/// <summary>
 	/// A Request Interceptor is run before the request is made to the server. It can use headers to add support
