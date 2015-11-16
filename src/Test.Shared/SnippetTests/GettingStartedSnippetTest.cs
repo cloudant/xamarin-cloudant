@@ -18,143 +18,143 @@ using System.Threading.Tasks;
 
 namespace Test.Shared
 {
-	/// <summary>
-	/// Test the snippets included in .component/GettingStarted.md
-	/// </summary>
-	[TestFixture ()]
-	public class GettingStartedSnippetTest
-	{
-		[Test ()]
-		public void TestCase ()
-		{
+    /// <summary>
+    /// Test the snippets included in .component/GettingStarted.md
+    /// </summary>
+    [TestFixture ()]
+    public class GettingStartedSnippetTest
+    {
+        [Test ()]
+        public void TestCase ()
+        {
 
-			////////////////////  SNIPPET START ////////////////////////////
-			// Create a client instance
-			Uri accountUri = new Uri("https://my-cloudant-account.cloudant.com");
-			CloudantClient client = new CloudantClientBuilder (accountUri) {
-				username = "my-username",
-				password = "my-password"
-			}.GetResult ();
-			////////////////////  SNIPPET END   ///////////////////////////
-
-
-			/********************************************************
-			******** Correct with valid values so test work. 
-			*********************************************************/
-			accountUri = new Uri("https://"+TestConstants.account);
-			client = new CloudantClientBuilder (accountUri) {
-				username = TestConstants.username,
-				password = TestConstants.password
-			}.GetResult ();
-			/********************************************************/
+            ////////////////////  SNIPPET START ////////////////////////////
+            // Create a client instance
+            Uri accountUri = new Uri("https://my-cloudant-account.cloudant.com");
+            CloudantClient client = new CloudantClientBuilder (accountUri) {
+                username = "my-username",
+                password = "my-password"
+            }.GetResult ();
+            ////////////////////  SNIPPET END   ///////////////////////////
 
 
-			Assert.NotNull (client, "Test failed because client object null.");
+            /********************************************************
+            ******** Correct with valid values so test work. 
+            *********************************************************/
+            accountUri = new Uri("https://"+TestConstants.account);
+            client = new CloudantClientBuilder (accountUri) {
+                username = TestConstants.username,
+                password = TestConstants.password
+            }.GetResult ();
+            /********************************************************/
 
 
-			////////////////////  SNIPPET START ////////////////////////////
-			// Create Database
-			Database db = client.Database ("my-database");
-			db.EnsureExists ();
-			db.Delete ().Wait ();
-			db = client.Database ("my-database");
-			db.EnsureExists ();
-			////////////////////  SNIPPET END   ///////////////////////////
+            Assert.NotNull (client, "Test failed because client object null.");
 
 
-			Assert.NotNull (db, "Test failed because db object was null.");
+            ////////////////////  SNIPPET START ////////////////////////////
+            // Create Database
+            Database db = client.Database ("my-database");
+            db.EnsureExists ();
+            db.Delete ().Wait ();
+            db = client.Database ("my-database");
+            db.EnsureExists ();
+            ////////////////////  SNIPPET END   ///////////////////////////
 
 
-			////////////////////  SNIPPET START ////////////////////////////
-			//Data to be saved
-			Dictionary<string, object> person = new Dictionary<string, object> ();
-			person.Add ("name", "Mike");
-			person.Add ("age", 32);
-			person.Add ("married", false);
-			////////////////////  SNIPPET END   ///////////////////////////
+            Assert.NotNull (db, "Test failed because db object was null.");
 
 
-
-
-			////////////////////  SNIPPET START ////////////////////////////
-			// Save the data
-			DocumentRevision personDoc = new DocumentRevision (){
-				docId = "person",
-				body = person};
-			personDoc = db.Save (personDoc).Result;
-			////////////////////  SNIPPET END   ///////////////////////////
-
-
-			Assert.NotNull (personDoc, "Test failed because personDoc is null.");
-			Assert.NotNull (personDoc.body, "Test failed because personDoc.body is null.");
-			Assert.AreEqual ("Mike", personDoc.body ["name"], "Test failed because docRevision body had unexpected data.");
-
-
-			////////////////////  SNIPPET START ////////////////////////////
-			//Update the data
-			personDoc.body ["married"] = true;
-			personDoc = db.Update (personDoc).Result;
-			////////////////////  SNIPPET END   ///////////////////////////
-
-
-			Assert.AreEqual(true, personDoc.body["married"], "Test failed because docRevision body had unexpected data in the 'married' field.");
-
-
-			////////////////////  SNIPPET START ////////////////////////////
-			//Retrieve the data
-			DocumentRevision retrievedDoc = db.Find("person").Result;
-
-			Dictionary<string,object> retrievedPerson = retrievedDoc.body;
-
-			Console.WriteLine("Name: "+retrievedPerson["name"]);
-			Console.WriteLine("Age: "+retrievedPerson["age"]);
-			Console.WriteLine("Married: "+retrievedPerson["married"]);
-			////////////////////  SNIPPET END   ///////////////////////////
-
-
-			Assert.AreEqual (32, retrievedPerson ["age"], "Test failed because the retrieved document had unexpected data in the 'age' field.");
-
-
-			////////////////////  SNIPPET START ////////////////////////////
-			// Create index
-			db.CreateIndex ("index_married", 
-				"index_married_design", "json",
-				new IndexField[]{ new IndexField ("married") }
-			).Wait();
-			////////////////////  SNIPPET END   ///////////////////////////
+            ////////////////////  SNIPPET START ////////////////////////////
+            //Data to be saved
+            Dictionary<string, object> person = new Dictionary<string, object> ();
+            person.Add ("name", "Mike");
+            person.Add ("age", 32);
+            person.Add ("married", false);
+            ////////////////////  SNIPPET END   ///////////////////////////
 
 
 
-			////////////////////  SNIPPET START ////////////////////////////
-			// Create a selector with your search criteria.
-			string selectorJSON = "\"selector\": {\"married\": {\"$eq\":true} }";
-			////////////////////  SNIPPET END   ///////////////////////////
+
+            ////////////////////  SNIPPET START ////////////////////////////
+            // Save the data
+            DocumentRevision personDoc = new DocumentRevision (){
+                docId = "person",
+                body = person};
+            personDoc = db.Save (personDoc).Result;
+            ////////////////////  SNIPPET END   ///////////////////////////
+
+
+            Assert.NotNull (personDoc, "Test failed because personDoc is null.");
+            Assert.NotNull (personDoc.body, "Test failed because personDoc.body is null.");
+            Assert.AreEqual ("Mike", personDoc.body ["name"], "Test failed because docRevision body had unexpected data.");
+
+
+            ////////////////////  SNIPPET START ////////////////////////////
+            //Update the data
+            personDoc.body ["married"] = true;
+            personDoc = db.Update (personDoc).Result;
+            ////////////////////  SNIPPET END   ///////////////////////////
+
+
+            Assert.AreEqual(true, personDoc.body["married"], "Test failed because docRevision body had unexpected data in the 'married' field.");
+
+
+            ////////////////////  SNIPPET START ////////////////////////////
+            //Retrieve the data
+            DocumentRevision retrievedDoc = db.Find("person").Result;
+
+            Dictionary<string,object> retrievedPerson = retrievedDoc.body;
+
+            Console.WriteLine("Name: "+retrievedPerson["name"]);
+            Console.WriteLine("Age: "+retrievedPerson["age"]);
+            Console.WriteLine("Married: "+retrievedPerson["married"]);
+            ////////////////////  SNIPPET END   ///////////////////////////
+
+
+            Assert.AreEqual (32, retrievedPerson ["age"], "Test failed because the retrieved document had unexpected data in the 'age' field.");
+
+
+            ////////////////////  SNIPPET START ////////////////////////////
+            // Create index
+            db.CreateIndex ("index_married", 
+                "index_married_design", "json",
+                new IndexField[]{ new IndexField ("married") }
+            ).Wait();
+            ////////////////////  SNIPPET END   ///////////////////////////
 
 
 
-			////////////////////  SNIPPET START ////////////////////////////
-			// Find documents that match the search criteria.
-			Task <List<DocumentRevision>> findTask = db.FindByIndex(selectorJSON,
-				new FindByIndexOptions()
-				.Sort(new IndexField("married", IndexField.SortOrder.desc))
-			);
-			findTask.Wait ();
-
-			List<DocumentRevision> searchResult = findTask.Result;
-
-			//Display the result
-			Console.WriteLine ("Number of records found where married==true : " + searchResult.Count);
-			foreach(DocumentRevision d in searchResult)
-				Console.WriteLine (string.Format("Name: {0}  Age: {1}", d.body ["name"], d.body["age"]));
-			////////////////////  SNIPPET END   ///////////////////////////
+            ////////////////////  SNIPPET START ////////////////////////////
+            // Create a selector with your search criteria.
+            string selectorJSON = "\"selector\": {\"married\": {\"$eq\":true} }";
+            ////////////////////  SNIPPET END   ///////////////////////////
 
 
-			Assert.AreEqual (1, searchResult.Count, "Test failed because findByIndex returned an unexpected number of documents.");
 
-			//Cleanup
-			db.Delete ().Wait ();
+            ////////////////////  SNIPPET START ////////////////////////////
+            // Find documents that match the search criteria.
+            Task <List<DocumentRevision>> findTask = db.FindByIndex(selectorJSON,
+                new FindByIndexOptions()
+                .Sort(new IndexField("married", IndexField.SortOrder.desc))
+            );
+            findTask.Wait ();
 
-		}
-	}
+            List<DocumentRevision> searchResult = findTask.Result;
+
+            //Display the result
+            Console.WriteLine ("Number of records found where married==true : " + searchResult.Count);
+            foreach(DocumentRevision d in searchResult)
+                Console.WriteLine (string.Format("Name: {0}  Age: {1}", d.body ["name"], d.body["age"]));
+            ////////////////////  SNIPPET END   ///////////////////////////
+
+
+            Assert.AreEqual (1, searchResult.Count, "Test failed because findByIndex returned an unexpected number of documents.");
+
+            //Cleanup
+            db.Delete ().Wait ();
+
+        }
+    }
 }
 
