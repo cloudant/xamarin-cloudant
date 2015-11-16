@@ -30,7 +30,7 @@ namespace Test.Shared
 
             ////////////////////  SNIPPET START ////////////////////////////
             // Create a client instance
-            Uri accountUri = new Uri("https://my-cloudant-account.cloudant.com");
+            Uri accountUri = new Uri ("https://my-cloudant-account.cloudant.com");
             CloudantClient client = new CloudantClientBuilder (accountUri) {
                 username = "my-username",
                 password = "my-password"
@@ -41,7 +41,7 @@ namespace Test.Shared
             /********************************************************
             ******** Correct with valid values so test work. 
             *********************************************************/
-            accountUri = new Uri("https://"+TestConstants.account);
+            accountUri = new Uri ("https://" + TestConstants.account);
             client = new CloudantClientBuilder (accountUri) {
                 username = TestConstants.username,
                 password = TestConstants.password
@@ -78,10 +78,11 @@ namespace Test.Shared
 
             ////////////////////  SNIPPET START ////////////////////////////
             // Save the data
-            DocumentRevision personDoc = new DocumentRevision (){
+            DocumentRevision personDoc = new DocumentRevision () {
                 docId = "person",
-                body = person};
-            personDoc = db.Save (personDoc).Result;
+                body = person
+            };
+            personDoc = db.Create (personDoc).Result;
             ////////////////////  SNIPPET END   ///////////////////////////
 
 
@@ -97,18 +98,18 @@ namespace Test.Shared
             ////////////////////  SNIPPET END   ///////////////////////////
 
 
-            Assert.AreEqual(true, personDoc.body["married"], "Test failed because docRevision body had unexpected data in the 'married' field.");
+            Assert.AreEqual (true, personDoc.body ["married"], "Test failed because docRevision body had unexpected data in the 'married' field.");
 
 
             ////////////////////  SNIPPET START ////////////////////////////
             //Retrieve the data
-            DocumentRevision retrievedDoc = db.Find("person").Result;
+            DocumentRevision retrievedDoc = db.Read ("person").Result;
 
             Dictionary<string,object> retrievedPerson = retrievedDoc.body;
 
-            Console.WriteLine("Name: "+retrievedPerson["name"]);
-            Console.WriteLine("Age: "+retrievedPerson["age"]);
-            Console.WriteLine("Married: "+retrievedPerson["married"]);
+            Console.WriteLine ("Name: " + retrievedPerson ["name"]);
+            Console.WriteLine ("Age: " + retrievedPerson ["age"]);
+            Console.WriteLine ("Married: " + retrievedPerson ["married"]);
             ////////////////////  SNIPPET END   ///////////////////////////
 
 
@@ -120,7 +121,7 @@ namespace Test.Shared
             db.CreateIndex ("index_married", 
                 "index_married_design", "json",
                 new IndexField[]{ new IndexField ("married") }
-            ).Wait();
+            ).Wait ();
             ////////////////////  SNIPPET END   ///////////////////////////
 
 
@@ -134,18 +135,18 @@ namespace Test.Shared
 
             ////////////////////  SNIPPET START ////////////////////////////
             // Find documents that match the search criteria.
-            Task <List<DocumentRevision>> findTask = db.FindByIndex(selectorJSON,
-                new FindByIndexOptions()
-                .Sort(new IndexField("married", IndexField.SortOrder.desc))
-            );
+            Task <List<DocumentRevision>> findTask = db.FindByIndex (selectorJSON,
+                                                         new FindByIndexOptions ()
+                .Sort (new IndexField ("married", IndexField.SortOrder.desc))
+                                                     );
             findTask.Wait ();
 
             List<DocumentRevision> searchResult = findTask.Result;
 
             //Display the result
             Console.WriteLine ("Number of records found where married==true : " + searchResult.Count);
-            foreach(DocumentRevision d in searchResult)
-                Console.WriteLine (string.Format("Name: {0}  Age: {1}", d.body ["name"], d.body["age"]));
+            foreach (DocumentRevision d in searchResult)
+                Console.WriteLine (string.Format ("Name: {0}  Age: {1}", d.body ["name"], d.body ["age"]));
             ////////////////////  SNIPPET END   ///////////////////////////
 
 

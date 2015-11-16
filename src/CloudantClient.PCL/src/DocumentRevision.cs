@@ -32,28 +32,28 @@ namespace IBM.Cloudant.Client
         /// Gets or sets the document identifier.
         /// </summary>
         /// <value>The document identifier.</value>
-        public string docId { get; set;}
+        public string docId { get; set; }
 
         /// <summary>
         /// Gets or sets the revision identifier.
         /// </summary>
         /// <value>The revision identifier.</value>
-        public string revId { get; set;}
+        public string revId { get; set; }
 
         /// <summary>
         /// Gets or sets the document body.
         /// </summary>
         /// <value>The document body.</value>
-        public Dictionary<String,Object> body { get; set;}
+        public Dictionary<String,Object> body { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this <see cref="Com.Cloudant.Client.DocumentRevision"/> is deleted.
+        /// Gets or sets a value indicating whether this <see cref="IBM.Cloudant.Client.DocumentRevision"/> is deleted.
         /// </summary>
         /// <value><c>true</c> if is deleted; otherwise, <c>false</c>.</value>
-        public Boolean isDeleted { get; set;}
+        public Boolean isDeleted { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Com.Cloudant.Client.DocumentRevision"/> class.
+        /// Initializes a new instance of the <see cref="IBM.Cloudant.Client.DocumentRevision"/> class.
         /// </summary>
         public DocumentRevision ()
         {

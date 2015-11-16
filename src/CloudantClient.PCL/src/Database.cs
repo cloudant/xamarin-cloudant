@@ -61,15 +61,16 @@ namespace IBM.Cloudant.Client
         /// </summary>
         /// <param name="client">The CloudantClient instance.</param>
         /// <param name="name">The name of the database.</param>
-        public Database(CloudantClient client, String name) {
+        public Database (CloudantClient client, String name)
+        {
             //validate the dbName
 
-            Regex strPattern = new Regex("^[a-z][a-z0-9_"+Regex.Escape ("$")+ Regex.Escape ("(")+Regex.Escape (")")+
-                Regex.Escape ("+")+ Regex.Escape ("/")+ "-]*$");
+            Regex strPattern = new Regex ("^[a-z][a-z0-9_" + Regex.Escape ("$") + Regex.Escape ("(") + Regex.Escape (")") +
+                               Regex.Escape ("+") + Regex.Escape ("/") + "-]*$");
 
-            if(!strPattern.IsMatch (name)){
+            if (!strPattern.IsMatch (name)) {
                 throw new ArgumentException ("A database must be named with all lowercase letters (a-z), digits (0-9)," +
-                    " or any of the _$()+-/ characters. The name has to start with a lowercase letter (a-z). ");
+                " or any of the _$()+-/ characters. The name has to start with a lowercase letter (a-z). ");
             }
 
             this.client = client;
@@ -80,7 +81,8 @@ namespace IBM.Cloudant.Client
         /// <summary>
         /// Ensures the database exists, this method blocks until complete. 
         /// </summary>
-        public void EnsureExists(){
+        public void EnsureExists ()
+        {
             Task<Database> result = Task.Run (() => {
                 var dbUri = new Uri (client.accountUri.ToString () + dbNameUrlEncoded);
                 Task<HttpResponseMessage> httpTask = client.httpHelper.sendPut (dbUri, null, null);
@@ -88,7 +90,7 @@ namespace IBM.Cloudant.Client
 
                 if (httpTask.IsFaulted) {
                     string errorMessage = string.Format ("Error occurred during creation of remote database at URL: {0}",
-                        dbUri.ToString () + ".  Error: " + httpTask.Exception.Message);
+                                              dbUri.ToString () + ".  Error: " + httpTask.Exception.Message);
                     Debug.WriteLine (errorMessage);
                     throw new DataException (DataException.Database_DatabaseModificationFailure, errorMessage);
 
@@ -96,10 +98,10 @@ namespace IBM.Cloudant.Client
 
                     int httpStatus = (int)httpTask.Result.StatusCode;
                     if (httpStatus != 200 && httpStatus != 201 && httpStatus != 412) {
-                        String errorMessage = String.Format("Failed to create remote database.\nHTTP_Status: {0}\nJSON Body: {1}",
-                            httpStatus, httpTask.Result.ReasonPhrase);
-                        Debug.WriteLine(errorMessage);
-                        throw new DataException(DataException.Database_DatabaseModificationFailure,
+                        String errorMessage = String.Format ("Failed to create remote database.\nHTTP_Status: {0}\nJSON Body: {1}",
+                                                  httpStatus, httpTask.Result.ReasonPhrase);
+                        Debug.WriteLine (errorMessage);
+                        throw new DataException (DataException.Database_DatabaseModificationFailure,
                             errorMessage, httpTask.Exception);
                     }
                 }
@@ -113,21 +115,22 @@ namespace IBM.Cloudant.Client
         /// Deletes the database this object represents.
         /// </summary>
         /// <returns>A Task to mointor this action.</returns>
-        public Task Delete(){
+        public Task Delete ()
+        {
         
             Task result = Task.Run (() => {
-                Task<HttpResponseMessage> deleteTask = client.httpHelper.sendDelete (new Uri(WebUtility.UrlEncode(dbname), UriKind.Relative) , null);
+                Task<HttpResponseMessage> deleteTask = client.httpHelper.sendDelete (new Uri (WebUtility.UrlEncode (dbname), UriKind.Relative), null);
 
-                deleteTask.ContinueWith( (antecedent) => {
-                    if(deleteTask.IsFaulted){
-                        throw new DataException(DataException.Database_DatabaseModificationFailure, deleteTask.Exception.Message, deleteTask.Exception);
+                deleteTask.ContinueWith ((antecedent) => {
+                    if (deleteTask.IsFaulted) {
+                        throw new DataException (DataException.Database_DatabaseModificationFailure, deleteTask.Exception.Message, deleteTask.Exception);
                     }
 
                     var httpStatus = deleteTask.Result.StatusCode;
-                    if(deleteTask.Result.StatusCode != System.Net.HttpStatusCode.OK){
-                        string errorMessage = String.Format("Failed to delete remote database.\nHTTP_Status: {0}\nJSON Body: {1}",
-                            httpStatus, deleteTask.Result.ReasonPhrase);
-                        throw new DataException(DataException.Database_DatabaseModificationFailure, errorMessage);
+                    if (deleteTask.Result.StatusCode != System.Net.HttpStatusCode.OK) {
+                        string errorMessage = String.Format ("Failed to delete remote database.\nHTTP_Status: {0}\nJSON Body: {1}",
+                                                  httpStatus, deleteTask.Result.ReasonPhrase);
+                        throw new DataException (DataException.Database_DatabaseModificationFailure, errorMessage);
                     }
                 });
 
@@ -136,163 +139,166 @@ namespace IBM.Cloudant.Client
             return result;
         
         }
-            
+
         /// <summary>
-        /// Save the specified revisionToSave using HTTP <tt>PUT</tt> request.
+        /// Create the specified document in the database.
         /// </summary>
-        /// <param name="revisionToSave">Revision to save.</param>
-        public Task<DocumentRevision> Save(DocumentRevision revisionToSave)
+        /// <param name="revision">Revision to create.</param>
+        public Task<DocumentRevision> Create (DocumentRevision revision)
         {
             Debug.WriteLine ("==== enter Database::save(Object)");
-            if (revisionToSave == null) {
-                string errorMessage = "The input parameter revisionToSave cannot be null.";
-                throw new DataException(DataException.Database_SaveDocumentRevisionFailure, errorMessage);
+            if (revision == null) {
+                string errorMessage = "The input parameter revision cannot be null.";
+                throw new DataException (DataException.Database_SaveDocumentRevisionFailure, errorMessage);
             }
 
-            Debug.WriteLine ("==== exit Database::save");
-            return CreateDocumentRevision (revisionToSave);
+            Debug.WriteLine ("==== exit Database::revision");
+            return CreateDocumentRevision (revision);
         }
 
         /// <summary>
-        /// Update the specified revisionToUpdate.  The revision must have the correct <code>_id</code> and
-        /// <code>_rev</code> values.
+        /// Update a document with a new revision on the server. 
+        /// The revision must have the id and revId of the document being updated.
+        /// 
         /// </summary>
         /// <param name="revisionToUpdate">Revision to update.</param>
-        public Task<DocumentRevision> Update(DocumentRevision revisionToUpdate)
+        public Task<DocumentRevision> Update (DocumentRevision revision)
         {
             Debug.WriteLine ("==== enter Database::update(Object)"); 
-            if (revisionToUpdate == null) {
-                string errorMessage = "The input parameter revisionToSave cannot be null.";
-                throw new DataException(DataException.Database_SaveDocumentRevisionFailure, errorMessage);
+            if (revision == null) {
+                string errorMessage = "The input parameter revision cannot be null.";
+                throw new DataException (DataException.Database_SaveDocumentRevisionFailure, errorMessage);
             }
 
             Debug.WriteLine ("==== exit Database::remove");
-            return UpdateDocumentRevision (revisionToUpdate);
+            return UpdateDocumentRevision (revision);
         }
 
         /// <summary>
-        /// Find the specified document.
+        /// Reads the specified document, from the database.
         /// </summary>
-        /// <param name="documentId">The id of the object to find.</param>
-        public Task<DocumentRevision> Find(String documentId){
-            Debug.WriteLine ("==== enter Database::find(String)");
+        /// <param name="documentId">The id of the document to read.</param>
+        public Task<DocumentRevision> Read (String documentId)
+        {
+            Debug.WriteLine ("==== enter Database::Read(String)");
             try {
-                if(string.IsNullOrWhiteSpace(documentId)){
-                    throw new DataException(DataException.Database_FetchDocumentRevisionFailure, "Unable to fetch document revision.  documentId " +
-                        "parameter must not be null or empty");
+                if (string.IsNullOrWhiteSpace (documentId)) {
+                    throw new DataException (DataException.Database_FetchDocumentRevisionFailure, "Unable to fetch document revision.  documentId " +
+                    "parameter must not be null or empty");
                 }
 
                 Uri requestUrl = new Uri (dbNameUrlEncoded + "/" + documentId, UriKind.Relative);
-                Debug.WriteLine ("fetch document relative URI is: "+requestUrl.ToString());
+                Debug.WriteLine ("fetch document relative URI is: " + requestUrl.ToString ());
 
                 Task<DocumentRevision> result = Task.Run (() => {
                     // Send the HTTP request
-                    Task<HttpResponseMessage> httpTask = client.httpHelper.sendGet(requestUrl, null);
-                    Task<DocumentRevision> revisionTask = httpTask.ContinueWith( (antecedent) => {
-                        if(httpTask.IsFaulted){
-                            Debug.WriteLine ("HTTP request to fetch document task failed with error:"+httpTask.Exception.Message);
-                            throw new DataException(DataException.Database_FetchDocumentRevisionFailure, httpTask.Exception.Message, httpTask.Exception);
+                    Task<HttpResponseMessage> httpTask = client.httpHelper.sendGet (requestUrl, null);
+                    Task<DocumentRevision> revisionTask = httpTask.ContinueWith ((antecedent) => {
+                        if (httpTask.IsFaulted) {
+                            Debug.WriteLine ("HTTP request to fetch document task failed with error:" + httpTask.Exception.Message);
+                            throw new DataException (DataException.Database_FetchDocumentRevisionFailure, httpTask.Exception.Message, httpTask.Exception);
                         }
 
                         // Read in the response JSON into a Dictionary
-                        Task<String> readContentTask = httpTask.Result.Content.ReadAsStringAsync();
-                        readContentTask.Wait();
+                        Task<String> readContentTask = httpTask.Result.Content.ReadAsStringAsync ();
+                        readContentTask.Wait ();
                         Dictionary<string, object> responseJSON = JsonConvert.DeserializeObject<Dictionary<string, object>> (readContentTask.Result); 
 
-                        Debug.WriteLine("Cloudant find document response.  Relative URI: " + requestUrl.ToString() + ". " +
-                            "Document: " + documentId + "\nResponse content:" + readContentTask.Result);
+                        Debug.WriteLine ("Cloudant find document response.  Relative URI: " + requestUrl.ToString () + ". " +
+                        "Document: " + documentId + "\nResponse content:" + readContentTask.Result);
 
                         // Check the HTTP status code
                         int httpStatus = (int)httpTask.Result.StatusCode;
-                        if(httpStatus != 200){
-                            string errorMessage = String.Format("Failed to find document revision.\nRequest URL: {0}\nHTTP_Status: {1}\nJSONBody: {2}",
-                                requestUrl.ToString(),httpStatus,readContentTask.Result);
+                        if (httpStatus != 200) {
+                            string errorMessage = String.Format ("Failed to find document revision.\nRequest URL: {0}\nHTTP_Status: {1}\nJSONBody: {2}",
+                                                      requestUrl.ToString (), httpStatus, readContentTask.Result);
                             Debug.WriteLine (errorMessage);
-                            throw new DataException(DataException.Database_FetchDocumentRevisionFailure, errorMessage);
+                            throw new DataException (DataException.Database_FetchDocumentRevisionFailure, errorMessage);
                         }
 
                         Object responseDocumentId;
-                        responseJSON.TryGetValue(DOC_ID,out responseDocumentId);
-                        if (responseDocumentId == null || responseDocumentId.Equals("")) {
+                        responseJSON.TryGetValue (DOC_ID, out responseDocumentId);
+                        if (responseDocumentId == null || responseDocumentId.Equals ("")) {
                             string errorMessage = "\nJSON Response didn't contain a documentId.";
                             Debug.WriteLine (errorMessage);
-                            throw new DataException(DataException.Database_FetchDocumentRevisionFailure, errorMessage);
+                            throw new DataException (DataException.Database_FetchDocumentRevisionFailure, errorMessage);
                         }
 
 
                         Object responseRevisionId;
-                        responseJSON.TryGetValue(DOC_REV,out responseRevisionId);
-                        if (responseRevisionId == null || responseRevisionId.Equals("")) {
+                        responseJSON.TryGetValue (DOC_REV, out responseRevisionId);
+                        if (responseRevisionId == null || responseRevisionId.Equals ("")) {
                             string errorMessage = "\nJSON Response didn't contain a revisionId.";
                             Debug.WriteLine (errorMessage);
-                            throw new DataException(DataException.Database_FetchDocumentRevisionFailure, errorMessage);
+                            throw new DataException (DataException.Database_FetchDocumentRevisionFailure, errorMessage);
                         }
 
                         // create new DocumentRevision with docId and revId returned
-                        DocumentRevision createdDoc = new DocumentRevision((string)responseDocumentId,(string)responseRevisionId,responseJSON);
+                        DocumentRevision createdDoc = new DocumentRevision ((string)responseDocumentId, (string)responseRevisionId, responseJSON);
                         Debug.WriteLine ("returning DocumentRevision\n docId:{0}\n revId:{1}\n body:{2}",
                             responseDocumentId,
                             responseRevisionId,
-                            JsonConvert.SerializeObject(responseJSON));
+                            JsonConvert.SerializeObject (responseJSON));
 
                         return createdDoc;
                     });
                     return revisionTask;
                 });
-                Debug.WriteLine ("==== exit Database::find");
+                Debug.WriteLine ("==== exit Database::read");
                 return result;
             } catch (Exception e) {
-                throw new DataException(DataException.Database_FetchDocumentRevisionFailure, e.Message, e);
+                throw new DataException (DataException.Database_FetchDocumentRevisionFailure, e.Message, e);
             }
         }
 
         /// <summary>
-        /// Remove the specified DocumentRevision.
+        /// Delete the specified Document Revision.
         /// </summary>
-        /// <param name="revisionToRemove">Revision to remove.</param>
-        public Task<String> Remove(DocumentRevision revisionToRemove){
+        /// <param name="revisionToRemove">Document revision to delete.</param>
+        public Task<String> Delete (DocumentRevision revision)
+        {
             Debug.WriteLine ("==== enter Database::delete(Object)");
 
             try {
-                if (revisionToRemove == null) {
-                    throw new DataException(DataException.Database_DeleteDocumentRevisionFailure,
-                        "Unable to delete document revisionToRemove.  revision parameter must not be null");
+                if (revision == null) {
+                    throw new DataException (DataException.Database_DeleteDocumentRevisionFailure,
+                        "Unable to delete document revision.  revision parameter must not be null");
                 }
 
-                Uri requestUrl = new Uri( dbNameUrlEncoded + "/" 
-                    + revisionToRemove.docId + "?rev=" + revisionToRemove.revId, UriKind.Relative);
+                Uri requestUrl = new Uri (dbNameUrlEncoded + "/"
+                                 + revision.docId + "?rev=" + revision.revId, UriKind.Relative);
                 Task<String> result = Task.Run (() => {
                     // Send the HTTP request
-                    Task<HttpResponseMessage> httpTask = client.httpHelper.sendDelete(requestUrl, null);
-                    Task<String> responseTask = httpTask.ContinueWith( (antecedent) => {
-                        if(httpTask.IsFaulted){
-                            Debug.WriteLine ("HTTP request to delete document task failed with error:"+httpTask.Exception.Message);
-                            throw new DataException(DataException.Database_DeleteDocumentRevisionFailure, httpTask.Exception.Message, httpTask.Exception);
+                    Task<HttpResponseMessage> httpTask = client.httpHelper.sendDelete (requestUrl, null);
+                    Task<String> responseTask = httpTask.ContinueWith ((antecedent) => {
+                        if (httpTask.IsFaulted) {
+                            Debug.WriteLine ("HTTP request to delete document task failed with error:" + httpTask.Exception.Message);
+                            throw new DataException (DataException.Database_DeleteDocumentRevisionFailure, httpTask.Exception.Message, httpTask.Exception);
                         }
 
                         // Read in the response JSON into a Dictionary
-                        Task<String> readContentTask = httpTask.Result.Content.ReadAsStringAsync();
-                        readContentTask.Wait();
+                        Task<String> readContentTask = httpTask.Result.Content.ReadAsStringAsync ();
+                        readContentTask.Wait ();
                         Dictionary<string, object> responseJSON = JsonConvert.DeserializeObject<Dictionary<string, object>> (readContentTask.Result); 
 
-                        Debug.WriteLine("Cloudant delete document response.  Relative URI: " + requestUrl.ToString() + ". " +
-                            "Document: " + revisionToRemove.docId + "\nResponse content:" + readContentTask.Result);
+                        Debug.WriteLine ("Cloudant delete document response.  Relative URI: " + requestUrl.ToString () + ". " +
+                        "Document: " + revision.docId + "\nResponse content:" + readContentTask.Result);
 
                         // Check the HTTP status code
                         int httpStatus = (int)httpTask.Result.StatusCode;
-                        if(httpStatus < 200 || httpStatus >=300){
-                            string errorMessage = String.Format("Failed to delete document revision.\nRequest URL: {0}\nHTTP_Status: {1}\nJSONBody: {2}",
-                                requestUrl.ToString(),httpStatus,readContentTask.Result);
+                        if (httpStatus < 200 || httpStatus >= 300) {
+                            string errorMessage = String.Format ("Failed to delete document revision.\nRequest URL: {0}\nHTTP_Status: {1}\nJSONBody: {2}",
+                                                      requestUrl.ToString (), httpStatus, readContentTask.Result);
                             Debug.WriteLine (errorMessage);
-                            throw new DataException(DataException.Database_DeleteDocumentRevisionFailure, errorMessage);
+                            throw new DataException (DataException.Database_DeleteDocumentRevisionFailure, errorMessage);
                         }
 
                         Object responseRevisionId;
-                        responseJSON.TryGetValue(DOC_RESPONSE_REV,out responseRevisionId);
-                        if (responseRevisionId == null || responseRevisionId.Equals("")) {
+                        responseJSON.TryGetValue (DOC_RESPONSE_REV, out responseRevisionId);
+                        if (responseRevisionId == null || responseRevisionId.Equals ("")) {
                             string errorMessage = "\ndocument delete JSON Response didn't contain a revisionId.";
                             Debug.WriteLine (errorMessage);
-                            throw new DataException(DataException.Database_DeleteDocumentRevisionFailure, errorMessage);
+                            throw new DataException (DataException.Database_DeleteDocumentRevisionFailure, errorMessage);
                         }
                         return (string)responseRevisionId;
                     });
@@ -301,7 +307,7 @@ namespace IBM.Cloudant.Client
                 Debug.WriteLine ("==== exit Database::delete");
                 return result;
             } catch (Exception e) {
-                throw new DataException(DataException.Database_DeleteDocumentRevisionFailure, e.Message, e);
+                throw new DataException (DataException.Database_DeleteDocumentRevisionFailure, e.Message, e);
             }
         }
 
@@ -315,21 +321,22 @@ namespace IBM.Cloudant.Client
         /// <param name="designDocName">optional name of the design doc in which the index will be created</param>
         /// <param name="indexType">optional, type of index (only "json" as of now)</param>
         /// <param name="fields">array of fields in the index</param>
-        public Task CreateIndex(String indexName, String designDocName, String indexType,
-                IndexField[] fields) {
+        public Task CreateIndex (String indexName, String designDocName, String indexType,
+                                 IndexField[] fields)
+        {
 
             if (fields == null || fields.Length == 0)
                 //throw new DataException(DataException.Database_IndexModificationFailure, "index fields must not be null or empty");
             throw new DataException (DataException.Database_IndexModificationFailure, "fields parameter must be non-empty and a valid array of" +
                 typeof(IndexField) + " objects.");
 
-            if(indexType != null && !indexType.Equals(INDEX_TYPE_JSON_VALUE))
-                throw new DataException(DataException.Database_IndexModificationFailure, "Only 'json' indexType supported.");
+            if (indexType != null && !indexType.Equals (INDEX_TYPE_JSON_VALUE))
+                throw new DataException (DataException.Database_IndexModificationFailure, "Only 'json' indexType supported.");
             
                 
-            Task result = Task.Run( () => {
-                String indexDefn = GetIndexDefinition(indexName, designDocName, indexType, fields);
-                CreateIndex(indexDefn).Wait();
+            Task result = Task.Run (() => {
+                String indexDefn = GetIndexDefinition (indexName, designDocName, indexType, fields);
+                CreateIndex (indexDefn).Wait ();
             });
 
             return result;
@@ -342,10 +349,11 @@ namespace IBM.Cloudant.Client
         /// http://docs.cloudant.com/api/cloudant-query.html#creating-a-new-index</a>
         /// </summary>
         /// <param name="indexDefinition"> Index definition. See documentation for correct format.</param>
-        public Task CreateIndex(String indexDefinition) {
+        public Task CreateIndex (String indexDefinition)
+        {
             
-            if(string.IsNullOrWhiteSpace (indexDefinition))
-                throw new DataException(DataException.Database_IndexModificationFailure, "indexDefinition may not be null or empty");
+            if (string.IsNullOrWhiteSpace (indexDefinition))
+                throw new DataException (DataException.Database_IndexModificationFailure, "indexDefinition may not be null or empty");
 
             Task result = Task.Run (() => {
                 Uri indexUri = new Uri (dbNameUrlEncoded + "/_index", UriKind.Relative);
@@ -353,10 +361,10 @@ namespace IBM.Cloudant.Client
 
 
                 Dictionary <string,object> body;
-                try{
+                try {
                     body = JsonConvert.DeserializeObject<Dictionary<string,object>> (indexDefinition);
-                } catch(Exception){
-                    throw new DataException(DataException.Database_IndexModificationFailure, "Error creating index: indexDefinition contains invalid JSON.");
+                } catch (Exception) {
+                    throw new DataException (DataException.Database_IndexModificationFailure, "Error creating index: indexDefinition contains invalid JSON.");
                 }
                     
                 Task<HttpResponseMessage> httpTask = client.httpHelper.sendPost (indexUri, null, body);
@@ -368,8 +376,8 @@ namespace IBM.Cloudant.Client
                         return;
                     } else {
                         Debug.WriteLine (string.Format ("Error creating index : '{0}'", indexDefinition));
-                        throw new DataException(DataException.Database_IndexModificationFailure,
-                                string.Format ("Error creating index : '{0}'", indexDefinition)); 
+                        throw new DataException (DataException.Database_IndexModificationFailure,
+                            string.Format ("Error creating index : '{0}'", indexDefinition)); 
                     }
                 } 
             });
@@ -378,8 +386,6 @@ namespace IBM.Cloudant.Client
         }
 
 
-
-            
         /// <summary>
         /// Finds documents based using an index.
         /// See <a href="https://docs.cloudant.com/cloudant_query.html#finding-documents-using-an-index">
@@ -389,72 +395,73 @@ namespace IBM.Cloudant.Client
         /// <param name="selectorJson">JSON String describing criteria used to select documents.
         ///                     Is of the form "selector": your data here </param>
         /// <param name="options">Options describing the query options to apply.  </param>
-        public Task<List<DocumentRevision>> FindByIndex(String selectorJson, FindByIndexOptions
-            options) {
-            if(selectorJson == null){
-                throw new DataException(DataException.Database_QueryError, "selectorJson parameter cannot be null");
+        public Task<List<DocumentRevision>> FindByIndex (String selectorJson, FindByIndexOptions
+            options)
+        {
+            if (selectorJson == null) {
+                throw new DataException (DataException.Database_QueryError, "selectorJson parameter cannot be null");
             }
-            if(options == null){
-                throw new DataException(DataException.Database_QueryError, "options parameter cannot be null");
+            if (options == null) {
+                throw new DataException (DataException.Database_QueryError, "options parameter cannot be null");
             }
 
             // POST query
-            Task<List<DocumentRevision>> result = Task.Run <List<DocumentRevision>> ( () => {
-                Uri indexUri = new Uri(dbNameUrlEncoded + "/_find", UriKind.Relative);
-                String queryBody = GetFindByIndexBody(selectorJson, options);
+            Task<List<DocumentRevision>> result = Task.Run <List<DocumentRevision>> (() => {
+                Uri indexUri = new Uri (dbNameUrlEncoded + "/_find", UriKind.Relative);
+                String queryBody = GetFindByIndexBody (selectorJson, options);
                 Dictionary<string,string> headers = new Dictionary<string,string> ();
                 Dictionary <string,object> body = JsonConvert.DeserializeObject<Dictionary<string,object>> (queryBody);
 
                 Task<HttpResponseMessage> httpTask = client.httpHelper.sendPost (indexUri, headers, body);
-                Task<List<DocumentRevision>> responseTask = httpTask.ContinueWith( (antecedent) => {
-                    if(httpTask.IsFaulted){
-                        Debug.WriteLine ("HTTP request to findByIndex task failed with error:"+httpTask.Exception.Message);
-                        throw new DataException(DataException.Database_QueryError, httpTask.Exception.Message, httpTask.Exception);
+                Task<List<DocumentRevision>> responseTask = httpTask.ContinueWith ((antecedent) => {
+                    if (httpTask.IsFaulted) {
+                        Debug.WriteLine ("HTTP request to findByIndex task failed with error:" + httpTask.Exception.Message);
+                        throw new DataException (DataException.Database_QueryError, httpTask.Exception.Message, httpTask.Exception);
                     }
 
                     // Check the HTTP status code
                     int httpStatus = (int)httpTask.Result.StatusCode;
-                    if(httpStatus < 200 || httpStatus > 300){
-                        string errorMessage = String.Format("findByIndex failed.\nHTTP_Status: {0}\nErrorMessage: {1}",
-                            httpStatus, httpTask.Result.ReasonPhrase);
+                    if (httpStatus < 200 || httpStatus > 300) {
+                        string errorMessage = String.Format ("findByIndex failed.\nHTTP_Status: {0}\nErrorMessage: {1}",
+                                                  httpStatus, httpTask.Result.ReasonPhrase);
                         Debug.WriteLine (errorMessage);
-                        throw new DataException(DataException.Database_QueryError, errorMessage);
+                        throw new DataException (DataException.Database_QueryError, errorMessage);
                     }
 
                     // Read in the response JSON into a Dictionary
-                    Task<String> readContentTask = httpTask.Result.Content.ReadAsStringAsync();
-                    readContentTask.Wait();
+                    Task<String> readContentTask = httpTask.Result.Content.ReadAsStringAsync ();
+                    readContentTask.Wait ();
                     Dictionary<string, object> responseJSON = JsonConvert.DeserializeObject<Dictionary<string, object>> (readContentTask.Result); 
-                    Debug.WriteLine("response JSON:{0}", JsonConvert.SerializeObject(responseJSON));
+                    Debug.WriteLine ("response JSON:{0}", JsonConvert.SerializeObject (responseJSON));
 
-                    List<DocumentRevision> list = new List<DocumentRevision>();
+                    List<DocumentRevision> list = new List<DocumentRevision> ();
                     Object documents;
-                    responseJSON.TryGetValue("docs",out documents);
-                    JArray doclist = (JArray) documents;
-                    foreach (JToken token in doclist){
-                        String documentId = token.Value<String>(DOC_ID);
-                        if (documentId == null || documentId.Equals("")) {
+                    responseJSON.TryGetValue ("docs", out documents);
+                    JArray doclist = (JArray)documents;
+                    foreach (JToken token in doclist) {
+                        String documentId = token.Value<String> (DOC_ID);
+                        if (documentId == null || documentId.Equals ("")) {
                             string errorMessage = "\nJSON Response didn't contain a documentId.";
                             Debug.WriteLine (errorMessage);
-                            throw new DataException(DataException.Database_SaveDocumentRevisionFailure, errorMessage);
+                            throw new DataException (DataException.Database_SaveDocumentRevisionFailure, errorMessage);
                         }
 
-                        String revisionId = token.Value<String>(DOC_REV);
-                        if (revisionId == null || revisionId.Equals("")) {
+                        String revisionId = token.Value<String> (DOC_REV);
+                        if (revisionId == null || revisionId.Equals ("")) {
                             string errorMessage = "\nJSON Response didn't contain a revisionId.";
                             Debug.WriteLine (errorMessage);
-                            throw new DataException(DataException.Database_SaveDocumentRevisionFailure, errorMessage);
+                            throw new DataException (DataException.Database_SaveDocumentRevisionFailure, errorMessage);
                         }
 
                         // create new DocumentRevision with docId and revId returned
-                        var documentBody = token.ToObject<Dictionary<String,Object>>();
-                        DocumentRevision createdDoc = new DocumentRevision(documentId,revisionId,documentBody);
+                        var documentBody = token.ToObject<Dictionary<String,Object>> ();
+                        DocumentRevision createdDoc = new DocumentRevision (documentId, revisionId, documentBody);
                         Debug.WriteLine ("findByIndex() : adding DocumentRevision\n docId:{0}\n revId:{1}\n body:{2}",
                             documentId,
                             revisionId,
-                            JsonConvert.SerializeObject(documentBody));
+                            JsonConvert.SerializeObject (documentBody));
 
-                        list.Add(createdDoc);
+                        list.Add (createdDoc);
                     }
 
                     return list;
@@ -468,46 +475,47 @@ namespace IBM.Cloudant.Client
         /// Lists all indices.
         /// </summary>
         /// <returns>List of Index</returns>
-        public Task<List<Index>> ListIndices() {
+        public Task<List<Index>> ListIndices ()
+        {
 
             Task<List<Index>> result = Task.Run <List<Index>> (() => {
-                List<Index> taskResult = new List<Index>();
+                List<Index> taskResult = new List<Index> ();
 
                 Uri indexUri = new Uri (dbNameUrlEncoded + "/_index/", UriKind.Relative);
 
                 Task<HttpResponseMessage> httpTask = client.httpHelper.sendGet (indexUri, null);
                 httpTask.Wait ();
 
-                JObject jsonIndex = JsonConvert.DeserializeObject<JObject>(httpTask.Result.Content.ReadAsStringAsync().Result);
+                JObject jsonIndex = JsonConvert.DeserializeObject<JObject> (httpTask.Result.Content.ReadAsStringAsync ().Result);
 
                 JToken indexes;
-                jsonIndex.TryGetValue("indexes", out indexes);
+                jsonIndex.TryGetValue ("indexes", out indexes);
 
-                if(indexes is Newtonsoft.Json.Linq.JArray){
+                if (indexes is Newtonsoft.Json.Linq.JArray) {
                     JArray indexesArray = (JArray)indexes;
 
-                    foreach(JToken token in indexesArray){
-                        Index index = new Index(token.SelectToken(INDEX_DESIGN_DOCUMENT_JSON_KEY).ToString(),
-                            token.SelectToken(INDEX_NAME_JSON_KEY).ToString(), 
-                            token.SelectToken(INDEX_TYPE_JSON_KEY).ToString());
+                    foreach (JToken token in indexesArray) {
+                        Index index = new Index (token.SelectToken (INDEX_DESIGN_DOCUMENT_JSON_KEY).ToString (),
+                                          token.SelectToken (INDEX_NAME_JSON_KEY).ToString (), 
+                                          token.SelectToken (INDEX_TYPE_JSON_KEY).ToString ());
 
-                        foreach(JObject indexArray in token.SelectToken("def.fields")){
+                        foreach (JObject indexArray in token.SelectToken("def.fields")) {
 
-                            foreach(JProperty prop in indexArray.Properties()){
+                            foreach (JProperty prop in indexArray.Properties()) {
 
-                                if(prop.Value.ToString() == IndexField.SortOrder.asc.ToString())
-                                    index.AddIndexField(prop.Name, IndexField.SortOrder.asc );
-                                else if(prop.Value.ToString() == IndexField.SortOrder.desc.ToString())
-                                    index.AddIndexField(prop.Name, IndexField.SortOrder.desc );
+                                if (prop.Value.ToString () == IndexField.SortOrder.asc.ToString ())
+                                    index.AddIndexField (prop.Name, IndexField.SortOrder.asc);
+                                else if (prop.Value.ToString () == IndexField.SortOrder.desc.ToString ())
+                                    index.AddIndexField (prop.Name, IndexField.SortOrder.desc);
                                 else
-                                    throw new DataException(DataException.Database_IndexModificationFailure, "invalid index field sort order value.");
+                                    throw new DataException (DataException.Database_IndexModificationFailure, "invalid index field sort order value.");
                             }
                         }
 
-                        taskResult.Add(index);
+                        taskResult.Add (index);
                     } 
                 } else
-                    throw new DataException(DataException.Database_IndexModificationFailure, "Got unexpected JSON for indexes. "+jsonIndex.ToString());
+                    throw new DataException (DataException.Database_IndexModificationFailure, "Got unexpected JSON for indexes. " + jsonIndex.ToString ());
 
                 return taskResult;
             });
@@ -522,55 +530,57 @@ namespace IBM.Cloudant.Client
         /// <returns>A Task</returns>
         /// <param name="indexName">name of the index</param>
         /// <param name="designDocId">ID of the design doc</param>
-        public Task DeleteIndex(String indexName, String designDocId) {
+        public Task DeleteIndex (String indexName, String designDocId)
+        {
 
-            if(string.IsNullOrWhiteSpace (indexName))
-                throw new DataException(DataException.Database_IndexModificationFailure, "indexName may not be null or empty.");
-            if(string.IsNullOrWhiteSpace (designDocId))
-                throw new DataException(DataException.Database_IndexModificationFailure, "designDocId may not be null or empty");
+            if (string.IsNullOrWhiteSpace (indexName))
+                throw new DataException (DataException.Database_IndexModificationFailure, "indexName may not be null or empty.");
+            if (string.IsNullOrWhiteSpace (designDocId))
+                throw new DataException (DataException.Database_IndexModificationFailure, "designDocId may not be null or empty");
 
 
-            Task result = Task.Run( () => {
-                Uri indexUri = new Uri(dbNameUrlEncoded + "/_index/"+designDocId+"/json/"+indexName, UriKind.Relative);
+            Task result = Task.Run (() => {
+                Uri indexUri = new Uri (dbNameUrlEncoded + "/_index/" + designDocId + "/json/" + indexName, UriKind.Relative);
 
                 Task<HttpResponseMessage> httpTask = client.httpHelper.sendDelete (indexUri, null);
-                httpTask.Wait();
+                httpTask.Wait ();
 
-                if(httpTask.Result.StatusCode == HttpStatusCode.OK)
+                if (httpTask.Result.StatusCode == HttpStatusCode.OK)
                     return;
-                else if(httpTask.Result.StatusCode == HttpStatusCode.NotFound)
-                    throw new DataException(DataException.Database_IndexModificationFailure, 
-                        string.Format("Index with name [{0}] and design doc [{1}] does not exist.",indexName, designDocId));
+                else if (httpTask.Result.StatusCode == HttpStatusCode.NotFound)
+                    throw new DataException (DataException.Database_IndexModificationFailure, 
+                        string.Format ("Index with name [{0}] and design doc [{1}] does not exist.", indexName, designDocId));
                 else
-                    throw new DataException(DataException.Database_IndexModificationFailure, 
-                        string.Format("Error deleting index: {0}", httpTask.Result.Content.ReadAsStringAsync().Result));
+                    throw new DataException (DataException.Database_IndexModificationFailure, 
+                        string.Format ("Error deleting index: {0}", httpTask.Result.Content.ReadAsStringAsync ().Result));
             });
             return result;
         }
 
         // ======== PRIVATE HELPERS =============
 
-        private Dictionary<String,Object> ConvertDocToJSONPayload(DocumentRevision rev){
+        private Dictionary<String,Object> ConvertDocToJSONPayload (DocumentRevision rev)
+        {
             Debug.WriteLine ("==== enter Database::convertDocToJSONPayload(DocumentRevision)");
             Dictionary<String,Object> result = new Dictionary<String, object> ();
 
             if (rev.isDeleted) {
-                Debug.WriteLine ("adding key:{0} value:true",DOC_DELETED);
+                Debug.WriteLine ("adding key:{0} value:true", DOC_DELETED);
                 result.Add (DOC_DELETED, true);
             }
 
-            if (rev.docId != null){
-                Debug.WriteLine ("adding key:{0} value:{1}",DOC_ID,rev.docId);
+            if (rev.docId != null) {
+                Debug.WriteLine ("adding key:{0} value:{1}", DOC_ID, rev.docId);
                 result.Add (DOC_ID, rev.docId);
             }
 
             if (rev.revId != null) {
-                Debug.WriteLine ("adding key:{0} value:{1}",DOC_REV,rev.revId);
-                result.Add(DOC_REV, rev.revId);
+                Debug.WriteLine ("adding key:{0} value:{1}", DOC_REV, rev.revId);
+                result.Add (DOC_REV, rev.revId);
             }
 
             foreach (KeyValuePair<string,Object> entry in rev.body) {
-                Debug.WriteLine("document body key/value: {0}, {1}",
+                Debug.WriteLine ("document body key/value: {0}, {1}",
                     entry.Key,
                     entry.Value);
                 result.Add (entry.Key, entry.Value);
@@ -580,16 +590,105 @@ namespace IBM.Cloudant.Client
             return result;
         }
 
-        private Task<DocumentRevision> CreateDocumentRevision(DocumentRevision doc){
+        private Task<DocumentRevision> CreateDocumentRevision (DocumentRevision doc)
+        {
             Debug.WriteLine ("=== enter Database::createDocumentRevision()");
             try {
                 Uri uri = null;
-                if (doc.docId != null && doc.revId != null){
-                    uri = new Uri (dbNameUrlEncoded + "/"+doc.docId+"?rev=" +doc.revId, UriKind.Relative);
-                } else {
-                    uri = new Uri( dbNameUrlEncoded, UriKind.Relative);
+                uri = new Uri (dbNameUrlEncoded + "/" + doc.docId, UriKind.Relative);
+                Debug.WriteLine ("reltive URL is: " + uri.ToString ());
+
+                Dictionary<String,Object> payload = ConvertDocToJSONPayload (doc);
+                Debug.WriteLine ("Create document payload is: " + JsonConvert.SerializeObject (payload));
+                Task<DocumentRevision> result = Task.Run (() => {
+                    // Send the HTTP request
+                    Task<HttpResponseMessage> httpTask = doc.docId != null ? client.httpHelper.sendPut (uri, null, payload) : client.httpHelper.sendPost (uri, null, payload);
+                    Task<DocumentRevision> revisionTask = httpTask.ContinueWith ((antecedent) => {
+                        if (httpTask.IsFaulted) {
+                            Debug.WriteLine ("HTTP request to create document task failed with error:" + httpTask.Exception.Message);
+                            throw new DataException (DataException.Database_SaveDocumentRevisionFailure, httpTask.Exception.Message, httpTask.Exception);
+                        }
+
+                        // Check the HTTP status code
+                        int httpStatus = (int)httpTask.Result.StatusCode;
+                        if (httpStatus < 200 || httpStatus > 300) {
+                            string errorMessage = String.Format ("Failed to create a new document.\nHTTP_Status: {0}\nErrorMessage: {1}",
+                                                      httpStatus, httpTask.Result.ReasonPhrase);
+                            Debug.WriteLine (errorMessage);
+                            throw new DataException (DataException.Database_SaveDocumentRevisionFailure, errorMessage);
+                        }
+
+                        // Read in the response JSON into a Dictionary
+                        Task<String> readContentTask = httpTask.Result.Content.ReadAsStringAsync ();
+                        readContentTask.Wait ();
+                        Dictionary<string, object> responseJSON = JsonConvert.DeserializeObject<Dictionary<string, object>> (readContentTask.Result); 
+                        Debug.WriteLine ("response JSON:{0}", JsonConvert.SerializeObject (responseJSON));
+
+                        Object documentId;
+                        responseJSON.TryGetValue (DOC_RESPONSE_ID, out documentId);
+                        if (documentId == null || documentId.Equals ("")) {
+                            string errorMessage = "\nJSON Response didn't contain a documentId.";
+                            Debug.WriteLine (errorMessage);
+                            throw new DataException (DataException.Database_SaveDocumentRevisionFailure, errorMessage);
+                        }
+
+
+                        Object revisionId;
+                        responseJSON.TryGetValue (DOC_RESPONSE_REV, out revisionId);
+                        if (revisionId == null || revisionId.Equals ("")) {
+                            string errorMessage = "\nJSON Response didn't contain a revisionId.";
+                            Debug.WriteLine (errorMessage);
+                            throw new DataException (DataException.Database_SaveDocumentRevisionFailure, errorMessage);
+                        }
+
+                        // create new DocumentRevision with docId and revId returned
+                        DocumentRevision createdDoc = new DocumentRevision ((string)documentId, (string)revisionId, payload);
+                        Debug.WriteLine ("returning DocumentRevision\n docId:{0}\n revId:{1}\n body:{2}",
+                            documentId,
+                            revisionId,
+                            JsonConvert.SerializeObject (payload));
+
+                        return createdDoc;
+                    });
+
+                    return revisionTask;
+                });
+                    
+                if (result.IsFaulted) {
+                    Debug.WriteLine ("HTTP request to create document task failed with error:" + result.Exception.Message);
+                    throw new DataException (DataException.Database_SaveDocumentRevisionFailure, result.Exception.Message, result.Exception);
                 }
-                Debug.WriteLine ("reltive URL is: "+uri.ToString());
+
+                Debug.WriteLine ("=== exit Database::createDocumentRevision");
+                return result;
+
+            } catch (Exception e) {
+                throw new DataException (DataException.Database_SaveDocumentRevisionFailure, e.Message, e);
+            }
+
+        }
+
+        private Task<DocumentRevision> UpdateDocumentRevision (DocumentRevision doc)
+        {
+            Debug.WriteLine ("=== enter updateDocumentRevision()");
+
+            if (doc.revId == null) {
+                throw new DataException (DataException.Database_SaveDocumentRevisionFailure,
+                    "The document revision must contain a revId to perform an update");
+            }
+
+            try {
+                Uri uri = null;
+
+
+
+                if (doc.docId != null) {
+                    uri = new Uri (dbNameUrlEncoded + "/" + doc.docId, UriKind.Relative);
+                } else {
+                    string errorMessage = "HTTP request to update document failed: the document revision must contain docId";
+                    throw new DataException (DataException.Database_SaveDocumentRevisionFailure, errorMessage);
+                }
+                Debug.WriteLine ("relative URI is: " + uri.ToString ());
 
                 if (doc.body == null) {
                     Dictionary<String,Object> empty = new Dictionary<String,Object> ();
@@ -597,140 +696,54 @@ namespace IBM.Cloudant.Client
                 }
 
                 Dictionary<String,Object> payload = ConvertDocToJSONPayload (doc);
-                Debug.WriteLine ("Create document payload is: "+JsonConvert.SerializeObject(payload));
+
+                Debug.WriteLine ("Update document payload is: " + JsonConvert.SerializeObject (payload));
                 Task<DocumentRevision> result = Task.Run (() => {
                     // Send the HTTP request
-                    Task<HttpResponseMessage> httpTask = client.httpHelper.sendPost(uri, null, payload);
-                    Task<DocumentRevision> revisionTask = httpTask.ContinueWith( (antecedent) => {
-                        if(httpTask.IsFaulted){
-                            Debug.WriteLine ("HTTP request to create document task failed with error:"+httpTask.Exception.Message);
-                            throw new DataException(DataException.Database_SaveDocumentRevisionFailure, httpTask.Exception.Message, httpTask.Exception);
+                    Task<HttpResponseMessage> httpTask = client.httpHelper.sendPut (uri, null, payload);
+                    Task<DocumentRevision> revisionTask = httpTask.ContinueWith ((antecedent) => {
+                        if (httpTask.IsFaulted) {
+                            Debug.WriteLine ("HTTP request to create document task failed with error:" + httpTask.Exception.Message);
+                            throw new DataException (DataException.Database_SaveDocumentRevisionFailure, httpTask.Exception.Message, httpTask.Exception);
                         }
 
                         // Check the HTTP status code
                         int httpStatus = (int)httpTask.Result.StatusCode;
-                        if(httpStatus < 200 || httpStatus > 300){
-                            string errorMessage = String.Format("Failed to create a new document.\nHTTP_Status: {0}\nErrorMessage: {1}",
-                                httpStatus, httpTask.Result.ReasonPhrase);
+                        if (httpStatus < 200 || httpStatus > 300) {
+                            string errorMessage = String.Format ("Failed to update document.\nHTTP_Status: {0}\nErrorMessage: {1}",
+                                                      httpStatus, httpTask.Result.ReasonPhrase);
                             Debug.WriteLine (errorMessage);
-                            throw new DataException(DataException.Database_SaveDocumentRevisionFailure, errorMessage);
+                            throw new DataException (DataException.Database_SaveDocumentRevisionFailure, errorMessage);
                         }
 
                         // Read in the response JSON into a Dictionary
-                        Task<String> readContentTask = httpTask.Result.Content.ReadAsStringAsync();
-                        readContentTask.Wait();
-                        Dictionary<string, object> responseJSON = JsonConvert.DeserializeObject<Dictionary<string, object>> (readContentTask.Result); 
-                        Debug.WriteLine("response JSON:{0}", JsonConvert.SerializeObject(responseJSON));
-
-                        Object documentId;
-                        responseJSON.TryGetValue(DOC_RESPONSE_ID,out documentId);
-                        if (documentId == null || documentId.Equals("")) {
-                            string errorMessage = "\nJSON Response didn't contain a documentId.";
-                            Debug.WriteLine (errorMessage);
-                            throw new DataException(DataException.Database_SaveDocumentRevisionFailure, errorMessage);
-                        }
-
-
-                        Object revisionId;
-                        responseJSON.TryGetValue(DOC_RESPONSE_REV,out revisionId);
-                        if (revisionId == null || revisionId.Equals("")) {
-                            string errorMessage = "\nJSON Response didn't contain a revisionId.";
-                            Debug.WriteLine (errorMessage);
-                            throw new DataException(DataException.Database_SaveDocumentRevisionFailure, errorMessage);
-                        }
-
-                        // create new DocumentRevision with docId and revId returned
-                        DocumentRevision createdDoc = new DocumentRevision((string)documentId,(string)revisionId,payload);
-                        Debug.WriteLine ("returning DocumentRevision\n docId:{0}\n revId:{1}\n body:{2}",
-                            documentId,
-                            revisionId,
-                            JsonConvert.SerializeObject(payload));
-
-                        return createdDoc;
-                    });
-
-                    return revisionTask;
-                });
-
-                if(result.IsFaulted){
-                    Debug.WriteLine ("HTTP request to create document task failed with error:"+result.Exception.Message);
-                    throw new DataException(DataException.Database_SaveDocumentRevisionFailure, result.Exception.Message, result.Exception);
-                }
-
-                Debug.WriteLine ("=== exit Database::createDocumentRevision");
-                return result;
-
-            } catch (Exception e) {
-                throw new DataException(DataException.Database_SaveDocumentRevisionFailure, e.Message, e);
-            }
-
-        }
-        private Task<DocumentRevision> UpdateDocumentRevision(DocumentRevision doc){
-            Debug.WriteLine ("=== enter updateDocumentRevision()");
-            try {
-                Uri uri = null;
-                if (doc.docId != null){
-                    uri = new Uri (dbNameUrlEncoded + "/"+doc.docId, UriKind.Relative);
-                } else {
-                    string errorMessage ="HTTP request to update document failed: the document revision must contain docId";
-                    throw new DataException(DataException.Database_SaveDocumentRevisionFailure, errorMessage);
-                }
-                Debug.WriteLine ("relative URI is: "+uri.ToString());
-
-                if (doc.body == null) {
-                    Dictionary<String,Object> empty = new Dictionary<String,Object> ();
-                    doc.body =empty;
-                }
-
-                Dictionary<String,Object> payload = ConvertDocToJSONPayload (doc);
-
-                Debug.WriteLine ("Update document payload is: "+JsonConvert.SerializeObject(payload));
-                Task<DocumentRevision> result = Task.Run (() => {
-                    // Send the HTTP request
-                    Task<HttpResponseMessage> httpTask = client.httpHelper.sendPut(uri, null, payload);
-                    Task<DocumentRevision> revisionTask = httpTask.ContinueWith( (antecedent) => {
-                        if(httpTask.IsFaulted){
-                            Debug.WriteLine ("HTTP request to create document task failed with error:"+httpTask.Exception.Message);
-                            throw new DataException(DataException.Database_SaveDocumentRevisionFailure, httpTask.Exception.Message, httpTask.Exception);
-                        }
-
-                        // Check the HTTP status code
-                        int httpStatus = (int)httpTask.Result.StatusCode;
-                        if(httpStatus < 200 || httpStatus > 300){
-                            string errorMessage = String.Format("Failed to update document.\nHTTP_Status: {0}\nErrorMessage: {1}",
-                                httpStatus, httpTask.Result.ReasonPhrase);
-                            Debug.WriteLine (errorMessage);
-                            throw new DataException(DataException.Database_SaveDocumentRevisionFailure, errorMessage);
-                        }
-
-                        // Read in the response JSON into a Dictionary
-                        Task<String> readContentTask = httpTask.Result.Content.ReadAsStringAsync();
-                        readContentTask.Wait();
+                        Task<String> readContentTask = httpTask.Result.Content.ReadAsStringAsync ();
+                        readContentTask.Wait ();
                         Dictionary<String, Object> responseJSON = JsonConvert.DeserializeObject<Dictionary<string, object>> (readContentTask.Result); 
 
                         Object documentId;
-                        responseJSON.TryGetValue(DOC_RESPONSE_ID,out documentId);
-                        if (documentId == null || documentId.Equals("")) {
+                        responseJSON.TryGetValue (DOC_RESPONSE_ID, out documentId);
+                        if (documentId == null || documentId.Equals ("")) {
                             string errorMessage = "\nJSON Response didn't contain a documentId.";
                             Debug.WriteLine (errorMessage);
-                            throw new DataException(DataException.Database_SaveDocumentRevisionFailure, errorMessage);
+                            throw new DataException (DataException.Database_SaveDocumentRevisionFailure, errorMessage);
                         }
 
 
                         Object revisionId;
-                        responseJSON.TryGetValue(DOC_RESPONSE_REV,out revisionId);
-                        if (revisionId == null || revisionId.Equals("")) {
+                        responseJSON.TryGetValue (DOC_RESPONSE_REV, out revisionId);
+                        if (revisionId == null || revisionId.Equals ("")) {
                             string errorMessage = "\nJSON Response didn't contain a revisionId.";
                             Debug.WriteLine (errorMessage);
-                            throw new DataException(DataException.Database_SaveDocumentRevisionFailure, errorMessage);
+                            throw new DataException (DataException.Database_SaveDocumentRevisionFailure, errorMessage);
                         }
 
                         // create new DocumentRevision with docId and revId returned
-                        DocumentRevision createdDoc = new DocumentRevision((string)documentId,(string)revisionId,payload);
+                        DocumentRevision createdDoc = new DocumentRevision ((string)documentId, (string)revisionId, payload);
                         Debug.WriteLine ("returning DocumentRevision\n docId:{0}\n revId:{1}\n body:{2}",
                             documentId,
                             revisionId,
-                            JsonConvert.SerializeObject(payload));
+                            JsonConvert.SerializeObject (payload));
 
                         return createdDoc;
                     });
@@ -739,7 +752,7 @@ namespace IBM.Cloudant.Client
                 Debug.WriteLine ("==== exit Database::updateDocumentRevision");
                 return result;
             } catch (Exception e) {
-                throw new DataException(DataException.Database_SaveDocumentRevisionFailure, e.Message, e);
+                throw new DataException (DataException.Database_SaveDocumentRevisionFailure, e.Message, e);
             }
         }
 
@@ -752,26 +765,27 @@ namespace IBM.Cloudant.Client
         /// <param name="designDocName">Design document name.</param>
         /// <param name="indexType">Index type.</param>
         /// <param name="fields">Fields.</param>
-        private String GetIndexDefinition(String indexName, String designDocName,
-            string indexType, IndexField[] fields) {
+        private String GetIndexDefinition (String indexName, String designDocName,
+                                           string indexType, IndexField[] fields)
+        {
 
             if (fields == null || fields.Length == 0)
-                throw new DataException(DataException.Database_IndexModificationFailure, "index fields must not be null or empty");
+                throw new DataException (DataException.Database_IndexModificationFailure, "index fields must not be null or empty");
             
             bool addComma = false;
             string json = "{";
-            if (!(indexName == null || indexName.Length==0 )) {
+            if (!(indexName == null || indexName.Length == 0)) {
                 json += "\"name\": \"" + indexName + "\"";
                 addComma = true;
             }
-            if (!(designDocName == null || designDocName.Length==0 )) {
+            if (!(designDocName == null || designDocName.Length == 0)) {
                 if (addComma) {
                     json += ",";
                 }
                 json += "\"ddoc\": \"" + designDocName + "\"";
                 addComma = true;
             }
-            if (!(indexType == null || indexType.Length==0)) {
+            if (!(indexType == null || indexType.Length == 0)) {
                 if (addComma) {
                     json += ",";
                 }
@@ -784,7 +798,7 @@ namespace IBM.Cloudant.Client
             }
             json += "\"index\": { \"fields\": [";
             for (int i = 0; i < fields.Length; i++) {
-                json += "{\"" + fields[i].name + "\": " + "\"" + fields[i].sortOrder + "\"}";
+                json += "{\"" + fields [i].name + "\": " + "\"" + fields [i].sortOrder + "\"}";
                 if (i + 1 < fields.Length) {
                     json += ",";
                 }
@@ -793,80 +807,81 @@ namespace IBM.Cloudant.Client
             return json + "] }}";
         }
 
-        private String GetFindByIndexBody(String selectorJson,
-            FindByIndexOptions options) {
+        private String GetFindByIndexBody (String selectorJson,
+                                           FindByIndexOptions options)
+        {
 
             StringBuilder rf = null;
-            if (options.GetFields().Count > 0) {
-                rf = new StringBuilder("\"fields\": [");
+            if (options.GetFields ().Count > 0) {
+                rf = new StringBuilder ("\"fields\": [");
                 int i = 0;
                 foreach (String s in options.GetFields()) {
                     if (i > 0) {
-                        rf.Append(",");
+                        rf.Append (",");
                     }
-                    rf.Append("\"").Append(s).Append("\"");
+                    rf.Append ("\"").Append (s).Append ("\"");
                     i++;
                 }
-                rf.Append("]");
+                rf.Append ("]");
             }
 
             StringBuilder so = null;
-            if (options.GetSort().Count > 0) {
-                so = new StringBuilder("\"sort\": [");
+            if (options.GetSort ().Count > 0) {
+                so = new StringBuilder ("\"sort\": [");
                 int i = 0;
                 foreach (IndexField idxfld in options.GetSort()) {
                     if (i > 0) {
-                        so.Append(",");
+                        so.Append (",");
                     }
-                    so.Append("{\"")
-                        .Append(idxfld.name)
-                        .Append("\": \"")
-                        .Append(idxfld.sortOrder)
-                        .Append("\"}");
+                    so.Append ("{\"")
+                        .Append (idxfld.name)
+                        .Append ("\": \"")
+                        .Append (idxfld.sortOrder)
+                        .Append ("\"}");
                     i++;
                 }
-                so.Append("]");
+                so.Append ("]");
             }
                 
             // needs to start with selector
-            if (!(selectorJson.Trim().StartsWith("\"selector\""))) {
-                throw new DataException(DataException.Database_QueryError, "selector JSON must begin with 'selector' keyworddocume");
+            if (!(selectorJson.Trim ().StartsWith ("\"selector\""))) {
+                throw new DataException (DataException.Database_QueryError, "selector JSON must begin with 'selector' keyworddocume");
             }
 
-            StringBuilder finalbody = new StringBuilder();
-            finalbody.Append("{" + selectorJson);
+            StringBuilder finalbody = new StringBuilder ();
+            finalbody.Append ("{" + selectorJson);
 
             if (rf != null) {
-                finalbody.Append(",")
-                    .Append(rf.ToString());
+                finalbody.Append (",")
+                    .Append (rf.ToString ());
             }
             if (so != null) {
-                finalbody.Append(",")
-                    .Append(so.ToString());
+                finalbody.Append (",")
+                    .Append (so.ToString ());
             }
-            if (options.GetLimit() > 0) {
-                finalbody.Append(",")
-                    .Append("\"limit\": ")
-                    .Append(options.GetLimit());
+            if (options.GetLimit () > 0) {
+                finalbody.Append (",")
+                    .Append ("\"limit\": ")
+                    .Append (options.GetLimit ());
             }
-            if (options.GetSkip() > 0) {
-                finalbody.Append(",")
-                    .Append("\"skip\": ")
-                    .Append(options.GetSkip());
+            if (options.GetSkip () > 0) {
+                finalbody.Append (",")
+                    .Append ("\"skip\": ")
+                    .Append (options.GetSkip ());
             }
-            if (options.GetReadQuorum() > 0) {
-                finalbody.Append(",")
-                    .Append("\"r\": ")
-                    .Append(options.GetReadQuorum());
+            if (options.GetReadQuorum () > 0) {
+                finalbody.Append (",")
+                    .Append ("\"r\": ")
+                    .Append (options.GetReadQuorum ());
             }
-            if (options.GetUseIndex() != null) {
-                finalbody.Append(",")
-                    .Append("\"use_index\": ")
-                    .Append(options.GetUseIndex());
+            if (options.GetUseIndex () != null) {
+                finalbody.Append (",")
+                    .Append ("\"use_index\": ")
+                    .Append (options.GetUseIndex ());
             }
-            finalbody.Append("}");
+            finalbody.Append ("}");
 
-            return finalbody.ToString();
+            return finalbody.ToString ();
         }
 
             

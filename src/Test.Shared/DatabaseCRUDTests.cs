@@ -48,20 +48,20 @@ namespace Test.Shared
             }.GetResult ();
 
             // create the database
-            try{
-                db = client.Database(DBName);
+            try {
+                db = client.Database (DBName);
                 db.EnsureExists ();
-                Assert.NotNull(db);
-            } catch(AggregateException ae){
-                Assert.Fail ("Create remote database failed.  Cause: " + ae.Message );
-            }
-            catch (Exception e){
+                Assert.NotNull (db);
+            } catch (AggregateException ae) {
+                Assert.Fail ("Create remote database failed.  Cause: " + ae.Message);
+            } catch (Exception e) {
                 Assert.Fail ("Unexpected failure: " + e.Message);
             }
         }
 
         [TearDown] //Runs after each test.
-        protected void tearDown() {
+        protected void tearDown ()
+        {
             if (db != null) {
                 Task deleteTask = db.Delete ();
                 deleteTask.Wait ();
@@ -72,7 +72,8 @@ namespace Test.Shared
         }
 
         [Test]
-        public void testSaveFetchDeleteDocument() {
+        public void testSaveFetchDeleteDocument ()
+        {
 
             String stringKey = "stringKey";
             String stringValue = "nicestringvalue";
@@ -83,214 +84,219 @@ namespace Test.Shared
             String newKey = "newKey";
             int newValue = 43;
 
-            Dictionary<String, Object> dictionary = new Dictionary<String, Object>();
-            dictionary.Add(stringKey, stringValue);
-            dictionary.Add(numberKey, numberValue);
+
+            Dictionary<String, Object> dictionary = new Dictionary<String, Object> ();
+            dictionary.Add (stringKey, stringValue);
+            dictionary.Add (numberKey, numberValue);
 
             // Insert a document
-            DocumentRevision revision = new DocumentRevision();
+            DocumentRevision revision = new DocumentRevision ();
             revision.body = dictionary;
 
-            Task<DocumentRevision> task = db.Save(revision);
+            Task<DocumentRevision> task = db.Create (revision);
             task.Wait ();
 
             // Validate save result
-            Assert.False(task.IsFaulted,"create unexpectedly failed");
-            Assert.True(task.Result is DocumentRevision,"DocumentRevision not returned on create");
-            DocumentRevision savedRevision = (DocumentRevision) task.Result;
-            Assert.NotNull(savedRevision.docId, "savedRevision.docId == null");
-            Assert.NotNull(savedRevision.revId, "savedRevision.revId == null");
+            Assert.False (task.IsFaulted, "create unexpectedly failed");
+            Assert.True (task.Result is DocumentRevision, "DocumentRevision not returned on create");
+            DocumentRevision savedRevision = (DocumentRevision)task.Result;
+            Assert.NotNull (savedRevision.docId, "savedRevision.docId == null");
+            Assert.NotNull (savedRevision.revId, "savedRevision.revId == null");
 
             // perform find
-            task = db.Find(savedRevision.docId);
-            task.Wait();
+            task = db.Read (savedRevision.docId);
+            task.Wait ();
 
             // Validate find result
-            Assert.False(task.IsFaulted,"create unexpectedly failed");
-            Assert.True(task.Result is DocumentRevision,"DocumentRevision not returned on create");
-            DocumentRevision fetchedRevision = (DocumentRevision) task.Result;
+            Assert.False (task.IsFaulted, "create unexpectedly failed");
+            Assert.True (task.Result is DocumentRevision, "DocumentRevision not returned on create");
+            DocumentRevision fetchedRevision = (DocumentRevision)task.Result;
 
-            fetchedRevision.body.Add(newKey, newValue);
-            fetchedRevision.body.Remove(stringKey);
+            fetchedRevision.body.Add (newKey, newValue);
+            fetchedRevision.body.Remove (stringKey);
 
             // perform update
-            task = db.Update(fetchedRevision);
-            task.Wait();
+            task = db.Update (fetchedRevision);
+            task.Wait ();
 
-            Assert.False(task.IsFaulted,"update unexpectedly failed");
-            Assert.True(task.Result is DocumentRevision,"DocumentRevision not returned on create");
-            DocumentRevision updatedRevision = (DocumentRevision) task.Result;
-            Assert.NotNull(updatedRevision.docId,"updatedRevision.docId == null");
-            Assert.NotNull(updatedRevision.revId,"updatedRevision.revId == null");
-            Assert.True(updatedRevision.body.ContainsKey(newKey),"updatedBody did not contain newKey as expected");
-            Assert.False(updatedRevision.body.ContainsKey(stringKey),"updatedBody did contained stringKey when not expected");
+            Assert.False (task.IsFaulted, "update unexpectedly failed");
+            Assert.True (task.Result is DocumentRevision, "DocumentRevision not returned on create");
+            DocumentRevision updatedRevision = (DocumentRevision)task.Result;
+            Assert.NotNull (updatedRevision.docId, "updatedRevision.docId == null");
+            Assert.NotNull (updatedRevision.revId, "updatedRevision.revId == null");
+            Assert.True (updatedRevision.body.ContainsKey (newKey), "updatedBody did not contain newKey as expected");
+            Assert.False (updatedRevision.body.ContainsKey (stringKey), "updatedBody did contained stringKey when not expected");
 
             // remove the document from the database
-            Task<String> deleteTask = db.Remove(updatedRevision);
-            deleteTask.Wait();
-            Assert.False(deleteTask.IsFaulted,"delete unexpectedly failed");
-            Assert.NotNull(deleteTask.Result,"delete result not returned as expected.");
-
+            Task<String> deleteTask = db.Delete (updatedRevision);
+            deleteTask.Wait ();
+            Assert.False (deleteTask.IsFaulted, "delete unexpectedly failed");
+            Assert.NotNull (deleteTask.Result, "delete result not returned as expected.");
 
         }
 
         [Test]
-        public void testBasicSaveWithoutBody() {
+        public void testBasicSaveWithoutBody ()
+        {
             // Save DocumentRevision without a body
-            DocumentRevision revision = new DocumentRevision();
-            Task<DocumentRevision> saveTask = db.Save(revision);
-            saveTask.Wait();
-            Assert.True(!saveTask.IsFaulted,"failed to save DocumentRevision with empty body");
+            DocumentRevision revision = new DocumentRevision ();
+            Task<DocumentRevision> saveTask = db.Create (revision);
+            saveTask.Wait ();
+            Assert.True (!saveTask.IsFaulted, "failed to save DocumentRevision with empty body");
         }
 
         [Test]
-        public void testBasicSaveWithBody() {
-            DocumentRevision revision = new DocumentRevision();
-            Dictionary<String, Object> body = new Dictionary<String, Object>();
-            body.Add("key", "value");
+        public void testBasicSaveWithBody ()
+        {
+            DocumentRevision revision = new DocumentRevision ();
+            Dictionary<String, Object> body = new Dictionary<String, Object> ();
+            body.Add ("key", "value");
             revision.body = body;
 
             // Save DocumentRevision with a body
-            Task<DocumentRevision> saveTask = db.Save(revision);
-            saveTask.Wait();
-            Assert.True(!saveTask.IsFaulted,"failed to save DocumentRevision with body");
+            Task<DocumentRevision> saveTask = db.Create (revision);
+            saveTask.Wait ();
+            Assert.True (!saveTask.IsFaulted, "failed to save DocumentRevision with body");
         }
 
         [Test]
-        public void testInvalidSave() {
-            try{
+        public void testInvalidSave ()
+        {
+            try {
                 // Save null
-                Task<DocumentRevision> saveTask = db.Save(null);
-                saveTask.Wait();
-                Assert.False(true,"save should raise exception on save of null");
-            }
-            catch (Exception e){
+                Task<DocumentRevision> saveTask = db.Create (null);
+                saveTask.Wait ();
+                Assert.False (true, "save should raise exception on save of null");
+            } catch (Exception e) {
                 Assert.Pass ("expected testInvalidSave exception caught.  Cause:" + e.Message);
             }
         }
 
         [Test]
-        public void testInvalidFetchWithNullInput() {
-            try{
+        public void testInvalidFetchWithNullInput ()
+        {
+            try {
                 // fetch null
-                Task<DocumentRevision> fetchByIdTask = db.Find(null);
-                fetchByIdTask.Wait();
-                Assert.True(fetchByIdTask.IsFaulted,"find should produce fault on fetch of null");
-            }
-            catch (Exception e){
+                Task<DocumentRevision> fetchByIdTask = db.Read (null);
+                fetchByIdTask.Wait ();
+                Assert.True (fetchByIdTask.IsFaulted, "find should produce fault on fetch of null");
+            } catch (Exception e) {
                 Assert.Pass ("expected testInvalidFetchWithNullInput exception caught.  Cause:" + e.Message);
             }
         }
 
         [Test]
-        public void testInvalidFetchWithEmptyString() {
-            try{
+        public void testInvalidFetchWithEmptyString ()
+        {
+            try {
                 // fetch empty string
-                Task<DocumentRevision> fetchByIdTask = db.Find("");
-                fetchByIdTask.Wait();
-                Assert.True(fetchByIdTask.IsFaulted,"find should produce fault on find of empty string");
-            }
-            catch (Exception e){
+                Task<DocumentRevision> fetchByIdTask = db.Read ("");
+                fetchByIdTask.Wait ();
+                Assert.True (fetchByIdTask.IsFaulted, "find should produce fault on find of empty string");
+            } catch (Exception e) {
                 Assert.Pass ("expected testInvalidFetchWithEmptyString exception caught.  Cause:" + e.Message);
             }
         }
 
         [Test]
-        public void testInvalidFetchNonexistId() {
-            try{
+        public void testInvalidFetchNonexistId ()
+        {
+            try {
                 // fetch id that doesn't exist
-                Task<DocumentRevision> fetchByIdTask = db.Find("1234");
-                fetchByIdTask.Wait();
-                Assert.True(fetchByIdTask.IsFaulted,"find should produce fault on find of empty string");
-            }
-            catch (Exception e){
+                Task<DocumentRevision> fetchByIdTask = db.Read ("1234");
+                fetchByIdTask.Wait ();
+                Assert.True (fetchByIdTask.IsFaulted, "find should produce fault on find of empty string");
+            } catch (Exception e) {
                 Assert.Pass ("expected testInvalidFetchNonexistId exception caught.  Cause:" + e.InnerException.Message);
             }
         }
 
         [Test]
-        public void testInvalidDeleteWithNullInput() {
-            try{
+        public void testInvalidDeleteWithNullInput ()
+        {
+            try {
                 // delete null
-                Task<String> deleteTask = db.Remove(null);
-                deleteTask.Wait();
-                Assert.True(deleteTask.IsFaulted,"remove should produce fault on remove of null");
-            }
-            catch (Exception e){
+                Task<String> deleteTask = db.Delete (null);
+                deleteTask.Wait ();
+                Assert.True (deleteTask.IsFaulted, "remove should produce fault on remove of null");
+            } catch (Exception e) {
                 Assert.Pass ("expected testInvalidDeleteWithNullInput exception caught.  Cause:" + e.Message);
             }
 
         }
 
         [Test]
-        public void testInvalidDeleteWithoutBody() {
-            try{
+        public void testInvalidDeleteWithoutBody ()
+        {
+            try {
                 // Save DocumentRevision without a body
-                DocumentRevision revision = new DocumentRevision();
-                Task <String> deleteTask = db.Remove(revision);
-                deleteTask.Wait();
-                Assert.True(deleteTask.IsFaulted,"delete DocumentRevision that does not exist should fail");
-            }
-            catch (Exception e){
+                DocumentRevision revision = new DocumentRevision ();
+                Task <String> deleteTask = db.Delete (revision);
+                deleteTask.Wait ();
+                Assert.True (deleteTask.IsFaulted, "delete DocumentRevision that does not exist should fail");
+            } catch (Exception e) {
                 Assert.Pass ("expected testInvalidDeleteWithoutBody exception caught.  Cause:" + e.InnerException.Message);
             }
         }
 
         [Test]
-        public void testEqualityQueryTest() {
-            doQuerySetup();
+        public void testEqualityQueryTest ()
+        {
+            doQuerySetup ();
 
             String selectorJSON = "\"selector\": {\"" + ageKey + "\": {\"$eq\":5} }";
-            Task <List<DocumentRevision>> task = db.FindByIndex(selectorJSON,
-                new FindByIndexOptions()
-                .Sort(new IndexField(ageKey, IndexField.SortOrder.desc))
-                );
+            Task <List<DocumentRevision>> task = db.FindByIndex (selectorJSON,
+                                                     new FindByIndexOptions ()
+                .Sort (new IndexField (ageKey, IndexField.SortOrder.desc))
+                                                 );
             
             task.Wait ();
             List<DocumentRevision> result = task.Result;
 
-            Assert.False(task.IsFaulted, "findByIndex() failed");
-            Assert.IsNotNull(task.Result, "Query result was null");
-            Assert.True(result.Count == 1);
+            Assert.False (task.IsFaulted, "findByIndex() failed");
+            Assert.IsNotNull (task.Result, "Query result was null");
+            Assert.True (result.Count == 1);
 
             DocumentRevision revision = result.Find (item => item.body != null);
             Object age;
-            revision.body.TryGetValue(ageKey, out age);
-            Assert.True((long)age==5);
+            revision.body.TryGetValue (ageKey, out age);
+            Assert.True ((long)age == 5);
         }
 
         [Test]
-        public void testGreaterThanQueryWithSortOptionTest() {
-            doQuerySetup();
+        public void testGreaterThanQueryWithSortOptionTest ()
+        {
+            doQuerySetup ();
 
             String selectorJSON = "\"selector\": {\"" + ageKey + "\": {\"$gt\":1} }";
-            Task <List<DocumentRevision>> task = db.FindByIndex(selectorJSON,
-                new FindByIndexOptions()
-                .Sort(new IndexField(ageKey, IndexField.SortOrder.desc))
-            );
+            Task <List<DocumentRevision>> task = db.FindByIndex (selectorJSON,
+                                                     new FindByIndexOptions ()
+                .Sort (new IndexField (ageKey, IndexField.SortOrder.desc))
+                                                 );
 
             task.Wait ();
             List<DocumentRevision> result = task.Result;
 
-            Assert.False(task.IsFaulted, "findByIndex() failed");
-            Assert.IsNotNull(task.Result, "Query result was null");
-            Assert.True(result.Count == 18);
+            Assert.False (task.IsFaulted, "findByIndex() failed");
+            Assert.IsNotNull (task.Result, "Query result was null");
+            Assert.True (result.Count == 18);
 
-            DocumentRevision revision = result[0];
+            DocumentRevision revision = result [0];
             Object age;
-            revision.body.TryGetValue(ageKey, out age);
-            Assert.True((long)age==19);
+            revision.body.TryGetValue (ageKey, out age);
+            Assert.True ((long)age == 19);
         }
 
         [Test]
-        public void testLimitQueryTest() {
+        public void testLimitQueryTest ()
+        {
             doQuerySetup ();
 
             String selectorJSON = "\"selector\": {\"" + ageKey + "\": {\"$gt\":10} }";
             Task <List<DocumentRevision>> task = db.FindByIndex (selectorJSON,
-                new FindByIndexOptions ()
+                                                     new FindByIndexOptions ()
                 .Limit (5)
-            );
+                                                 );
 
             task.Wait ();
             List<DocumentRevision> result = task.Result;
@@ -305,16 +311,17 @@ namespace Test.Shared
                 Assert.True ((long)age > 10);
             }
         }
-                
+
         [Test]
-        public void testSkipQueryTest() {
+        public void testSkipQueryTest ()
+        {
             doQuerySetup ();
 
             String selectorJSON = "\"selector\": {\"" + ageKey + "\": {\"$gt\":10} }";
             Task <List<DocumentRevision>> task = db.FindByIndex (selectorJSON,
-                new FindByIndexOptions ()
-                .Skip(5)
-            );
+                                                     new FindByIndexOptions ()
+                .Skip (5)
+                                                 );
 
             task.Wait ();
             List<DocumentRevision> result = task.Result;
@@ -331,46 +338,48 @@ namespace Test.Shared
         }
 
         [Test]
-        public void testInvalidSelectorQueryTest() {
-            try{
+        public void testInvalidSelectorQueryTest ()
+        {
+            try {
                 doQuerySetup ();
 
                 String selectorJSON = "\"invalidKeyword\": {\"" + ageKey + "\": {\"$gt\":10} }";
                 Task <List<DocumentRevision>> task = db.FindByIndex (selectorJSON,
-                    new FindByIndexOptions ()
-                    .Skip(5)
-                );
+                                                         new FindByIndexOptions ()
+                    .Skip (5)
+                                                     );
 
                 task.Wait ();
-                Assert.True(task.IsFaulted,"findByIndex() with invalid selector JSON should fail");
-            }
-            catch (Exception e){
+                Assert.True (task.IsFaulted, "findByIndex() with invalid selector JSON should fail");
+            } catch (Exception e) {
                 Assert.Pass ("expected testInvalidSelectorQueryTest exception caught.  Cause:" + e.InnerException.Message);
             }
 
         }
 
         // Private helpers
-        private void doQuerySetupWithFields(String indexName, List<IndexField> indexFields) {
+        private void doQuerySetupWithFields (String indexName, List<IndexField> indexFields)
+        {
 
-            Task indexTask = db.CreateIndex (indexName, designDocName, "json", indexFields.ToArray());
+            Task indexTask = db.CreateIndex (indexName, designDocName, "json", indexFields.ToArray ());
             indexTask.Wait ();
 
             for (int i = 0; i < 20; i++) {
-                Dictionary<String, Object> dictionary = new Dictionary<String, Object>();
-                dictionary.Add(nameKey, nameValue + i);
-                dictionary.Add(ageKey, ageBaseValue + i);
+                Dictionary<String, Object> dictionary = new Dictionary<String, Object> ();
+                dictionary.Add (nameKey, nameValue + i);
+                dictionary.Add (ageKey, ageBaseValue + i);
 
-                DocumentRevision revision = new DocumentRevision();
+                DocumentRevision revision = new DocumentRevision ();
                 revision.body = dictionary;
-                Task<DocumentRevision> task = db.Save(revision);
+                Task<DocumentRevision> task = db.Create (revision);
                 task.Wait ();
             }               
         }
 
-        private void doQuerySetup() {
+        private void doQuerySetup ()
+        {
             ageIndexFields.Add (new IndexField (ageKey));
-            doQuerySetupWithFields(ageIndex, ageIndexFields);
+            doQuerySetupWithFields (ageIndex, ageIndexFields);
         }
 
     }
