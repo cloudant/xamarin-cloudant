@@ -357,7 +357,436 @@ namespace Test.Shared
 
         }
 
+        [Test]
+        public void testCreateDocumentWithSlash ()
+        {
+            var document = new DocumentRevision () {
+                docId = "my/document",
+                body = new Dictionary<string,Object> () {
+                    ["hello" ] = "world"
+                }
+            };
+
+            var savedDocument = CreateAndAssert (document);
+
+            //read
+            ReadAndAssert (document, savedDocument);
+
+            // update
+            var updated = UpdateAndAssert (document, savedDocument);
+
+            // delete
+            DeleteAndAssert (updated);
+
+        }
+
+        [Test]
+        public void testCreateDocumentInDbWithSlash ()
+        {
+            
+            var db = client.Database ("my/database");
+            try {
+                db.EnsureExists ();
+
+                var document = new DocumentRevision () {
+                    docId = "my/document",
+                    body = new Dictionary<string,Object> () {
+                    ["hello" ] = "world"
+                    }
+                };
+
+                var savedDocument = CreateAndAssert (document);
+
+                //read
+                ReadAndAssert (document, savedDocument);
+
+                // update
+                var updated = UpdateAndAssert (document, savedDocument);
+
+                // delete
+                DeleteAndAssert (updated);
+            } finally {
+                db.Delete ().Wait ();
+            }
+
+        }
+
+
+        [Test]
+        public void testCreateDocumentWithColon ()
+        {
+            var document = new DocumentRevision () {
+                docId = "my:document",
+                body = new Dictionary<string,Object> () {
+                    ["hello" ] = "world"
+                }
+            };
+
+            var savedDocument = CreateAndAssert (document);
+
+            //read
+            ReadAndAssert (document, savedDocument);
+
+            // update
+            var updated = UpdateAndAssert (document, savedDocument);
+
+            // delete
+            DeleteAndAssert (updated);
+        }
+
+        [Test]
+        public void testCreateDocumentWithQuestionMark ()
+        {
+            var document = new DocumentRevision () {
+                docId = "my?document",
+                body = new Dictionary<string,Object> () {
+                    ["hello" ] = "world"
+                }
+            };
+
+            var savedDocument = CreateAndAssert (document);
+
+            //read
+            ReadAndAssert (document, savedDocument);
+
+            // update
+            var updated = UpdateAndAssert (document, savedDocument);
+
+            // delete
+            DeleteAndAssert (updated);
+        }
+
+        [Test]
+        public void testCreateDocumentWithAt ()
+        {
+            var document = new DocumentRevision () {
+                docId = "my@document",
+                body = new Dictionary<string,Object> () {
+                    ["hello" ] = "world"
+                }
+            };
+
+            var savedDocument = CreateAndAssert (document);
+
+            //read
+            ReadAndAssert (document, savedDocument);
+
+            // update
+            var updated = UpdateAndAssert (document, savedDocument);
+
+            // delete
+            DeleteAndAssert (updated);
+        }
+
+        [Test]
+        public void testCreateDocumentWithHash ()
+        {
+            var document = new DocumentRevision () {
+                docId = "my#document",
+                body = new Dictionary<string,Object> () {
+                    ["hello" ] = "world"
+                }
+            };
+
+            var savedDocument = CreateAndAssert (document);
+
+            //read
+            ReadAndAssert (document, savedDocument);
+
+            // update
+            var updated = UpdateAndAssert (document, savedDocument);
+
+            // delete
+            DeleteAndAssert (updated);
+        }
+
+        [Test]
+        public void testCreateDocumentWithSquareBrackets ()
+        {
+            var document = new DocumentRevision () {
+                docId = "my[document]",
+                body = new Dictionary<string,Object> () {
+                    ["hello" ] = "world"
+                }
+            };
+
+            var savedDocument = CreateAndAssert (document);
+
+            //read
+            ReadAndAssert (document, savedDocument);
+
+            // update
+            var updated = UpdateAndAssert (document, savedDocument);
+
+            // delete
+            DeleteAndAssert (updated);
+        }
+
+        [Test]
+        public void testCreateDocumentWithDollar ()
+        {
+            var document = new DocumentRevision () {
+                docId = "my$document",
+                body = new Dictionary<string,Object> () {
+                    ["hello" ] = "world"
+                }
+            };
+
+            var savedDocument = CreateAndAssert (document);
+
+            //read
+            ReadAndAssert (document, savedDocument);
+
+            // update
+            var updated = UpdateAndAssert (document, savedDocument);
+
+            // delete
+            DeleteAndAssert (updated);
+        }
+
+        [Test]
+        public void testCreateDocumentWithApostrophe ()
+        {
+            var document = new DocumentRevision () {
+                docId = "my'document",
+                body = new Dictionary<string,Object> () {
+                    ["hello" ] = "world"
+                }
+            };
+
+            var savedDocument = CreateAndAssert (document);
+
+            //read
+            ReadAndAssert (document, savedDocument);
+
+            // update
+            var updated = UpdateAndAssert (document, savedDocument);
+
+            // delete
+            DeleteAndAssert (updated);
+        }
+
+        [Test]
+        public void testCreateDocumentWithAmpersand ()
+        {
+            var document = new DocumentRevision () {
+                docId = "my&document",
+                body = new Dictionary<string,Object> () {
+                    ["hello" ] = "world"
+                }
+            };
+
+            var savedDocument = CreateAndAssert (document);
+
+            //read
+            ReadAndAssert (document, savedDocument);
+
+            // update
+            var updated = UpdateAndAssert (document, savedDocument);
+
+            // delete
+            DeleteAndAssert (updated);
+        }
+
+        [Test]
+        public void testCreateDocumentWithRoundBrackets ()
+        {
+            var document = new DocumentRevision () {
+                docId = "my(document)",
+                body = new Dictionary<string,Object> () {
+                    ["hello" ] = "world"
+                }
+            };
+
+            var savedDocument = CreateAndAssert (document);
+
+            //read
+            ReadAndAssert (document, savedDocument);
+
+            // update
+            var updated = UpdateAndAssert (document, savedDocument);
+
+            // delete
+            DeleteAndAssert (updated);
+        }
+
+
+        [Test]
+        public void testCreateDocumentWithEquals ()
+        {
+            var document = new DocumentRevision () {
+                docId = "my=document",
+                body = new Dictionary<string,Object> () {
+                    ["hello" ] = "world"
+                }
+            };
+
+            var savedDocument = CreateAndAssert (document);
+
+            //read
+            ReadAndAssert (document, savedDocument);
+
+            // update
+            var updated = UpdateAndAssert (document, savedDocument);
+
+            // delete
+            DeleteAndAssert (updated);
+        }
+
+        [Test]
+        public void testCreateDocumentWithSemiColon ()
+        {
+            var document = new DocumentRevision () {
+                docId = "my;document",
+                body = new Dictionary<string,Object> () {
+                    ["hello" ] = "world"
+                }
+            };
+
+            var savedDocument = CreateAndAssert (document);
+
+            //read
+            ReadAndAssert (document, savedDocument);
+
+            // update
+            var updated = UpdateAndAssert (document, savedDocument);
+
+            // delete
+            DeleteAndAssert (updated);
+        }
+
+        [Test]
+        public void testCreateDocumentWithComma ()
+        {
+            var document = new DocumentRevision () {
+                docId = "my,document",
+                body = new Dictionary<string,Object> () {
+                    ["hello" ] = "world"
+                }
+            };
+
+            var savedDocument = CreateAndAssert (document);
+
+            //read
+            ReadAndAssert (document, savedDocument);
+
+            // update
+            var updated = UpdateAndAssert (document, savedDocument);
+
+            // delete
+            DeleteAndAssert (updated);
+        }
+
+        [Test]
+        public void testCreateDocumentWithPlus ()
+        {
+            var document = new DocumentRevision () {
+                docId = "my+document",
+                body = new Dictionary<string,Object> () {
+                    ["hello" ] = "world"
+                }
+            };
+
+            var savedDocument = CreateAndAssert (document);
+
+            //read
+            ReadAndAssert (document, savedDocument);
+
+            // update
+            var updated = UpdateAndAssert (document, savedDocument);
+
+            // delete
+            DeleteAndAssert (updated);
+        }
+
+        [Test]
+        public void testCreateDocumentWithStar ()
+        {
+            var document = new DocumentRevision () {
+                docId = "my*document",
+                body = new Dictionary<string,Object> () {
+                    ["hello" ] = "world"
+                }
+            };
+
+            var savedDocument = CreateAndAssert (document);
+
+            //read
+            ReadAndAssert (document, savedDocument);
+
+            // update
+            var updated = UpdateAndAssert (document, savedDocument);
+
+            // delete
+            DeleteAndAssert (updated);
+        }
+
+        [Test]
+        public void testCreateDocumentWithExclamation ()
+        {
+            var document = new DocumentRevision () {
+                docId = "my!document",
+                body = new Dictionary<string,Object> () {
+                    ["hello" ] = "world"
+                }
+            };
+
+            var savedDocument = CreateAndAssert (document);
+
+            //read
+            ReadAndAssert (document, savedDocument);
+
+            // update
+            var updated = UpdateAndAssert (document, savedDocument);
+
+            // delete
+            DeleteAndAssert (updated);
+        }
+
+
+
         // Private helpers
+
+        private DocumentRevision CreateAndAssert (DocumentRevision document)
+        {
+            Task<DocumentRevision> task = db.Create (document);
+            task.Wait ();
+            Assert.IsFalse (task.IsFaulted);
+            Assert.IsNotNull (task.Result);
+            var savedDocument = task.Result;
+
+            Assert.AreEqual (document.docId, savedDocument.docId);
+            Assert.AreEqual (document.body, savedDocument.body);
+
+            return savedDocument;
+        }
+
+        private void ReadAndAssert (DocumentRevision document, DocumentRevision savedDocument)
+        {
+            var readDocumentTask = db.Read (document.docId);
+            readDocumentTask.Wait ();
+            Assert.IsFalse (readDocumentTask.IsFaulted);
+            Assert.AreEqual (savedDocument, readDocumentTask.Result);
+        }
+
+        private DocumentRevision UpdateAndAssert (DocumentRevision document, DocumentRevision savedDocument)
+        {
+            savedDocument.body.Add ("updated", true);
+            var updateTask = db.Update (savedDocument);
+            updateTask.Wait ();
+            Assert.IsFalse (updateTask.IsFaulted);
+            Assert.AreEqual (document.docId, updateTask.Result.docId);
+            return updateTask.Result;
+        }
+
+        private void DeleteAndAssert (DocumentRevision updated)
+        {
+            var deleteTask = db.Delete (updated);
+            deleteTask.Wait ();
+            Assert.IsFalse (deleteTask.IsFaulted);
+        }
+
+
         private void doQuerySetupWithFields (String indexName, List<IndexField> indexFields)
         {
 
@@ -382,6 +811,10 @@ namespace Test.Shared
             doQuerySetupWithFields (ageIndex, ageIndexFields);
         }
 
+
+
     }
+
+
 }
 

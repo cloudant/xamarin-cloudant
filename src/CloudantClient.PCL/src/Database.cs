@@ -187,7 +187,7 @@ namespace IBM.Cloudant.Client
                     "parameter must not be null or empty");
                 }
 
-                Uri requestUrl = new Uri (dbNameUrlEncoded + "/" + documentId, UriKind.Relative);
+                Uri requestUrl = new Uri (dbNameUrlEncoded + "/" + Uri.EscapeDataString (documentId), UriKind.Relative);
                 Debug.WriteLine ("fetch document relative URI is: " + requestUrl.ToString ());
 
                 Task<DocumentRevision> result = Task.Run (() => {
@@ -266,7 +266,7 @@ namespace IBM.Cloudant.Client
                 }
 
                 Uri requestUrl = new Uri (dbNameUrlEncoded + "/"
-                                 + revision.docId + "?rev=" + revision.revId, UriKind.Relative);
+                                 + Uri.EscapeDataString (revision.docId) + "?rev=" + Uri.EscapeDataString (revision.revId), UriKind.Relative);
                 Task<String> result = Task.Run (() => {
                     // Send the HTTP request
                     Task<HttpResponseMessage> httpTask = client.httpHelper.sendDelete (requestUrl, null);
@@ -595,7 +595,11 @@ namespace IBM.Cloudant.Client
             Debug.WriteLine ("=== enter Database::createDocumentRevision()");
             try {
                 Uri uri = null;
-                uri = new Uri (dbNameUrlEncoded + "/" + doc.docId, UriKind.Relative);
+                string encodedDocId = null;
+                if (doc.docId != null) {
+                    encodedDocId = Uri.EscapeDataString (doc.docId);
+                }
+                uri = new Uri (dbNameUrlEncoded + "/" + encodedDocId, UriKind.Relative);
                 Debug.WriteLine ("reltive URL is: " + uri.ToString ());
 
                 Dictionary<String,Object> payload = ConvertDocToJSONPayload (doc);
@@ -683,7 +687,7 @@ namespace IBM.Cloudant.Client
 
 
                 if (doc.docId != null) {
-                    uri = new Uri (dbNameUrlEncoded + "/" + doc.docId, UriKind.Relative);
+                    uri = new Uri (dbNameUrlEncoded + "/" + Uri.EscapeDataString (doc.docId), UriKind.Relative);
                 } else {
                     string errorMessage = "HTTP request to update document failed: the document revision must contain docId";
                     throw new DataException (DataException.Database_SaveDocumentRevisionFailure, errorMessage);
