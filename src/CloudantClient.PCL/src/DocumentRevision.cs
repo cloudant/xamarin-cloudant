@@ -12,7 +12,8 @@
 //  and limitations under the License.
 using System;
 using System.Collections.Generic;
-
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace IBM.Cloudant.Client
 {
@@ -22,7 +23,7 @@ namespace IBM.Cloudant.Client
     /// <remarks>
     /// This class contains the metadata and content associated with a Cloudant document revision.
     /// </remarks>
-    public class DocumentRevision
+    public class DocumentRevision : IEquatable<DocumentRevision>
     {
         private static string DOC_ID = "_id";
         private static string DOC_REV = "_rev";
@@ -88,6 +89,22 @@ namespace IBM.Cloudant.Client
                 isDeleted = (Boolean)deleted;
                 body.Remove (DOC_DELETED);
             }
+        }
+
+        public bool Equals (DocumentRevision other)
+        {
+
+            var otherBody = JToken.FromObject (other.body);
+            var thisBody = JToken.FromObject (this.body);
+
+            return this.docId.Equals (other.docId) && this.revId.Equals (other.revId) && JToken.DeepEquals (thisBody, otherBody);
+        }
+
+        override public string ToString ()
+        {
+
+            string body = JsonConvert.SerializeObject (this.body);
+            return "{ id:" + this.docId + ", revId:" + this.revId + ", " + body + " }";
         }
     }
 }
