@@ -42,17 +42,27 @@ namespace IBM.Cloudant.Client
         /// <summary>
         /// Constructs a new instance of this class and connects to the cloudant server using a builder class.
         /// </summary>
-        /// <param name="builder">Builder class. <see cref="Com.Cloudant.Client.CloudantClientBuilder"/> </param>
-        public CloudantClient(CloudantClientBuilder builder){
+        /// <param name="builder">Builder class. <see cref="IBM.Cloudant.Client.CloudantClientBuilder"/> </param>
+        public CloudantClient (CloudantClientBuilder builder)
+        {
             this.accountUri = builder.accountUri;
             this.username = builder.username;
             this.password = builder.password;
 
-            InitHttpHelper (builder.interceptors);
+
+            List<IHttpConnectionInterceptor> interceptors = new List<IHttpConnectionInterceptor> ();
+            if (builder.interceptors != null) {
+                interceptors.AddRange (builder.interceptors);
+            }
 
             if (!string.IsNullOrWhiteSpace (username) && !string.IsNullOrWhiteSpace (password)) {
-                httpHelper.addGlobalHeaders ("Authorization", "Basic " + Convert.ToBase64String (System.Text.UTF8Encoding.UTF8.GetBytes (username + ":" + password)));
+                var cookieInterceptor = new CookieInterceptor (username, password);
+                interceptors.Add (cookieInterceptor);
             }
+
+            InitHttpHelper (interceptors);
+
+
         }
 
 
@@ -65,10 +75,11 @@ namespace IBM.Cloudant.Client
         /// </summary>
         /// <param name="dbname">name of database to access</param>
         /// <returns>A database object that represents a database on the server</returns>
-        public Database  Database(String dbname) {
+        public Database  Database (String dbname)
+        {
 
-            if(string.IsNullOrEmpty(dbname)){
-                throw new DataException(DataException.Database_DatabaseModificationFailure, 
+            if (string.IsNullOrEmpty (dbname)) {
+                throw new DataException (DataException.Database_DatabaseModificationFailure, 
                     "Database name parameter may not be null or empty.");
             }
 
@@ -78,16 +89,17 @@ namespace IBM.Cloudant.Client
 
         // ======== PRIVATE HELPERS =============
 
-        private void InitHttpHelper(List<IHttpConnectionInterceptor> interceptors){
+        private void InitHttpHelper (List<IHttpConnectionInterceptor> interceptors)
+        {
             if (interceptors != null) {
                 List<IHttpConnectionRequestInterceptor> requestInterceptors = new List<IHttpConnectionRequestInterceptor> ();
                 List<IHttpConnectionResponseInterceptor> responseInterceptors = new List<IHttpConnectionResponseInterceptor> ();
 
                 foreach (IHttpConnectionInterceptor httpConnInterceptor in interceptors) {
-                    if(httpConnInterceptor == null || 
-                        ! (httpConnInterceptor is IHttpConnectionRequestInterceptor || httpConnInterceptor is IHttpConnectionResponseInterceptor))
-                        throw new DataException(DataException.Configuration_InvalidHttpInterceptor, string.Format("Http interceptors must implement either IHttpConnectionRequestInterceptor or " +
-                            "IHttpConnectionResponseInterceptor interfaces. Class {0} doesn't implement either if these interfaces.",httpConnInterceptor.GetType()));
+                    if (httpConnInterceptor == null ||
+                        !(httpConnInterceptor is IHttpConnectionRequestInterceptor || httpConnInterceptor is IHttpConnectionResponseInterceptor))
+                        throw new DataException (DataException.Configuration_InvalidHttpInterceptor, string.Format ("Http interceptors must implement either IHttpConnectionRequestInterceptor or " +
+                        "IHttpConnectionResponseInterceptor interfaces. Class {0} doesn't implement either if these interfaces.", httpConnInterceptor.GetType ()));
 
                     if (httpConnInterceptor is IHttpConnectionRequestInterceptor)
                         requestInterceptors.Add (httpConnInterceptor as IHttpConnectionRequestInterceptor);
@@ -96,7 +108,7 @@ namespace IBM.Cloudant.Client
                         responseInterceptors.Add (httpConnInterceptor as IHttpConnectionResponseInterceptor);
                 }
 
-                httpHelper = new HttpHelper ( accountUri, requestInterceptors, responseInterceptors);
+                httpHelper = new HttpHelper (accountUri, requestInterceptors, responseInterceptors);
 
             } else {
                 httpHelper = new HttpHelper (accountUri);
