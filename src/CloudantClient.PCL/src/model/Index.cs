@@ -29,17 +29,22 @@ namespace IBM.Cloudant.Client
         /// <summary>
         /// Design document identifier for this index
         /// </summary>
-        public string ddoc { get; }
+        public string ddoc { get; private set; }
 
         /// <summary>
         /// Name of the index
         /// </summary>
-        public string name { get; }
+        public string name { get; private set; }
 
         /// <summary>
         /// Index type e.g. json
         /// </summary>
-        public string type { get; }
+        public string type { get; private set; }
+
+        /// <summary>
+        /// Index Fields for this index 
+        /// </summary>
+        public List<SortField> indexFields { get; private set; }
 
 
         /// <summary>
@@ -48,29 +53,14 @@ namespace IBM.Cloudant.Client
         /// <param name="designDocId">Design document identifier</param>
         /// <param name="name">Name of the index</param>
         /// <param name="type">Index type e.g. json</param>
-        public Index(string designDocId, string name, string type) {
+        public Index (string designDocId, string name, string type)
+        {
             this.ddoc = designDocId;
             this.name = name;
             this.type = type;
+            this.indexFields = new List<SortField> ();
         }
 
-
-        /// <summary>
-        /// Adds a new index field
-        /// </summary>
-        /// <param name="fieldName">Name of the index field</param>
-        /// <param name="order">Sort order</param>
-        public void AddIndexField(string fieldName, IndexField.SortOrder order) {
-            indexFields.Add(new IndexField(fieldName, order));
-        }
-
-        //NOTE: The declaration of indexFields should be kept at the end of the file because this 
-        //      statement produces a validation error in the XML help of any element defined after it.
-
-        /// <summary>
-        /// Index Fields for this index 
-        /// </summary>
-        public List<IndexField> indexFields { get; } = new List<IndexField>();
     }
 }
 

@@ -47,6 +47,11 @@ namespace IBM.Cloudant.Client
         private static readonly string INDEX_TYPE_JSON_VALUE = "json";
         private static readonly string INDEX_DESIGN_DOCUMENT_JSON_KEY = "ddoc";
 
+
+        private static readonly List<string> validTextFieldTypes = new List<string> () {
+            "string", "number", "boolean"  
+        };
+
         private CloudantClient client;
         private string dbNameUrlEncoded;
 
@@ -254,7 +259,7 @@ namespace IBM.Cloudant.Client
         /// <summary>
         /// Delete the specified Document Revision.
         /// </summary>
-        /// <param name="revisionToRemove">Document revision to delete.</param>
+        /// <param name="revision">Document revision to delete.</param>
         public Task<String> Delete (DocumentRevision revision)
         {
             Debug.WriteLine ("==== enter Database::delete(Object)");
@@ -311,73 +316,142 @@ namespace IBM.Cloudant.Client
             }
         }
 
-
-        /// <summary>
-        /// Create a new index.
-        /// Also see: <a href="http://docs.cloudant.com/api/cloudant-query.html#creating-a-new-index">
-        /// http://docs.cloudant.com/api/cloudant-query.html#creating-a-new-index</a>
+        ///<summary>
+        /// Creates a Cloudant Query index of type <c>json</c>
         /// </summary>
-        /// <param name="indexName">optional name of the index (if not provided one will be generated)</param>
-        /// <param name="designDocName">optional name of the design doc in which the index will be created</param>
-        /// <param name="indexType">optional, type of index (only "json" as of now)</param>
-        /// <param name="fields">array of fields in the index</param>
-        public Task CreateIndex (String indexName, String designDocName, String indexType,
-                                 IndexField[] fields)
+        /// <param name="fields"> The fields of which to index, specified using <see href="https://docs.cloudant.com/cloudant_query.html#sort-syntax">Sort Syntax</see> </param>
+        /// <param name="indexName"> Optional. The name to call this index, if ommited, CouchDB will generate the name for the index. </param>
+        /// <param name="designDocumentName"> Optional. The name of the design document to save this index definition</param>
+        /// <returns>A Task that represents the async operation</returns>
+        public Task CreateJsonIndex (IList<SortField> fields, string indexName = null, string designDocumentName = null)
         {
 
-            if (fields == null || fields.Length == 0)
-                //throw new DataException(DataException.Database_IndexModificationFailure, "index fields must not be null or empty");
-            throw new DataException (DataException.Database_IndexModificationFailure, "fields parameter must be non-empty and a valid array of" +
-                typeof(IndexField) + " objects.");
+            //validate fields for sort syntax compilence
 
-            if (indexType != null && !indexType.Equals (INDEX_TYPE_JSON_VALUE))
-                throw new DataException (DataException.Database_IndexModificationFailure, "Only 'json' indexType supported.");
-            
+            var requestDict = new Dictionary<string, object> () {
+                ["type" ] = "json"
+            };
+
+            var convertedFieldList = new List<object> ();
+            foreach (SortField sort  in fields) {
+                if (sort.sort != null) {
+                    convertedFieldList.Add (new Dictionary<string,string> () {
+                        [sort.name ] = sort.sort.ToString ()
+                    });
+                } else {
+                    convertedFieldList.Add (sort.name);
+                }
+            }
                 
-            Task result = Task.Run (() => {
-                String indexDefn = GetIndexDefinition (indexName, designDocName, indexType, fields);
-                CreateIndex (indexDefn).Wait ();
-            });
 
-            return result;
+            var index = new Dictionary<string,object> () {
+                ["fields" ] = convertedFieldList
+            };
+
+            requestDict.Add ("index", index);
+
+
+            if (indexName != null) {
+                requestDict.Add ("name", indexName);
+            }
+
+            if (designDocumentName != null) {
+                requestDict.Add ("ddoc", designDocumentName);
+            }
+                
+
+            return this.CreateIndex (requestDict);
+        }
+
+        /// <summary>
+        /// Creates a Cloudant Query index of type <c>text</c>
+        /// </summary>
+        /// <returns>A task which represents the async operation</returns>
+        /// <param name="fields">Optional - The fields to index, this must follow the format specified in the
+        /// <see href="https://docs.cloudant.com/cloudant_query.html#creating-an-index">Cloudant documentation</see> </param>
+        /// <param name="indexName"></param>
+        /// <param name="designDocumentName"></param>
+        /// <param name="selector">Optional - A selector to select documents based on a query</param>
+        /// <param name="defaultFieldEnabled">Optional (defaults to false)- Enables the default_field for the index, 
+        /// default_field needs to be enabled in order to use the<c>$text</c> operator in queries.</param>
+        /// <param name="defaultFieldAnalyzer">Optional, CouchDb will use the default analyzer if one is not specified. 
+        /// This specifies the anayalzer to use for $text query operations</param>
+        public Task CreateTextIndex (IList<TextIndexField> fields = null,
+                                     string indexName = null, 
+                                     string designDocumentName = null,
+                                     IDictionary<string,object> selector = null,
+                                     Boolean defaultFieldEnabled = false,
+                                     string defaultFieldAnalyzer = null)
+        {
+            var index = new Dictionary<string,object> ();
+            var requestDict = new Dictionary<string, object> () {
+                ["type" ] = "text",
+                ["index" ] = index,
+
+            };
+
+            if (indexName != null) {
+                requestDict.Add ("name", indexName);
+            }
+
+            if (designDocumentName != null) {
+                requestDict.Add ("ddoc", designDocumentName);
+            }
+                    
+            if (fields != null) {
+
+
+                //validate the fields
+                var fieldsDictList = new List<Dictionary<string,string>> ();
+
+                if (fields.Count > 0) { //equal to zero will cause indexing all fields
+                    foreach (TextIndexField sf in fields) {
+                        fieldsDictList.Add (new Dictionary<string,string> () {
+                            ["name" ] = sf.name,
+                            ["type" ] = sf.type.ToString ().ToLower ()
+                        });
+                    }
+                }
+
+                index.Add ("fields", fieldsDictList);
+            }
+
+            if (selector != null) {
+                index.Add ("selector", selector);
+            }
+
+
+            var default_field = new Dictionary<String,Object> () {
+                ["enabled" ] = defaultFieldEnabled
+            };
+
+            if (defaultFieldAnalyzer != null) {
+                default_field.Add ("analyzer", defaultFieldAnalyzer);
+            }
+
+            index.Add ("default_field", default_field);
+
+            return this.CreateIndex (requestDict);
         }
 
 
-        /// <summary>
-        /// Create a new Index
-        /// See <a href="http://docs.cloudant.com/api/cloudant-query.html#creating-a-new-index">
-        /// http://docs.cloudant.com/api/cloudant-query.html#creating-a-new-index</a>
-        /// </summary>
-        /// <param name="indexDefinition"> Index definition. See documentation for correct format.</param>
-        public Task CreateIndex (String indexDefinition)
+        private Task CreateIndex (Dictionary<String,Object> indexDefinition)
         {
-            
-            if (string.IsNullOrWhiteSpace (indexDefinition))
-                throw new DataException (DataException.Database_IndexModificationFailure, "indexDefinition may not be null or empty");
-
             Task result = Task.Run (() => {
                 Uri indexUri = new Uri (dbNameUrlEncoded + "/_index", UriKind.Relative);
                 Debug.WriteLine ("index relative URI: " + indexUri);
 
-
-                Dictionary <string,object> body;
-                try {
-                    body = JsonConvert.DeserializeObject<Dictionary<string,object>> (indexDefinition);
-                } catch (Exception) {
-                    throw new DataException (DataException.Database_IndexModificationFailure, "Error creating index: indexDefinition contains invalid JSON.");
-                }
-                    
-                Task<HttpResponseMessage> httpTask = client.httpHelper.sendPost (indexUri, null, body);
+                Task<HttpResponseMessage> httpTask = client.httpHelper.sendPost (indexUri, null, indexDefinition);
                 httpTask.Wait ();
 
                 if (!httpTask.IsFaulted) {
                     if (httpTask.Result.StatusCode == HttpStatusCode.OK || httpTask.Result.StatusCode == HttpStatusCode.Created) { //Status code 200 or 201
-                        Debug.WriteLine (string.Format ("Created Index: '{0}'", indexDefinition));
+                        Debug.WriteLine (string.Format ("Created Index: '{0}'", JsonConvert.SerializeObject (indexDefinition)));
                         return;
                     } else {
-                        Debug.WriteLine (string.Format ("Error creating index : '{0}'", indexDefinition));
+                        Debug.WriteLine (string.Format ("Error creating index : '{0}'", JsonConvert.SerializeObject (indexDefinition)));
                         throw new DataException (DataException.Database_IndexModificationFailure,
-                            string.Format ("Error creating index : '{0}'", indexDefinition)); 
+                            string.Format ("Error creating index : '{0}'", JsonConvert.SerializeObject (indexDefinition))); 
                     }
                 } 
             });
@@ -387,33 +461,84 @@ namespace IBM.Cloudant.Client
 
 
         /// <summary>
-        /// Finds documents based using an index.
-        /// See <a href="https://docs.cloudant.com/cloudant_query.html#finding-documents-using-an-index">
-        /// https://docs.cloudant.com/cloudant_query.html#finding-documents-using-an-index</a>
+        /// Query the database for documents matching a selector.
         /// </summary>
-        /// <returns>List of matching documents.</returns>
-        /// <param name="selectorJson">JSON String describing criteria used to select documents.
-        ///                     Is of the form "selector": your data here </param>
-        /// <param name="options">Options describing the query options to apply.  </param>
-        public Task<List<DocumentRevision>> FindByIndex (String selectorJson, FindByIndexOptions
-            options)
+        /// <param name="selector">the selector to use to match documents</param>
+        /// <param name="fields">Optional, a subset of fields to return for
+        ///  each document matching the selector</param>
+        /// <param name="limit">Optional, limit the number of results from the query</param>
+        /// <param name="skip">Optional, skip this number of matching documents</param>
+        /// <param name="sort">Optional, how to sort the matching documents</param>
+        /// <param name="bookmark">Optional, text indexes only, a bookmark from where to continue receiving 
+        /// results.</param>
+        /// <param name="useIndex">Optional, The name of the index to use</param>
+        /// <param name="r">Optional, the read quorum.  WARNING: This is an advanced option and is rarely, 
+        /// if ever, needed. It will be detrimental to performance </param>
+        /// <seealso href="https://docs.cloudant.com/cloudant_query.html#finding-documents-using-an-index">Cloudant 
+        /// Documentation</seealso>
+        public Task<IList<DocumentRevision>> Query (IDictionary<string,object> selector,
+                                                    IList<string> fields = null,
+                                                    int limit = -1, 
+                                                    int skip = -1,
+                                                    IList<SortField> sort = null,
+                                                    string bookmark = null,
+                                                    string useIndex = null,
+                                                    int r = -1)
         {
-            if (selectorJson == null) {
-                throw new DataException (DataException.Database_QueryError, "selectorJson parameter cannot be null");
-            }
-            if (options == null) {
-                throw new DataException (DataException.Database_QueryError, "options parameter cannot be null");
+            if (selector == null) {
+                throw new DataException (DataException.Database_QueryError, "selectorparameter cannot be null");
             }
 
-            // POST query
-            Task<List<DocumentRevision>> result = Task.Run <List<DocumentRevision>> (() => {
+            // build the body
+            var body = new Dictionary<string,object> () {
+                ["selector" ] = selector
+                
+            };
+
+            if (fields != null) {
+                body.Add ("fields", fields);
+            }
+
+            if (limit > -1) {
+                body.Add ("limit", limit);
+            }
+
+            if (skip > -1) {
+                body.Add ("skip", skip);
+            }
+
+            if (sort != null) {
+                var convertedSortList = new List<object> ();
+                foreach (SortField s  in sort) {
+                    if (s.sort != null) {
+                        convertedSortList.Add (new Dictionary<string,string> () {
+                            [s.name ] = s.sort.ToString ()
+                        });
+                    } else {
+                        convertedSortList.Add (s.name);
+                    }
+                }
+                body.Add ("sort", convertedSortList);
+            }
+
+            if (bookmark != null) {
+                body.Add ("bookmark", bookmark);
+            }
+
+            if (useIndex != null) {
+                body.Add ("use_index", useIndex);
+            }
+
+            if (r > -1) {
+                body.Add ("r", r);
+            }
+                
+
+            Task<IList<DocumentRevision>> result = Task.Run <IList<DocumentRevision>> (() => {
                 Uri indexUri = new Uri (dbNameUrlEncoded + "/_find", UriKind.Relative);
-                String queryBody = GetFindByIndexBody (selectorJson, options);
-                Dictionary<string,string> headers = new Dictionary<string,string> ();
-                Dictionary <string,object> body = JsonConvert.DeserializeObject<Dictionary<string,object>> (queryBody);
 
-                Task<HttpResponseMessage> httpTask = client.httpHelper.sendPost (indexUri, headers, body);
-                Task<List<DocumentRevision>> responseTask = httpTask.ContinueWith ((antecedent) => {
+                Task<HttpResponseMessage> httpTask = client.httpHelper.sendPost (indexUri, null, body);
+                Task<IList<DocumentRevision>> responseTask = httpTask.ContinueWith ((antecedent) => {
                     if (httpTask.IsFaulted) {
                         Debug.WriteLine ("HTTP request to findByIndex task failed with error:" + httpTask.Exception.Message);
                         throw new DataException (DataException.Database_QueryError, httpTask.Exception.Message, httpTask.Exception);
@@ -434,7 +559,7 @@ namespace IBM.Cloudant.Client
                     Dictionary<string, object> responseJSON = JsonConvert.DeserializeObject<Dictionary<string, object>> (readContentTask.Result); 
                     Debug.WriteLine ("response JSON:{0}", JsonConvert.SerializeObject (responseJSON));
 
-                    List<DocumentRevision> list = new List<DocumentRevision> ();
+                    IList<DocumentRevision> documentList = new List<DocumentRevision> ();
                     Object documents;
                     responseJSON.TryGetValue ("docs", out documents);
                     JArray doclist = (JArray)documents;
@@ -461,10 +586,10 @@ namespace IBM.Cloudant.Client
                             revisionId,
                             JsonConvert.SerializeObject (documentBody));
 
-                        list.Add (createdDoc);
+                        documentList.Add (createdDoc);
                     }
 
-                    return list;
+                    return documentList;
                 });             
                 return responseTask;
             });
@@ -502,13 +627,17 @@ namespace IBM.Cloudant.Client
                         foreach (JObject indexArray in token.SelectToken("def.fields")) {
 
                             foreach (JProperty prop in indexArray.Properties()) {
+                                var indexfield = new SortField ();
+                                indexfield.name = prop.Name;
+                                Sort sort = Sort.asc; // temp sort value to please compiler
 
-                                if (prop.Value.ToString () == IndexField.SortOrder.asc.ToString ())
-                                    index.AddIndexField (prop.Name, IndexField.SortOrder.asc);
-                                else if (prop.Value.ToString () == IndexField.SortOrder.desc.ToString ())
-                                    index.AddIndexField (prop.Name, IndexField.SortOrder.desc);
-                                else
-                                    throw new DataException (DataException.Database_IndexModificationFailure, "invalid index field sort order value.");
+                                if (Enum.TryParse<Sort> (prop.Value.ToString (), out sort)) {
+                                    indexfield.sort = sort;
+                                    index.indexFields.Add (indexfield);
+                                } else {
+                                    throw new DataException (DataException.Database_IndexModificationFailure,
+                                        "invalid index field sort order value.");
+                                }
                             }
                         }
 
@@ -530,7 +659,8 @@ namespace IBM.Cloudant.Client
         /// <returns>A Task</returns>
         /// <param name="indexName">name of the index</param>
         /// <param name="designDocId">ID of the design doc</param>
-        public Task DeleteIndex (String indexName, String designDocId)
+        /// <param name="indexType">The type of index to delete</param>
+        public Task DeleteIndex (String indexName, String designDocId, IndexType indexType)
         {
 
             if (string.IsNullOrWhiteSpace (indexName))
@@ -539,8 +669,10 @@ namespace IBM.Cloudant.Client
                 throw new DataException (DataException.Database_IndexModificationFailure, "designDocId may not be null or empty");
 
 
+            String indexTypeString = indexType.ToString ();
+
             Task result = Task.Run (() => {
-                Uri indexUri = new Uri (dbNameUrlEncoded + "/_index/" + designDocId + "/json/" + indexName, UriKind.Relative);
+                Uri indexUri = new Uri (dbNameUrlEncoded + "/_index/" + designDocId + "/" + indexTypeString + "/" + indexName, UriKind.Relative);
 
                 Task<HttpResponseMessage> httpTask = client.httpHelper.sendDelete (indexUri, null);
                 httpTask.Wait ();
@@ -759,136 +891,7 @@ namespace IBM.Cloudant.Client
                 throw new DataException (DataException.Database_SaveDocumentRevisionFailure, e.Message, e);
             }
         }
-
-
-        /// <summary>
-        /// Form a create index json from parameters
-        /// </summary>
-        /// <returns>The index definition.</returns>
-        /// <param name="indexName">Index name.</param>
-        /// <param name="designDocName">Design document name.</param>
-        /// <param name="indexType">Index type.</param>
-        /// <param name="fields">Fields.</param>
-        private String GetIndexDefinition (String indexName, String designDocName,
-                                           string indexType, IndexField[] fields)
-        {
-
-            if (fields == null || fields.Length == 0)
-                throw new DataException (DataException.Database_IndexModificationFailure, "index fields must not be null or empty");
-            
-            bool addComma = false;
-            string json = "{";
-            if (!(indexName == null || indexName.Length == 0)) {
-                json += "\"name\": \"" + indexName + "\"";
-                addComma = true;
-            }
-            if (!(designDocName == null || designDocName.Length == 0)) {
-                if (addComma) {
-                    json += ",";
-                }
-                json += "\"ddoc\": \"" + designDocName + "\"";
-                addComma = true;
-            }
-            if (!(indexType == null || indexType.Length == 0)) {
-                if (addComma) {
-                    json += ",";
-                }
-                json += "\"type\": \"" + indexType + "\"";
-                addComma = true;
-            }
-
-            if (addComma) {
-                json += ",";
-            }
-            json += "\"index\": { \"fields\": [";
-            for (int i = 0; i < fields.Length; i++) {
-                json += "{\"" + fields [i].name + "\": " + "\"" + fields [i].sortOrder + "\"}";
-                if (i + 1 < fields.Length) {
-                    json += ",";
-                }
-            }
-
-            return json + "] }}";
-        }
-
-        private String GetFindByIndexBody (String selectorJson,
-                                           FindByIndexOptions options)
-        {
-
-            StringBuilder rf = null;
-            if (options.GetFields ().Count > 0) {
-                rf = new StringBuilder ("\"fields\": [");
-                int i = 0;
-                foreach (String s in options.GetFields()) {
-                    if (i > 0) {
-                        rf.Append (",");
-                    }
-                    rf.Append ("\"").Append (s).Append ("\"");
-                    i++;
-                }
-                rf.Append ("]");
-            }
-
-            StringBuilder so = null;
-            if (options.GetSort ().Count > 0) {
-                so = new StringBuilder ("\"sort\": [");
-                int i = 0;
-                foreach (IndexField idxfld in options.GetSort()) {
-                    if (i > 0) {
-                        so.Append (",");
-                    }
-                    so.Append ("{\"")
-                        .Append (idxfld.name)
-                        .Append ("\": \"")
-                        .Append (idxfld.sortOrder)
-                        .Append ("\"}");
-                    i++;
-                }
-                so.Append ("]");
-            }
-                
-            // needs to start with selector
-            if (!(selectorJson.Trim ().StartsWith ("\"selector\""))) {
-                throw new DataException (DataException.Database_QueryError, "selector JSON must begin with 'selector' keyworddocume");
-            }
-
-            StringBuilder finalbody = new StringBuilder ();
-            finalbody.Append ("{" + selectorJson);
-
-            if (rf != null) {
-                finalbody.Append (",")
-                    .Append (rf.ToString ());
-            }
-            if (so != null) {
-                finalbody.Append (",")
-                    .Append (so.ToString ());
-            }
-            if (options.GetLimit () > 0) {
-                finalbody.Append (",")
-                    .Append ("\"limit\": ")
-                    .Append (options.GetLimit ());
-            }
-            if (options.GetSkip () > 0) {
-                finalbody.Append (",")
-                    .Append ("\"skip\": ")
-                    .Append (options.GetSkip ());
-            }
-            if (options.GetReadQuorum () > 0) {
-                finalbody.Append (",")
-                    .Append ("\"r\": ")
-                    .Append (options.GetReadQuorum ());
-            }
-            if (options.GetUseIndex () != null) {
-                finalbody.Append (",")
-                    .Append ("\"use_index\": ")
-                    .Append (options.GetUseIndex ());
-            }
-            finalbody.Append ("}");
-
-            return finalbody.ToString ();
-        }
-
-            
+                        
     }
 }
 

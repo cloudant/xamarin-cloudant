@@ -26,105 +26,167 @@ namespace Test.Shared
         private static CloudantClient client;
 
         [SetUp]
-        public void setup(){
+        public void setup ()
+        {
             client = new CloudantClientBuilder (TestConstants.account) {
                 username = TestConstants.username,
                 password = TestConstants.password
             }.GetResult ();
 
             string DBName = "httphelpertests" + DateTime.Now.Ticks;
-            db = client.Database(DBName);
+            db = client.Database (DBName);
             db.EnsureExists ();
         }
 
         [TearDown]
-        public void tearDown(){
+        public void tearDown ()
+        {
             db.Delete ().Wait ();
         }
 
-        [Test]
-        public void indexTestAll() {
-            string indexName = "indexName";
-            string designDocName = "designDocName";
-            string fieldName = "fieldName";
 
-            Task indexTask = db.CreateIndex(indexName, designDocName, null,
-                new IndexField[]{new IndexField(fieldName, IndexField.SortOrder.asc)});
-            indexTask.Wait ();
 
-            Task<List<Index>> indices = db.ListIndices ();
-            indices.Wait ();
+        [Test] 
+        public void createJsonIndexAllFields ()
+        {
+            var sortItem = new SortField ();
+            sortItem.name = "foo";
+            sortItem.sort = Sort.asc;
+            var fields = new List<SortField> () {
+                sortItem
+            };
 
-            Assert.True (indices.Result.Count == 2, "Should have 2 indices. Found: "+indices.Result.Count);
-            Assert.True (indices.Result [1].name == indexName);
-            Assert.True (indices.Result [1].indexFields.Count == 1, "Should have 1 IndexField. Found: " + indices.Result [1].indexFields.Count);
-
-            Task deleteIndexTask = db.DeleteIndex (indexName, designDocName);
-            deleteIndexTask.Wait ();
-
-            Task<List<Index>> newIndices = db.ListIndices ();
-            newIndices.Wait ();
-
-            Assert.True (newIndices.Result.Count == 1, "Should have 1 index after deletion. Found: "+newIndices.Result.Count);
+            var task = db.CreateJsonIndex (fields: fields, indexName: "myindex", designDocumentName: "myddoc");
+            task.Wait ();
+            Assert.IsFalse (task.IsFaulted);
         }
 
+        [Test] 
+        public void createJsonIndexOnlyRequired ()
+        {
+            var sortItem = new SortField ();
+            sortItem.name = "foo";
+            sortItem.sort = Sort.asc;
+            var fields = new List<SortField> () {
+                sortItem
+            };
+
+            var task = db.CreateJsonIndex (fields: fields);
+            task.Wait ();
+            Assert.IsFalse (task.IsFaulted);
+        }
+
+        [Test] 
+        public void createJsonIndexNamed ()
+        {
+            var sortItem = new SortField ();
+            sortItem.name = "foo";
+            sortItem.sort = Sort.asc;
+            var fields = new List<SortField> () {
+                sortItem
+            };
+
+            var task = db.CreateJsonIndex (fields: fields, indexName: "myindex");
+            task.Wait ();
+            Assert.IsFalse (task.IsFaulted);
+        }
+
+        [Test] 
+        public void createJsonIndexNamedDdoc ()
+        {
+            var sortItem = new SortField ();
+            sortItem.name = "foo";
+            sortItem.sort = Sort.asc;
+            var fields = new List<SortField> () {
+                sortItem
+            };
+
+            var task = db.CreateJsonIndex (fields: fields, designDocumentName: "myddoc");
+            task.Wait ();
+            Assert.IsFalse (task.IsFaulted);
+        }
 
         [Test]
-        public void negativeTests(){
-            string indexName = "myIndex";
-            string designDocId = "myDesignDoc";
-            string indexFieldName = "myIndexFieldName";
+        public void createTextIndexWithAllValues ()
+        {
+            IList<TextIndexField> fields = new List<TextIndexField> () {
+                new TextIndexField () {
+                    name = "foo",
+                    type = TextIndexFieldType.String
+                }
+            };
 
+            var selector = new Dictionary<string,object> () {
+              ["foo" ] = "bar"  
+            };
 
-            //Index field not null.
-            Assert.Throws<DataException> (() => {
-                Task indexTask = db.CreateIndex (indexName, designDocId, null, null);
-                indexTask.Wait ();
-            }, "Index field must not be null.");
+            var task = db.CreateTextIndex (fields: fields,
+                           indexName: "myindex",
+                           designDocumentName: "myddoc",
+                           selector: selector,
+                           defaultFieldEnabled: true,
+                           defaultFieldAnalyzer: "english");
+            task.Wait ();
+            Assert.IsFalse (task.IsFaulted);
+        }
 
+        [Test]
+        public void createTextIndexOnlyDefaultField ()
+        {
+            var task = db.CreateTextIndex (defaultFieldEnabled: true);
+            task.Wait ();
+            Assert.IsFalse (task.IsFaulted);
+        }
 
-            //Index field not empty.
-            Assert.Throws<DataException> (() => {
-                Task indexTask = db.CreateIndex (indexName, designDocId, null, new IndexField[]{ });
-                indexTask.Wait ();
-            }, "Index field must not be empty.");
-                
+        [Test]
+        public void createTextIndexOnlyFields ()
+        {
+            IList<TextIndexField> fields = new List<TextIndexField> () {
+                new TextIndexField () {
+                    name = "foo",
+                    type = TextIndexFieldType.String
+                }
+            };
 
-            //DeleteIndex - indexName must not be empty.
-            Assert.Throws<DataException> (() => {
-                Task indexTask = db.DeleteIndex(null, designDocId);
-                indexTask.Wait ();
-            }, "DeleteIndex - indexName must not be empty.");
+            var task = db.CreateTextIndex (fields: fields);
+            task.Wait ();
+            Assert.IsFalse (task.IsFaulted);
+        }
 
+        [Test]
+        public void createTextIndexOnlyNameDefaultField ()
+        {
+            var task = db.CreateTextIndex (indexName: "defaultFieldIndex", defaultFieldEnabled: true);
+            task.Wait ();
+            Assert.IsFalse (task.IsFaulted);
+        }
 
-            //DeleteIndex - designDocId must not be empty.
-            Assert.Throws<DataException> (() => {
-                Task indexTask = db.DeleteIndex(indexName, "  ");
-                indexTask.Wait ();
-            }, "DeleteIndex - designDocId must not be empty.");
+        [Test]
+        public void createTextIndexOnlyDDocNameDefaultField ()
+        {
+            var task = db.CreateTextIndex (designDocumentName: "myddoc", defaultFieldEnabled: true);
+            task.Wait ();
+            Assert.IsFalse (task.IsFaulted);
+        }
 
-
-            //DeleteIndex - index does not exist.
-            Assert.Throws<AggregateException> (() => {
-                Task indexTask = db.DeleteIndex("doesntExist", "doesntExist");
-                indexTask.Wait ();
-            }, "DeleteIndex - index does not exist.");
-
-
-            //Index name invalid characters.
-            Assert.Throws<AggregateException> (() => {
-                Task indexTask = db.CreateIndex ("\"", designDocId, null, new IndexField[]{new IndexField (indexFieldName, IndexField.SortOrder.asc) });
-                indexTask.Wait ();
-            }, "Index name contains invalid characters.");
-
-
-            //indexType 'text' not supported.
-            Assert.Throws<DataException> (() => {
-                Task indexTask = db.CreateIndex (indexName, designDocId, "text",
-                                     new IndexField[]{ new IndexField (indexFieldName, IndexField.SortOrder.asc) });
-                indexTask.Wait ();
+        [Test]
+        public void createTextIndexOnlySelectorDefaultField ()
+        {
+            var task = db.CreateTextIndex (defaultFieldEnabled: true, selector: new Dictionary<string,object> () {
+                ["foo" ] = "bar"  
             });
+            task.Wait ();
+            Assert.IsFalse (task.IsFaulted);
         }
+
+        [Test]
+        public void createTexIndexOnlyDefaultFieldAnalyzer ()
+        {
+            var task = db.CreateTextIndex (defaultFieldAnalyzer: "english", defaultFieldEnabled: true);
+            task.Wait ();
+            Assert.IsFalse (task.IsFaulted);
+        }
+            
 
     }
 }
