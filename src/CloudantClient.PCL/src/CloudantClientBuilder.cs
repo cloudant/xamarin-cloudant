@@ -86,7 +86,18 @@ namespace IBM.Cloudant.Client
             if (!accountUri.IsAbsoluteUri || accountUri.IsFile) {
                 throw new ArgumentException ("The 'accountUri' argument must be an absolute URI and must be a network location.", "accountUri");
             }
-            this.accountUri = accountUri;
+
+            // Strip the userinfo and fill the username and password field
+            var builder = new UriBuilder (accountUri);
+            if (builder.UserName != null) {
+                this.username = builder.UserName;
+                builder.UserName = null;
+            }
+            if (builder.Password != null) {
+                this.password = builder.Password;
+                builder.Password = null;
+            }
+            this.accountUri = builder.Uri;
         }
 
 
