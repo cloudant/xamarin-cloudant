@@ -38,53 +38,48 @@ namespace IBM.Cloudant.Client
         /// <summary>
         /// User ID in the Cloudant system.
         /// </summary>
-        public string username  {set; get;}
+        public string username  { set; get; }
 
 
         /// <summary>
-        /// The authentication credential for the user ID specified in <see cref="Com.Cloudant.Client.CloudantClientBuilder.username"/> 
+        /// The authentication credential for the user ID specified in <see cref="IBM.Cloudant.Client.CloudantClientBuilder.username"/> 
         /// </summary>
-        public string password  {set; get;}
+        public string password  { set; get; }
 
 
         /// <summary>
-        /// The HTTP connection interceptors. <see cref="Com.Cloudant.Client.Internal.Http.IHttpConnectionInterceptor"/>
+        /// The HTTP connection interceptors. <see cref="IBM.Cloudant.Client.Internal.Http.IHttpConnectionInterceptor"/>
         /// </summary>
-        public List<IHttpConnectionInterceptor> interceptors  {set; get;}
+        public List<IHttpConnectionInterceptor> interceptors  { set; get; }
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Com.Cloudant.Client.CloudantClientBuilder"/> class with the given account hostname.
+        /// Initializes a new instance of the <see cref="IBM.Cloudant.Client.CloudantClientBuilder"/> class with the given account name.
         /// </summary>
         /// <remarks>Connections will be created using the https protocol.</remarks>
-        /// <param name="account">The cloudant.com account hostname to connect to. For example: sampleaccount.cloudant.com</param>
-        public CloudantClientBuilder(string account)
+        /// <param name="account">The cloudant.com account name to connect to. For example, if your Cloudant account is 
+        /// accessed via the URL example.cloudant.com, pass example herer</param>
+        public CloudantClientBuilder (string account)
         {
-            if(string.IsNullOrWhiteSpace(account)){
+            if (string.IsNullOrWhiteSpace (account)) {
                 throw new ArgumentException ("must not be null or empty", "account");
             }
-            if (account.Contains("http://") || account.Contains("https://") || account.Contains(":")) {
-                throw new ArgumentException("The 'account' argument must be only the hostname of your Cloudant account. If you need to " +
-                    "specify protocol or port number, then you must initialize CloudantClientBuilder with a System.Uri object", "account");
+
+            var hostNameType = Uri.CheckHostName (account);
+            if ((hostNameType != UriHostNameType.Basic && hostNameType != UriHostNameType.Dns) || account.Contains (".")) {
+                throw new ArgumentException ("Account parameter does not appear to contain a valid Cloudant account name. Did you provide a URL instead?");
             }
 
-            string accountUriString = string.Format ("https://{0}", account);
-            if (!Uri.IsWellFormedUriString (accountUriString, UriKind.Absolute)) {
-                throw new ArgumentException ("The 'account' parameter does not contain a well formed hostname string", "account");
-            }
-
-            try{
-                this.accountUri = new Uri(accountUriString);
-            } catch(Exception e){
-                throw new DataException (DataException.Configuration_InvalidAccountSettings, "Unexpected error parsing 'account' parameter.", e);
-            }
+            string accountUriString = string.Format ("https://{0}.cloudant.com", account);
+            this.accountUri = new Uri (accountUriString, UriKind.Absolute);
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Com.Cloudant.Client.CloudantClientBuilder"/> class.
+        /// Initializes a new instance of the <see cref="IBM.Cloudant.Client.CloudantClientBuilder"/> class.
         /// </summary>
-        /// <param name="accountUri">Cloudant account URI.</param>
-        public CloudantClientBuilder(Uri accountUri){
+        /// <param name="accountUri">URI for CouchDB or Cloudant Local instance.</param>
+        public CloudantClientBuilder (Uri accountUri)
+        {
             if (accountUri == null) {
                 throw new ArgumentException ("must not be null", "accountUri");
             }
@@ -99,19 +94,20 @@ namespace IBM.Cloudant.Client
         /// Builds a CloudantClient with the given parameters.
         /// </summary>
         /// <returns>A CloudantClient for the given account.</returns>
-        public CloudantClient GetResult(){ 
-            if(!string.IsNullOrWhiteSpace(username) && string.IsNullOrWhiteSpace(password)){
-                throw new ArgumentException("loginUsername was set, but password is null or empty.");
+        public CloudantClient GetResult ()
+        { 
+            if (!string.IsNullOrWhiteSpace (username) && string.IsNullOrWhiteSpace (password)) {
+                throw new ArgumentException ("username was set, but password is null or empty.");
             }
-            if(!string.IsNullOrWhiteSpace(password) && string.IsNullOrWhiteSpace(username)){
-                throw new ArgumentException("password was set, but loginUsername is null or empty.");
+            if (!string.IsNullOrWhiteSpace (password) && string.IsNullOrWhiteSpace (username)) {
+                throw new ArgumentException ("password was set, but username is null or empty.");
             }
 
             // Add additional validation here. For example, throw an error if 
             // both basic and cookie authorization are set at the same time. Cookie
             // authorization has not been implemented yet.
 
-            return new CloudantClient(this);
+            return new CloudantClient (this);
         }
     }
 }
