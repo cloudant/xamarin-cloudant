@@ -31,7 +31,7 @@ namespace Test.Shared
         protected static String ageKey = "age";
         protected static String ageIndex = "ageIndex";
         protected static String designDocName = "designDocName";
-        protected static List<IndexField> ageIndexFields = new List<IndexField> ();
+        protected static List<SortField> ageIndexFields = new List<SortField> ();
         protected static int ageBaseValue = 0;
         protected static String nameKey = "name";
         protected static String nameValue = "data";
@@ -244,20 +244,22 @@ namespace Test.Shared
         {
             doQuerySetup ();
 
-            String selectorJSON = "\"selector\": {\"" + ageKey + "\": {\"$eq\":5} }";
-            Task <List<DocumentRevision>> task = db.FindByIndex (selectorJSON,
-                                                     new FindByIndexOptions ()
-                .Sort (new IndexField (ageKey, IndexField.SortOrder.desc))
-                                                 );
+            var sortField = new SortField (){ sort = Sort.desc, name = ageKey };
+
+            var task = db.Query (selector: new Dictionary<string,object> () {
+                [ageKey ] = 5
+            }, sort: new List<SortField> () {
+                sortField
+            });
             
             task.Wait ();
-            List<DocumentRevision> result = task.Result;
+            IList<DocumentRevision> result = task.Result;
 
             Assert.False (task.IsFaulted, "findByIndex() failed");
             Assert.IsNotNull (task.Result, "Query result was null");
             Assert.True (result.Count == 1);
 
-            DocumentRevision revision = result.Find (item => item.body != null);
+            DocumentRevision revision = result [0];
             Object age;
             revision.body.TryGetValue (ageKey, out age);
             Assert.True ((long)age == 5);
@@ -268,14 +270,20 @@ namespace Test.Shared
         {
             doQuerySetup ();
 
-            String selectorJSON = "\"selector\": {\"" + ageKey + "\": {\"$gt\":1} }";
-            Task <List<DocumentRevision>> task = db.FindByIndex (selectorJSON,
-                                                     new FindByIndexOptions ()
-                .Sort (new IndexField (ageKey, IndexField.SortOrder.desc))
-                                                 );
+            var sortField = new SortField ();
+            sortField.name = ageKey;
+            sortField.sort = Sort.desc;
 
+            var task = db.Query (selector: new Dictionary<string,object> () {
+                [ageKey ] = new Dictionary<string,int> () {
+                    ["$gt" ] = 1
+                }
+            }, sort: new List<SortField> () {
+                sortField
+            });
+                
             task.Wait ();
-            List<DocumentRevision> result = task.Result;
+            IList<DocumentRevision> result = task.Result;
 
             Assert.False (task.IsFaulted, "findByIndex() failed");
             Assert.IsNotNull (task.Result, "Query result was null");
@@ -292,14 +300,19 @@ namespace Test.Shared
         {
             doQuerySetup ();
 
-            String selectorJSON = "\"selector\": {\"" + ageKey + "\": {\"$gt\":10} }";
-            Task <List<DocumentRevision>> task = db.FindByIndex (selectorJSON,
-                                                     new FindByIndexOptions ()
-                .Limit (5)
-                                                 );
+            var sortField = new SortField () {
+                name = ageKey,
+                sort = Sort.desc
+            };
 
+            var task = db.Query (selector: new Dictionary<string,object> () {
+                [ageKey ] = new Dictionary<string,int> () {
+                    ["$gt" ] = 10
+                }
+            }, limit: 5);
+                
             task.Wait ();
-            List<DocumentRevision> result = task.Result;
+            IList<DocumentRevision> result = task.Result;
 
             Assert.False (task.IsFaulted, "findByIndex() failed");
             Assert.IsNotNull (task.Result, "Query result was null");
@@ -317,14 +330,17 @@ namespace Test.Shared
         {
             doQuerySetup ();
 
-            String selectorJSON = "\"selector\": {\"" + ageKey + "\": {\"$gt\":10} }";
-            Task <List<DocumentRevision>> task = db.FindByIndex (selectorJSON,
-                                                     new FindByIndexOptions ()
-                .Skip (5)
-                                                 );
+            var sortField = new SortField ();
+            sortField.name = ageKey;
+
+            var task = db.Query (selector: new Dictionary<string,object> () {
+                [ageKey ] = new Dictionary<string,int> () {
+                    ["$gt" ] = 10
+                }
+            }, skip: 5);
 
             task.Wait ();
-            List<DocumentRevision> result = task.Result;
+            IList<DocumentRevision> result = task.Result;
 
             Assert.False (task.IsFaulted, "findByIndex() failed");
             Assert.IsNotNull (task.Result, "Query result was null");
@@ -335,26 +351,6 @@ namespace Test.Shared
                 revision.body.TryGetValue (ageKey, out age);
                 Assert.True ((long)age > 10);
             }
-        }
-
-        [Test]
-        public void testInvalidSelectorQueryTest ()
-        {
-            try {
-                doQuerySetup ();
-
-                String selectorJSON = "\"invalidKeyword\": {\"" + ageKey + "\": {\"$gt\":10} }";
-                Task <List<DocumentRevision>> task = db.FindByIndex (selectorJSON,
-                                                         new FindByIndexOptions ()
-                    .Skip (5)
-                                                     );
-
-                task.Wait ();
-                Assert.True (task.IsFaulted, "findByIndex() with invalid selector JSON should fail");
-            } catch (Exception e) {
-                Assert.Pass ("expected testInvalidSelectorQueryTest exception caught.  Cause:" + e.InnerException.Message);
-            }
-
         }
 
         [Test]
@@ -787,10 +783,10 @@ namespace Test.Shared
         }
 
 
-        private void doQuerySetupWithFields (String indexName, List<IndexField> indexFields)
+        private void doQuerySetupWithFields (String indexName, List<SortField> indexFields)
         {
 
-            Task indexTask = db.CreateIndex (indexName, designDocName, "json", indexFields.ToArray ());
+            var indexTask = db.CreateJsonIndex (fields: indexFields, indexName: indexName);
             indexTask.Wait ();
 
             for (int i = 0; i < 20; i++) {
@@ -807,7 +803,10 @@ namespace Test.Shared
 
         private void doQuerySetup ()
         {
-            ageIndexFields.Add (new IndexField (ageKey));
+            var indexField = new SortField () {
+                name = ageKey
+            };
+            ageIndexFields.Add (indexField);
             doQuerySetupWithFields (ageIndex, ageIndexFields);
         }
 

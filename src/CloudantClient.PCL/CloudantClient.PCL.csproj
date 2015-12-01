@@ -38,17 +38,18 @@
     <Compile Include="src\internal\http\CookieInterceptor.cs" />
     <Compile Include="src\internal\http\HttpConnectionInterceptorContext.cs" />
     <Compile Include="src\internal\http\BasicAuthenticationInterceptor.cs" />
-    <Compile Include="src\model\FindByIndexOptions.cs" />
     <Compile Include="src\CloudantClient.cs" />
     <Compile Include="src\DocumentRevision.cs" />
     <Compile Include="src\Database.cs" />
     <Compile Include="src\model\Index.cs" />
-    <Compile Include="src\model\IndexField.cs" />
     <Compile Include="src\CloudantClientBuilder.cs" />
     <Compile Include="src\DataException.cs" />
     <Compile Include="src\internal\http\IHttpConnectionInterceptor.cs" />
     <Compile Include="src\internal\http\IHttpConnectionResponseInterceptor.cs" />
     <Compile Include="src\internal\http\IHttpConnectionRequestInterceptor.cs" />
+    <Compile Include="src\SortSyntax.cs" />
+    <Compile Include="src\IndexType.cs" />
+    <Compile Include="src\TextIndexField.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
