@@ -213,6 +213,22 @@ namespace Test.Shared
                 new CloudantClientBuilder ("my.account.com").GetResult ();
             });
         }
+
+        [Test ()]
+        public void BuilderStripsUserNameAndPassword ()
+        {
+            var builder = new CloudantClientBuilder (new Uri ("https://username:password@username.cloudant.com"));
+            Assert.AreEqual ("username", builder.username);
+            Assert.AreEqual ("password", builder.password);
+            Assert.AreEqual (new Uri ("https://username.cloudant.com"), builder.accountUri);
+        }
+
+        [Test ()]
+        public void BuilderPassesThroughURIWithNoCreds ()
+        {
+            var builder = new CloudantClientBuilder (new Uri ("https://username.cloudant.com"));
+            Assert.AreEqual (new Uri ("https://username.cloudant.com"), builder.accountUri);
+        }
     }
 
 }
