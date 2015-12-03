@@ -100,7 +100,7 @@ namespace Test.Shared
         {
             string DBName = "database_doesnt_exist";
             var db = client.Database (DBName);
-            Assert.Throws<AggregateException> (() => db.ListIndices ().Wait (),
+            Assert.Throws<DataException> (async () => await db.ListIndices (),
                 "Test failed checking that exception is thrown when a database doesn't exist.");
         }
 

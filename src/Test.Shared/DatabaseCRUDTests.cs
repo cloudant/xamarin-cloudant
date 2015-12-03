@@ -50,7 +50,7 @@ namespace Test.Shared
             // create the database
             try {
                 db = client.Database (DBName);
-                db.EnsureExists ();
+                db.EnsureExists ().Wait ();
                 Assert.NotNull (db);
             } catch (AggregateException ae) {
                 Assert.Fail ("Create remote database failed.  Cause: " + ae.Message);
@@ -382,7 +382,7 @@ namespace Test.Shared
             
             var db = client.Database ("my/database");
             try {
-                db.EnsureExists ();
+                db.EnsureExists ().Wait ();
 
                 var document = new DocumentRevision () {
                     docId = "my/document",
