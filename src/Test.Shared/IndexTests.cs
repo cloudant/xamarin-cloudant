@@ -35,7 +35,7 @@ namespace Test.Shared
 
             string DBName = "httphelpertests" + DateTime.Now.Ticks;
             db = client.Database (DBName);
-            db.EnsureExists ();
+            db.EnsureExists ().Wait ();
         }
 
         [TearDown]

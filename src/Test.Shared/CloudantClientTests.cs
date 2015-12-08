@@ -100,29 +100,8 @@ namespace Test.Shared
         {
             string DBName = "database_doesnt_exist";
             var db = client.Database (DBName);
-            Assert.Throws<AggregateException> (() => db.ListIndices ().Wait (),
+            Assert.Throws<DataException> (async () => await db.ListIndices (),
                 "Test failed checking that exception is thrown when a database doesn't exist.");
-        }
-
-
-        /// <summary>
-        /// Validate that no exception bubbles up when trying to create a DB that already exists.
-        /// </summary>
-        [Test ()]
-        public void ExistingDatabaseCreateException ()
-        {
-            Database database = null;
-            try {
-                //create a DB for this test
-                Assert.DoesNotThrow (() => database = client.Database ("cloudant_client_test"));
-
-                //do a get with create true for the already existing DB
-                Assert.DoesNotThrow (() => database = client.Database ("cloudant_client_test"),
-                    "Test failed because an exception was thrown while attempting to create a database that already exists.");
-            } finally {
-                //clean up the DB created by this test
-                database.Delete ().Wait ();
-            }
         }
 
 

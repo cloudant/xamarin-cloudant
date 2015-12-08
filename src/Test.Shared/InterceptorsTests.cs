@@ -34,11 +34,12 @@ namespace Test.Shared
         {
             DBName = TestConstants.defaultDatabaseName + DateTime.Now.Ticks;
         }
-            
+
         [TearDown] //Runs after each test.
-        protected void tearDown() {
+        protected void tearDown ()
+        {
             if (db != null) {
-                Task deleteDBTask = db.Delete();
+                Task deleteDBTask = db.Delete ();
                 deleteDBTask.Wait ();
 
                 if (deleteDBTask.IsFaulted)
@@ -47,43 +48,47 @@ namespace Test.Shared
         }
 
         [Test]
-        public void testBasicAuthInterceptor() {
+        public void testBasicAuthInterceptor ()
+        {
             BasicAuthenticationInterceptor basicAuthInterceptor = new BasicAuthenticationInterceptor (TestConstants.username, TestConstants.password);
 
             client = new CloudantClientBuilder (TestConstants.account) {
-                interceptors = new List<IHttpConnectionInterceptor>(){basicAuthInterceptor}
+                interceptors = new List<IHttpConnectionInterceptor> (){ basicAuthInterceptor }
             }.GetResult ();
 
             db = client.Database (DBName);
 
-            Assert.DoesNotThrow( () => {
-                db.EnsureExists ();},
+            Assert.DoesNotThrow (async () => {
+                await db.EnsureExists ().ConfigureAwait (continueOnCapturedContext: false);
+            },
                 "Exception thrown while creating database using BasicAuth interceptor. ");
 
-            Assert.NotNull(db);
+            Assert.NotNull (db);
 
         }
 
         [Test]
-        public void testCookieInterceptor() {
+        public void testCookieInterceptor ()
+        {
             CookieInterceptor cookieInterceptor = new CookieInterceptor (TestConstants.username, TestConstants.password);
 
             client = new CloudantClientBuilder (TestConstants.account) {
-                interceptors = new List<IHttpConnectionInterceptor>(){cookieInterceptor}
+                interceptors = new List<IHttpConnectionInterceptor> (){ cookieInterceptor }
             }.GetResult ();
 
             db = client.Database (DBName);
 
-            Assert.DoesNotThrow( () => {
-                db.EnsureExists ();
-                },
+            Assert.DoesNotThrow (async () => {
+                await db.EnsureExists ().ConfigureAwait (continueOnCapturedContext: false);
+            },
                 "Exception thrown while creating database using cookie interceptor. ");
 
-            Assert.NotNull(db);
+            Assert.NotNull (db);
         }
 
         [Test]
-        public void negativeTests(){
+        public void negativeTests ()
+        {
             Assert.Throws<DataException> (() => {
                 new CloudantClientBuilder (TestConstants.account) {
                     interceptors = new List<IHttpConnectionInterceptor> (){ new BadInterceptor () }
@@ -93,8 +98,11 @@ namespace Test.Shared
 
     }
 
-    internal class BadInterceptor : IHttpConnectionInterceptor {
-        public BadInterceptor(){}
+    internal class BadInterceptor : IHttpConnectionInterceptor
+    {
+        public BadInterceptor ()
+        {
+        }
     }
 }
 
