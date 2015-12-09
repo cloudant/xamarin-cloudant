@@ -17,10 +17,10 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using System.Runtime.ExceptionServices;
 
 namespace IBM.Cloudant.Client
 {
-
     /// <summary>
     /// Internal class to manage the HTTP connection.
     /// </summary>
@@ -49,7 +49,7 @@ namespace IBM.Cloudant.Client
         private static readonly String DEFAULT_CHARSET = "UTF-8";
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Com.Cloudant.Client.Internal.Http.HttpHelper"/> class.
+        /// Initializes a new instance of the <see cref="IBM.Cloudant.Client.HttpHelper"/> class.
         /// </summary>
         /// <param name="baseUri">Base URI for the HttpClient in this helper. All http requests must be relative to this URI.</param>
         public HttpHelper(Uri baseUri)
@@ -58,7 +58,7 @@ namespace IBM.Cloudant.Client
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Com.Cloudant.Client.Internal.Http.HttpHelper"/> class.
+        /// Initializes a new instance of the <see cref="IBM.Cloudant.Client.HttpHelper"/> class.
         /// </summary>
         /// <param name="requestInterceptors">Request interceptors.</param>
         /// <param name="responseInterceptors">Response interceptors.</param>
@@ -74,12 +74,14 @@ namespace IBM.Cloudant.Client
         }
 
         /// <summary>
-        /// See: <see cref="Com.Cloudant.Client.Internal.Http.IHttpHelper.sendGet"/>
+        /// Sends a sends a HTTP GET request to the specified endpoint.
+        /// <param name="uri"> Endpoint to send the request to.</param>
+        /// <param name="headers"> Additional headers to pass for the request</param>
         /// </summary>
-        public Task<HttpResponseMessage> sendGet(Uri uri, Dictionary<String,String> headers)
+        public Task<HttpResponseMessage> GetAsync(Uri uri, Dictionary<String,String> headers)
         {
-            Debug.WriteLine("HttpHelper :: SendGet()");
-            return SendJSONRequest(HttpMethod.Get, uri, headers, null);
+            Debug.WriteLine("HttpHelper :: GetAsync()");
+            return SendJSONRequestAsync(HttpMethod.Get, uri, headers, null);
         }
 
         /// <summary>
@@ -88,10 +90,10 @@ namespace IBM.Cloudant.Client
         /// <returns>An async Task wich once completed contains the resulting HttpResponseMessage.</returns>
         /// <param name="uri">URI for this request.</param>
         /// <param name="headers">Http headers for this request.</param>
-        public Task<HttpResponseMessage> sendDelete(Uri uri, Dictionary<String, String> headers)
+        public Task<HttpResponseMessage> DeleteAsync(Uri uri, Dictionary<String, String> headers)
         {
-            Debug.WriteLine("HttpHelper :: SendDelete()");
-            return SendJSONRequest(HttpMethod.Delete, uri, headers, null);
+            Debug.WriteLine("HttpHelper :: DeleteAsync()");
+            return SendJSONRequestAsync(HttpMethod.Delete, uri, headers, null);
         }
 
         /// <summary>
@@ -101,12 +103,12 @@ namespace IBM.Cloudant.Client
         /// <param name="uri">URI for this request.</param>
         /// <param name="headers">Http headers for this request.</param>
         /// <param name="body">The request contents.</param>
-        public Task<HttpResponseMessage> sendPut(Uri uri,
-                                                 Dictionary<String, String> headers,
-                                                 string body)
+        public Task<HttpResponseMessage> PutAsync(Uri uri,
+                                                  Dictionary<String, String> headers,
+                                                  string body)
         {
-            Debug.WriteLine("HttpHelper :: SendPut()");
-            return SendJSONRequest(HttpMethod.Put, uri, headers, body);
+            Debug.WriteLine("HttpHelper :: PutAsync()");
+            return SendJSONRequestAsync(HttpMethod.Put, uri, headers, body);
         }
 
 
@@ -117,12 +119,12 @@ namespace IBM.Cloudant.Client
         /// <param name="uri">URI for this request.</param>
         /// <param name="headers">Http headers for this request.</param>
         /// <param name="body">The request contents.</param>
-        public Task<HttpResponseMessage> sendPost(Uri uri,
-                                                  Dictionary<String, String> headers,
-                                                  string body)
+        public Task<HttpResponseMessage> PostAsync(Uri uri,
+                                                   Dictionary<String, String> headers,
+                                                   string body)
         {
-            Debug.WriteLine("HttpHelper :: SendPost()");
-            return SendJSONRequest(HttpMethod.Post, uri, headers, body);
+            Debug.WriteLine("HttpHelper :: PostAsync()");
+            return SendJSONRequestAsync(HttpMethod.Post, uri, headers, body);
         }
 
         /// <summary>
@@ -130,7 +132,7 @@ namespace IBM.Cloudant.Client
         /// </summary>
         /// <param name="name">Header name.</param>
         /// <param name="value">Header value.</param>
-        public void addGlobalHeaders(string name, string value)
+        public void AddGlobalHeader(string name, string value)
         {
             client.DefaultRequestHeaders.Add(name, value);
         }
@@ -139,31 +141,31 @@ namespace IBM.Cloudant.Client
         /// Removes a header from the HttpClient global headers.
         /// </summary>
         /// <param name="name">Name.</param>
-        public void removeGlobalHeader(string name)
+        public void RemoveGlobalHeader(string name)
         {
             client.DefaultRequestHeaders.Remove(name);
         }
 
         /// <summary>
         /// Maximum number of times to rety a request when it has been intercepted and any interceptor sets
-        /// the <see cref="Com.Cloudant.Client.Internal.Http.HttpConnectionInterceptorContext.replayRequest"/>
+        /// the <see cref="IBM.Cloudant.Client.HttpConnectionInterceptorContext.replayRequest"/>
         /// flag to true.
         /// </summary>
         /// <param name="numberOfRetries">Number of retries.</param>
-        public void setNumberOfRetries(int numberOfRetries)
+        public void SetNumberOfRetries(int numberOfRetries)
         {
             this.numberOfRetries = numberOfRetries;
         }
 
 
 
-        private Task<HttpResponseMessage> SendJSONRequest(HttpMethod method,
-                                                          Uri uri,
-                                                          Dictionary<string, string> headers,
-                                                          string body)
+        private Task<HttpResponseMessage> SendJSONRequestAsync(HttpMethod method,
+                                                               Uri uri,
+                                                               Dictionary<string, string> headers,
+                                                               string body)
         {
 
-            Dictionary<string,string> actualHeaders = (headers == null) ? new Dictionary<string,string>() : new Dictionary<string,string>(headers);
+            var actualHeaders = (headers == null) ? new Dictionary<string,string>() : new Dictionary<string,string>(headers);
             actualHeaders.Add("Accept", "application/json");
 
             HttpContent content = null;
@@ -172,17 +174,17 @@ namespace IBM.Cloudant.Client
                 content = new System.Net.Http.StringContent(body);
                 content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json; charset=" + DEFAULT_CHARSET);
             }
-            return SendRequest(method, uri, actualHeaders, content);
+            return SendRequestAsync(method, uri, actualHeaders, content);
         }
 
 
 
-        private async Task<HttpResponseMessage> SendRequest(HttpMethod method,
-                                                            Uri uri,
-                                                            Dictionary<string, string> headers,
-                                                            HttpContent content)
+        private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod method,
+                                                                 Uri uri,
+                                                                 Dictionary<string, string> headers,
+                                                                 HttpContent content)
         {
-            Debug.WriteLine("HttpHelper:sendRequest()  METHOD:" + method);
+            Debug.WriteLine("HttpHelper:sendRequestAsync()  METHOD:" + method);
 
             Boolean retry = true;
             int n = numberOfRetries;
@@ -191,7 +193,7 @@ namespace IBM.Cloudant.Client
             {
                 retry = false;
 
-                using (var request = new System.Net.Http.HttpRequestMessage(method, uri))
+                using (var request = new HttpRequestMessage(method, uri))
                 {
 
                     if (headers != null)
@@ -207,9 +209,9 @@ namespace IBM.Cloudant.Client
 
 
                     //Call request interceptors
-                    HttpConnectionInterceptorContext currHttpConnContext = new HttpConnectionInterceptorContext(
-                                                                               request,
-                                                                               null);
+                    var currHttpConnContext = new HttpConnectionInterceptorContext(
+                                                  request,
+                                                  null);
 
                     foreach (IHttpConnectionRequestInterceptor requestInterceptor in requestInterceptors)
                     {
@@ -241,7 +243,7 @@ namespace IBM.Cloudant.Client
                     catch (AggregateException ae)
                     {
                         Debug.WriteLine("=== Sent request, got EXCEPTION response. Message: " + ae.GetBaseException().Message);
-                        throw ae.GetBaseException();
+                        ExceptionDispatchInfo.Capture(ae.GetBaseException()).Throw();
                     }
                 }
             }
@@ -290,20 +292,16 @@ namespace IBM.Cloudant.Client
             string result = string.Empty;
             foreach (KeyValuePair<String,IEnumerable<string>> header in headers)
             {
-                foreach (string value in header.Value)
+                foreach (var value in header.Value)
                 {
-                    if (header.Key == "Authorization" || header.Key == "Cookie")
+                    var valueToWrite = value;
+                    if (header.Key.Equals("Authorization", StringComparison.OrdinalIgnoreCase) ||
+                        header.Key.Equals("Cookie", StringComparison.OrdinalIgnoreCase))
                     {
-                        result += string.Format(
-                            "\n\t[{0}]{1} : {2}",
-                            count++,
-                            header.Key,
-                            " *****");
+                        valueToWrite = " ******";
                     }
-                    else
-                    {
-                        result += string.Format("\n\t[{0}]{1} : {2}", count++, header.Key, value);
-                     }
+                    result += string.Format("\n\t[{0}]{1} : {2}", count++, header.Key, valueToWrite);
+
                 }
             }
             return result;
