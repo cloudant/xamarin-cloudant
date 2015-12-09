@@ -48,7 +48,7 @@ namespace IBM.Cloudant.Client
         /// <param name="uri">URI for this request.</param>
         /// <param name="headers">Http headers for this request.</param>
         /// <param name="body">The request contents.</param>
-        Task<HttpResponseMessage> sendPut (Uri uri, Dictionary<String, String> headers, Dictionary<String, Object> body);
+        Task<HttpResponseMessage> sendPut (Uri uri, Dictionary<String, String> headers, string body);
 
         /// <summary>
         /// Sends an Http POST request to the given URI using the given headers and content.
@@ -57,7 +57,7 @@ namespace IBM.Cloudant.Client
         /// <param name="uri">URI for this request.</param>
         /// <param name="headers">Http headers for this request.</param>
         /// <param name="body">The request contents.</param>
-        Task<HttpResponseMessage> sendPost (Uri uri, Dictionary<String, String> headers, Dictionary<String, Object> body);
+        Task<HttpResponseMessage> sendPost (Uri uri, Dictionary<String, String> headers, string body);
 
         /// <summary>
         /// Adds global headers to be used by every request sent by this HttpHelper.

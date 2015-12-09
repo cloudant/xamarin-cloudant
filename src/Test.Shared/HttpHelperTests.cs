@@ -17,6 +17,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using Newtonsoft.Json;
 
 using IBM.Cloudant.Client;
 
@@ -58,8 +59,12 @@ namespace Test.Shared
             content.Add ("stringKey", "nicestringvalue");
             content.Add ("numberKey", 42);
 
-            Task<HttpResponseMessage> postResponse = helper.sendPost (new Uri (DBName, UriKind.Relative), null, content);
-            postResponse.Wait ();
+            var payload = JsonConvert.SerializeObject(content);
+            Task<HttpResponseMessage> postResponse = helper.sendPost(
+                                                         new Uri (DBName, UriKind.Relative),
+                                                         null,
+                                                         payload);
+            postResponse.Wait();
 
             Debug.WriteLine ("POST response: " + postResponse.Result.StatusCode);
             Assert.AreEqual (HttpStatusCode.Created, postResponse.Result.StatusCode);

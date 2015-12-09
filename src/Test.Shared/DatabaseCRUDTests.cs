@@ -201,14 +201,12 @@ namespace Test.Shared
         [Test]
         public void testInvalidFetchNonexistId ()
         {
-            try {
                 // fetch id that doesn't exist
+            Assert.Throws<AggregateException>(() => {
                 Task<DocumentRevision> fetchByIdTask = db.Read ("1234");
                 fetchByIdTask.Wait ();
-                Assert.True (fetchByIdTask.IsFaulted, "find should produce fault on find of empty string");
-            } catch (Exception e) {
-                Assert.Pass ("expected testInvalidFetchNonexistId exception caught.  Cause:" + e.InnerException.Message);
-            }
+
+                });   
         }
 
         [Test]
