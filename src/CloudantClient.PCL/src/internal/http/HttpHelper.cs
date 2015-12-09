@@ -305,14 +305,18 @@ namespace IBM.Cloudant.Client
             {
                 foreach (string value in header.Value)
                 {
-                    if (header.Key == "Authorization")
+                    if (header.Key == "Authorization" || header.Key == "Cookie")
+                    {
                         result += string.Format(
                             "\n\t[{0}]{1} : {2}",
                             count++,
                             header.Key,
-                            value.Split(' ')[0] + " *****");
+                            " *****");
+                    }
                     else
+                    {
                         result += string.Format("\n\t[{0}]{1} : {2}", count++, header.Key, value);
+                     }
                 }
             }
             return result;
