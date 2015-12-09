@@ -1,4 +1,4 @@
-﻿//
+//
 //  Copyright (c) 2015 IBM Corp. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
@@ -35,14 +35,14 @@ namespace Test.Shared
 			}.GetResult();
 
 			string DBName = "httphelpertests" + DateTime.Now.Ticks;
-			db = client.Database(DBName);
-			db.EnsureExists().Wait();
+            db = client.Database (DBName);
+            db.EnsureExistsAsync ().Wait ();
 		}
 
 		[TearDown]
 		public void tearDown()
 		{
-			db.Delete().Wait();
+            db.DeleteAsync ().Wait ();
 		}
 
 
@@ -58,9 +58,9 @@ namespace Test.Shared
 				sortItem
 			};
 
-			var task = db.CreateJsonIndex(fields: fields, indexName: "myindex", designDocumentName: "myddoc");
-			task.Wait();
-			Assert.IsFalse(task.IsFaulted);
+            var task = db.CreateJsonIndexAsync (fields: fields, indexName: "myindex", designDocumentName: "myddoc");
+            task.Wait ();
+            Assert.IsFalse (task.IsFaulted);
 		}
 
 		[Test] 
@@ -74,9 +74,9 @@ namespace Test.Shared
 				sortItem
 			};
 
-			var task = db.CreateJsonIndex(fields: fields);
-			task.Wait();
-			Assert.IsFalse(task.IsFaulted);
+            var task = db.CreateJsonIndexAsync (fields: fields);
+            task.Wait ();
+            Assert.IsFalse (task.IsFaulted);
 		}
 
 		[Test] 
@@ -90,9 +90,9 @@ namespace Test.Shared
 				sortItem
 			};
 
-			var task = db.CreateJsonIndex(fields: fields, indexName: "myindex");
-			task.Wait();
-			Assert.IsFalse(task.IsFaulted);
+            var task = db.CreateJsonIndexAsync (fields: fields, indexName: "myindex");
+            task.Wait ();
+            Assert.IsFalse (task.IsFaulted);
 		}
 
 		[Test] 
@@ -106,9 +106,9 @@ namespace Test.Shared
 				sortItem
 			};
 
-			var task = db.CreateJsonIndex(fields: fields, designDocumentName: "myddoc");
-			task.Wait();
-			Assert.IsFalse(task.IsFaulted);
+            var task = db.CreateJsonIndexAsync (fields: fields, designDocumentName: "myddoc");
+            task.Wait ();
+            Assert.IsFalse (task.IsFaulted);
 		}
 
 		[Test]
@@ -128,7 +128,7 @@ namespace Test.Shared
               ["foo" ] = "bar"  
 			};
 
-			var task = db.CreateTextIndex(fields: fields,
+            var task = db.CreateTextIndexAsync (fields: fields,
 				           indexName: "myindex",
 				           designDocumentName: "myddoc",
 				           selector: selector,
@@ -141,9 +141,9 @@ namespace Test.Shared
 		[Test]
 		public void createTextIndexOnlyDefaultField()
 		{
-			var task = db.CreateTextIndex(defaultFieldEnabled: true);
-			task.Wait();
-			Assert.IsFalse(task.IsFaulted);
+            var task = db.CreateTextIndexAsync (defaultFieldEnabled: true);
+            task.Wait ();
+            Assert.IsFalse (task.IsFaulted);
 		}
 
 		[Test]
@@ -158,32 +158,31 @@ namespace Test.Shared
 				}
 			};
 
-			var task = db.CreateTextIndex(fields: fields);
-			task.Wait();
-			Assert.IsFalse(task.IsFaulted);
+            var task = db.CreateTextIndexAsync (fields: fields);
+            task.Wait ();
+            Assert.IsFalse (task.IsFaulted);
 		}
 
 		[Test]
 		public void createTextIndexOnlyNameDefaultField()
 		{
-			var task = db.CreateTextIndex(indexName: "defaultFieldIndex", defaultFieldEnabled: true);
-			task.Wait();
-			Assert.IsFalse(task.IsFaulted);
+            var task = db.CreateTextIndexAsync (indexName: "defaultFieldIndex", defaultFieldEnabled: true);
+            task.Wait ();
+            Assert.IsFalse (task.IsFaulted);
 		}
 
 		[Test]
 		public void createTextIndexOnlyDDocNameDefaultField()
 		{
-			var task = db.CreateTextIndex(designDocumentName: "myddoc", defaultFieldEnabled: true);
-			task.Wait();
-			Assert.IsFalse(task.IsFaulted);
+            var task = db.CreateTextIndexAsync (designDocumentName: "myddoc", defaultFieldEnabled: true);
+            task.Wait ();
+            Assert.IsFalse (task.IsFaulted);
 		}
 
 		[Test]
 		public void createTextIndexOnlySelectorDefaultField()
 		{
-			var task = db.CreateTextIndex(defaultFieldEnabled: true, selector: new Dictionary<string,object>()
-				{
+            var task = db.CreateTextIndexAsync (defaultFieldEnabled: true, selector: new Dictionary<string,object> () {
                 ["foo" ] = "bar"  
 				});
 			task.Wait();
@@ -193,9 +192,9 @@ namespace Test.Shared
 		[Test]
 		public void createTexIndexOnlyDefaultFieldAnalyzer()
 		{
-			var task = db.CreateTextIndex(defaultFieldAnalyzer: "english", defaultFieldEnabled: true);
-			task.Wait();
-			Assert.IsFalse(task.IsFaulted);
+            var task = db.CreateTextIndexAsync (defaultFieldAnalyzer: "english", defaultFieldEnabled: true);
+            task.Wait ();
+            Assert.IsFalse (task.IsFaulted);
 		}
             
 

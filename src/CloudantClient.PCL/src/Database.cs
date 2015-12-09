@@ -1,4 +1,4 @@
-﻿//
+//
 //  Copyright (c) 2015 IBM Corp. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
@@ -70,7 +70,7 @@ namespace IBM.Cloudant.Client
 		/// <summary>
 		/// Ensures the database exists. 
 		/// </summary>
-		public async Task EnsureExists()
+		public async Task EnsureExistsAsync()
 		{
 			var dbUri = new Uri(client.accountUri.ToString() + dbNameUrlEncoded);
 			var response = await client.httpHelper.sendPut(dbUri, null, null).ConfigureAwait(continueOnCapturedContext: false);
@@ -90,8 +90,8 @@ namespace IBM.Cloudant.Client
 		/// <summary>
 		/// Deletes the database this object represents.
 		/// </summary>
-		/// <returns>A Task to mointor this action.</returns>
-		public async Task Delete()
+		/// <returns>A Task to monitor this action.</returns>
+		public async Task DeleteAsync()
 		{
 			var response = await client.httpHelper.sendDelete(
 				               new Uri(
@@ -114,7 +114,7 @@ namespace IBM.Cloudant.Client
 		/// Create the specified document in the database.
 		/// </summary>
 		/// <param name="revision">Revision to create.</param>
-		public async Task<DocumentRevision> Create(DocumentRevision revision)
+		public async Task<DocumentRevision> CreateAsync(DocumentRevision revision)
 		{
 			Debug.WriteLine("==== enter Database::Create(Object)");
 			if (revision == null)
@@ -169,7 +169,7 @@ namespace IBM.Cloudant.Client
 		/// 
 		/// </summary>
 		/// <param name="revisionToUpdate">Revision to update.</param>
-		public async Task<DocumentRevision> Update(DocumentRevision revision)
+		public async Task<DocumentRevision> UpdateAsync(DocumentRevision revision)
 		{
 			Debug.WriteLine("==== enter Database::update(Object)"); 
 			if (revision == null)
@@ -231,7 +231,7 @@ namespace IBM.Cloudant.Client
 		/// Reads the specified document, from the database.
 		/// </summary>
 		/// <param name="documentId">The id of the document to read.</param>
-		public async Task<DocumentRevision> Read(String documentId)
+		public async Task<DocumentRevision> ReadAsync(String documentId)
 		{
 			Debug.WriteLine("==== enter Database::Read(String)");
 			try
@@ -276,7 +276,7 @@ namespace IBM.Cloudant.Client
 		/// Delete the specified Document Revision.
 		/// </summary>
 		/// <param name="revision">Document revision to delete.</param>
-		public async Task<String> Delete(DocumentRevision revision)
+		public async Task<String> DeleteAsync(DocumentRevision revision)
 		{
 			Debug.WriteLine("==== enter Database::delete(Object)");
 
@@ -335,12 +335,12 @@ namespace IBM.Cloudant.Client
 		/// <param name="indexName"> Optional. The name to call this index, if ommited, CouchDB will generate the name for the index. </param>
 		/// <param name="designDocumentName"> Optional. The name of the design document to save this index definition</param>
 		/// <returns>A Task that represents the async operation</returns>
-		public async Task CreateJsonIndex(IList<SortField> fields,
-		                                  string indexName = null,
-		                                  string designDocumentName = null)
+		public async Task CreateJsonIndexAsync(IList<SortField> fields,
+		                                       string indexName = null,
+		                                       string designDocumentName = null)
 		{
 
-			//validate fields for sort syntax compilence
+			//validate fields for sort syntax compliance
 
 			var requestDict = new Dictionary<string, object>()
 			{
@@ -382,7 +382,7 @@ namespace IBM.Cloudant.Client
 				requestDict.Add("ddoc", designDocumentName);
 			}
                 
-			await this.CreateIndex(requestDict).ConfigureAwait(continueOnCapturedContext: false);
+			await this.CreateIndexAsync(requestDict).ConfigureAwait(continueOnCapturedContext: false);
 		}
 
 		/// <summary>
@@ -398,12 +398,12 @@ namespace IBM.Cloudant.Client
 		/// default_field needs to be enabled in order to use the<c>$text</c> operator in queries.</param>
 		/// <param name="defaultFieldAnalyzer">Optional, CouchDb will use the default analyzer if one is not specified. 
 		/// This specifies the anayalzer to use for $text query operations</param>
-		public async Task CreateTextIndex(IList<TextIndexField> fields = null,
-		                                  string indexName = null, 
-		                                  string designDocumentName = null,
-		                                  IDictionary<string,object> selector = null,
-		                                  Boolean defaultFieldEnabled = false,
-		                                  string defaultFieldAnalyzer = null)
+		public async Task CreateTextIndexAsync(IList<TextIndexField> fields = null,
+		                                       string indexName = null, 
+		                                       string designDocumentName = null,
+		                                       IDictionary<string,object> selector = null,
+		                                       Boolean defaultFieldEnabled = false,
+		                                       string defaultFieldAnalyzer = null)
 		{
 			var index = new Dictionary<string,object>();
 			var requestDict = new Dictionary<string, object>()
@@ -463,11 +463,11 @@ namespace IBM.Cloudant.Client
 
 			index.Add("default_field", default_field);
 
-			await this.CreateIndex(requestDict).ConfigureAwait(continueOnCapturedContext: false);
+			await this.CreateIndexAsync(requestDict).ConfigureAwait(continueOnCapturedContext: false);
 		}
 
 
-		private async Task CreateIndex(Dictionary<String,Object> indexDefinition)
+		private async Task CreateIndexAsync(Dictionary<String,Object> indexDefinition)
 		{
 			Uri indexUri = new Uri(dbNameUrlEncoded + "/_index", UriKind.Relative);
 			Debug.WriteLine("index relative URI: " + indexUri);
@@ -507,14 +507,14 @@ namespace IBM.Cloudant.Client
 		/// if ever, needed. It will be detrimental to performance </param>
 		/// <seealso href="https://docs.cloudant.com/cloudant_query.html#finding-documents-using-an-index">Cloudant 
 		/// Documentation</seealso>
-		public async Task<IList<DocumentRevision>> Query(IDictionary<string,object> selector,
-		                                                 IList<string> fields = null,
-		                                                 int limit = -1, 
-		                                                 int skip = -1,
-		                                                 IList<SortField> sort = null,
-		                                                 string bookmark = null,
-		                                                 string useIndex = null,
-		                                                 int r = -1)
+		public async Task<IList<DocumentRevision>> QueryAsync(IDictionary<string,object> selector,
+		                                                      IList<string> fields = null,
+		                                                      int limit = -1, 
+		                                                      int skip = -1,
+		                                                      IList<SortField> sort = null,
+		                                                      string bookmark = null,
+		                                                      string useIndex = null,
+		                                                      int r = -1)
 		{
 			if (selector == null)
 			{
@@ -606,7 +606,7 @@ namespace IBM.Cloudant.Client
 		/// Lists all indices.
 		/// </summary>
 		/// <returns>List of Index</returns>
-		public async Task<IList<Index>> ListIndices()
+		public async Task<IList<Index>> ListIndicesAsync()
 		{
 
 			Uri indexUri = new Uri(dbNameUrlEncoded + "/_index/", UriKind.Relative);
@@ -632,7 +632,7 @@ namespace IBM.Cloudant.Client
 		/// <param name="indexName">name of the index</param>
 		/// <param name="designDocId">ID of the design doc</param>
 		/// <param name="indexType">The type of index to delete</param>
-		public async Task DeleteIndex(String indexName, String designDocId, IndexType indexType)
+		public async Task DeleteIndexAsync(String indexName, String designDocId, IndexType indexType)
 		{
 
 			if (string.IsNullOrWhiteSpace(indexName))

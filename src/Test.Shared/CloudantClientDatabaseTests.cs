@@ -1,4 +1,4 @@
-﻿//
+//
 //  Copyright (c) 2015 IBM Corp. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
@@ -47,7 +47,7 @@ namespace Test.Shared
 		{
 			if (db != null)
 			{
-				db.Delete().Wait();
+				db.DeleteAsync().Wait();
 			}
 		}
 
@@ -57,8 +57,8 @@ namespace Test.Shared
 			db = client.Database(DBName);
 			Assert.DoesNotThrow(async () =>
 				{
-					await db.EnsureExists().ConfigureAwait(continueOnCapturedContext: false);
-					await db.EnsureExists().ConfigureAwait(continueOnCapturedContext: false);
+					await db.EnsureExistsAsync().ConfigureAwait(continueOnCapturedContext: false);
+					await db.EnsureExistsAsync().ConfigureAwait(continueOnCapturedContext: false);
 				});
 		}
 
@@ -67,7 +67,7 @@ namespace Test.Shared
 		{
             
 			db = client.Database(DBName);
-			db.EnsureExists().Wait();
+			db.EnsureExistsAsync().Wait();
 			Assert.NotNull(db);
 
 			//Test db names are url encoded
@@ -75,9 +75,9 @@ namespace Test.Shared
 			Assert.DoesNotThrow(async () =>
 				{
 					var newDb = client.Database(databaseName);
-					await newDb.EnsureExists().ConfigureAwait(continueOnCapturedContext: false);
+					await newDb.EnsureExistsAsync().ConfigureAwait(continueOnCapturedContext: false);
 					//Clean up
-					await newDb.Delete().ConfigureAwait(continueOnCapturedContext: false);
+					await newDb.DeleteAsync().ConfigureAwait(continueOnCapturedContext: false);
 				},
 				"Test failed to create a database with name " + databaseName);
 		}
@@ -99,7 +99,7 @@ namespace Test.Shared
 				Assert.Throws<DataException>(async () =>
 					{
 						var db = client.Database(name);
-						await db.EnsureExists().ConfigureAwait(continueOnCapturedContext: false);
+						await db.EnsureExistsAsync().ConfigureAwait(continueOnCapturedContext: false);
 					},
 					"Test failed because invalid database name {0} should have produced an error. ", new []{ name });
 			}
@@ -120,7 +120,7 @@ namespace Test.Shared
 				Assert.Throws<ArgumentException>(async () =>
 					{
 						var db = client.Database(name);
-						await db.EnsureExists().ConfigureAwait(continueOnCapturedContext: false);
+						await db.EnsureExistsAsync().ConfigureAwait(continueOnCapturedContext: false);
 					},
 					"Test failed because invalid database name {0} should have produced an error. ", new []{ name });
 			}
