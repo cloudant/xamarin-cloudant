@@ -20,6 +20,7 @@ using Newtonsoft.Json;
 
 namespace IBM.Cloudant.Client
 {
+
     /// <summary>
     /// Internal class to manage the HTTP connection.
     /// </summary>
@@ -258,7 +259,7 @@ namespace IBM.Cloudant.Client
             string contentString = request.Content == null ? "null" : request.Content.ToString();
             return string.Format("Http Request\n   {0,-10}:{1}\n   {2,-10}:{3}\n   {4,-10}:{5}\n   {6,-10}:{7}\n   {8,-10}:{9}",
                 "METHOD", request.Method,
-                "URI", SanitizeUri(new Uri(client.BaseAddress, request.RequestUri)),
+                "URI", new Uri(client.BaseAddress, request.RequestUri),
                 "HEADERS", FormatAndSanitizeHeaders(request.Headers),
                 "CONTENT", contentString,
                 "PROPERTIES", FormatProperties(request.Properties));
@@ -268,24 +269,10 @@ namespace IBM.Cloudant.Client
         {
             string contentString = response.Content == null ? "null" : response.Content.ToString();
             return string.Format("Http Response\n   {0,-8}:[{1}] {2}\n   {3,-8}:{4}\n   {5,-8}:{6}\n   {7,-8}:{8}",
-                "URI", response.RequestMessage.Method, SanitizeUri(response.RequestMessage.RequestUri),
+                "URI", response.RequestMessage.Method, response.RequestMessage.RequestUri,
                 "STATUS", response.StatusCode,
                 "HEADERS", FormatAndSanitizeHeaders(response.Headers),
                 "CONTENT", contentString);
-        }
-
-        /// <summary>
-        /// Removes userID and password information from URI for safe loggin.
-        /// </summary>
-        /// <returns>A URI string there the user credentials have been removed.</returns>
-        /// <param name="uri">URI.</param>
-        private string SanitizeUri(Uri uri)
-        {
-            if (uri.IsAbsoluteUri && uri.UserInfo != null && uri.UserInfo.Length > 0)
-            {
-                return uri.Scheme + "://[USER]:[PASS]@" + uri.ToString().Substring(uri.ToString().IndexOf(uri.Host));
-            }
-            return uri.ToString();
         }
 
         /// <summary>
