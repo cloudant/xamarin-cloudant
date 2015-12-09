@@ -1,4 +1,4 @@
-﻿//
+//
 //  Copyright (c) 2015 IBM Corp. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
@@ -26,7 +26,7 @@ namespace IBM.Cloudant.Client
     /// <remarks>
     /// This class is used to manage HTTP requests and responses.
     /// </remarks>
-    public class HttpHelper : IHttpHelper
+    public class HttpHelper
     {
         private HttpClient client = new HttpClient(new HttpClientHandler(){ UseCookies = false });
         // By setting UseCookies = false, we allow
