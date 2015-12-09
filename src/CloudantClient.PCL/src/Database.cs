@@ -32,25 +32,8 @@ namespace IBM.Cloudant.Client
     /// </remarks>
     public class Database
     {
-        // Special document fields
-        private static readonly string DOC_ID = "_id";
-        private static readonly string DOC_REV = "_rev";
-        private static readonly string DOC_DELETED = "_deleted";
-
         // REST response fields
-        private static readonly string DOC_RESPONSE_ID = "id";
         private static readonly string DOC_RESPONSE_REV = "rev";
-
-        private static readonly string INDEX_NAME_JSON_KEY = "name";
-        //private static readonly string INDEX_FIELDS_JSON_KEY = "fields";
-        private static readonly string INDEX_TYPE_JSON_KEY = "type";
-        private static readonly string INDEX_TYPE_JSON_VALUE = "json";
-        private static readonly string INDEX_DESIGN_DOCUMENT_JSON_KEY = "ddoc";
-
-
-        private static readonly List<string> validTextFieldTypes = new List<string> () {
-            "string", "number", "boolean"  
-        };
 
         private CloudantClient client;
         private string dbNameUrlEncoded;
@@ -119,7 +102,7 @@ namespace IBM.Cloudant.Client
                 string errorMessage = String.Format(
                                           "Failed to delete remote database.\nHTTP_Status: {0}\nJSON Body: {1}",
                                           httpStatus,
-                                          JsonConvert.DeserializeObject<Dictionary<string, object>>(await response.Content.ReadAsStringAsync().ConfigureAwait(continueOnCapturedContext: false)));
+                                          Database.DeserializeObject<Dictionary<string, object>>(await response.Content.ReadAsStringAsync().ConfigureAwait(continueOnCapturedContext: false)));
                 throw new DataException (DataException.Database_DatabaseModificationFailure, errorMessage);
             } 
         }
@@ -143,8 +126,8 @@ namespace IBM.Cloudant.Client
             var uri = new Uri (dbNameUrlEncoded + "/" + encodedDocId, UriKind.Relative);
             Debug.WriteLine("reltive URL is: " + uri.ToString());
 
-            Dictionary<String,Object> payload = ConvertDocToJSONPayload(revision);
-            Debug.WriteLine("Create document payload is: " + JsonConvert.SerializeObject(payload));
+            var payload = Database.SerializeObject(revision);
+            Debug.WriteLine("Create document payload is: " + Database.SerializeObject(payload));
 
             // Send the HTTP request
             HttpResponseMessage response;
@@ -166,34 +149,9 @@ namespace IBM.Cloudant.Client
 
             // Read in the response JSON into a Dictionary
             var content = await response.Content.ReadAsStringAsync().ConfigureAwait(continueOnCapturedContext: false);
-            Dictionary<string, object> responseJSON = JsonConvert.DeserializeObject<Dictionary<string, object>>(content); 
-            Debug.WriteLine("response JSON:{0}", JsonConvert.SerializeObject(responseJSON));
-
-            Object documentId;
-            responseJSON.TryGetValue(DOC_RESPONSE_ID, out documentId);
-            if (documentId == null || documentId.Equals("")) {
-                string errorMessage = "\nJSON Response didn't contain a documentId.";
-                Debug.WriteLine(errorMessage);
-                throw new DataException (DataException.Database_SaveDocumentRevisionFailure, errorMessage);
-            }
-
-
-            Object revisionId;
-            responseJSON.TryGetValue(DOC_RESPONSE_REV, out revisionId);
-            if (revisionId == null || revisionId.Equals("")) {
-                var errorMessage = "\nJSON Response didn't contain a revisionId.";
-                Debug.WriteLine(errorMessage);
-                throw new DataException (DataException.Database_SaveDocumentRevisionFailure, errorMessage);
-            }
-
-            // create new DocumentRevision with docId and revId returned
-            var createdDoc = new DocumentRevision ((string)documentId, (string)revisionId, payload);
-            Debug.WriteLine("returning DocumentRevision\n docId:{0}\n revId:{1}\n body:{2}",
-                documentId,
-                revisionId,
-                JsonConvert.SerializeObject(payload));
-
-            return createdDoc;
+            var document = Database.DeserializeObject<DocumentRevision>(content);
+            document.body = revision.body; //response doesn't contain document content
+            return document;
         }
 
         /// <summary>
@@ -231,9 +189,9 @@ namespace IBM.Cloudant.Client
                 revision.body = empty;
             }
 
-            Dictionary<String,Object> payload = ConvertDocToJSONPayload(revision);
+            var payload = Database.SerializeObject(revision);
 
-            Debug.WriteLine("Update document payload is: " + JsonConvert.SerializeObject(payload));
+            Debug.WriteLine("Update document payload is: " + Database.SerializeObject(payload));
             // Send the HTTP request
             var response = await client.httpHelper.sendPut(uri, null, payload).ConfigureAwait(continueOnCapturedContext: false);
 
@@ -248,33 +206,9 @@ namespace IBM.Cloudant.Client
 
             // Read in the response JSON into a Dictionary
             var content = await response.Content.ReadAsStringAsync().ConfigureAwait(continueOnCapturedContext: false);
-            var responseJSON = JsonConvert.DeserializeObject<Dictionary<string, object>>(content); 
-
-            Object documentId;
-            responseJSON.TryGetValue(DOC_RESPONSE_ID, out documentId);
-            if (documentId == null || documentId.Equals("")) {
-                string errorMessage = "\nJSON Response didn't contain a documentId.";
-                Debug.WriteLine(errorMessage);
-                throw new DataException (DataException.Database_SaveDocumentRevisionFailure, errorMessage);
-            }
-
-
-            Object revisionId;
-            responseJSON.TryGetValue(DOC_RESPONSE_REV, out revisionId);
-            if (revisionId == null || revisionId.Equals("")) {
-                string errorMessage = "\nJSON Response didn't contain a revisionId.";
-                Debug.WriteLine(errorMessage);
-                throw new DataException (DataException.Database_SaveDocumentRevisionFailure, errorMessage);
-            }
-
-            // create new DocumentRevision with docId and revId returned
-            var createdDoc = new DocumentRevision ((string)documentId, (string)revisionId, payload);
-            Debug.WriteLine("returning DocumentRevision\n docId:{0}\n revId:{1}\n body:{2}",
-                documentId,
-                revisionId,
-                JsonConvert.SerializeObject(payload));
-
-            return createdDoc;
+            var document = Database.DeserializeObject<DocumentRevision>(content);
+            document.body = revision.body; //response doesn't contain document content
+            return document;
         }
 
         /// <summary>
@@ -297,52 +231,21 @@ namespace IBM.Cloudant.Client
                 // Send the HTTP request
                 var response = await client.httpHelper.sendGet(requestUrl, null).ConfigureAwait(continueOnCapturedContext: false);
 
+                if (response.StatusCode != HttpStatusCode.OK) {
+                    // temp exception should be fixed as part of the common http handling issues #30 and #27
+                    throw new DataException (
+                        DataException.Database_FetchDocumentRevisionFailure,
+                        "Error occured reading document");
+                }
 
                 // Read in the response JSON into a Dictionary
                 var content = await response.Content.ReadAsStringAsync().ConfigureAwait(continueOnCapturedContext: false);
 
-                Dictionary<string, object> responseJSON = JsonConvert.DeserializeObject<Dictionary<string, object>>(content); 
 
-                Debug.WriteLine("Cloudant find document response.  Relative URI: " + requestUrl.ToString() + ". " +
-                    "Document: " + documentId + "\nResponse content:" + content);
+                Debug.WriteLine(content);
+                var document = Database.DeserializeObject<DocumentRevision>(content);
+                return document;
 
-                // Check the HTTP status code
-                var httpStatus = (int)response.StatusCode;
-                if (httpStatus != 200) {
-                    var errorMessage = String.Format("Failed to find document revision.\nRequest URL: {0}\nHTTP_Status: {1}\nJSONBody: {2}",
-                                           requestUrl.ToString(), httpStatus, content);
-                    Debug.WriteLine(errorMessage);
-                    throw new DataException (DataException.Database_FetchDocumentRevisionFailure, errorMessage);
-                }
-
-                Object responseDocumentId;
-                responseJSON.TryGetValue(DOC_ID, out responseDocumentId);
-                if (responseDocumentId == null || responseDocumentId.Equals("")) {
-                    string errorMessage = "\nJSON Response didn't contain a documentId.";
-                    Debug.WriteLine(errorMessage);
-                    throw new DataException (DataException.Database_FetchDocumentRevisionFailure, errorMessage);
-                }
-
-
-                Object responseRevisionId;
-                responseJSON.TryGetValue(DOC_REV, out responseRevisionId);
-                if (responseRevisionId == null || responseRevisionId.Equals("")) {
-                    string errorMessage = "\nJSON Response didn't contain a revisionId.";
-                    Debug.WriteLine(errorMessage);
-                    throw new DataException (DataException.Database_FetchDocumentRevisionFailure, errorMessage);
-                }
-
-                // create new DocumentRevision with docId and revId returned
-                var createdDoc = new DocumentRevision (
-                                     (string)responseDocumentId,
-                                     (string)responseRevisionId,
-                                     responseJSON);
-                Debug.WriteLine("returning DocumentRevision\n docId:{0}\n revId:{1}\n body:{2}",
-                    responseDocumentId,
-                    responseRevisionId,
-                    JsonConvert.SerializeObject(responseJSON));
-
-                return createdDoc;
             } catch (Exception e) {
                 throw new DataException (DataException.Database_FetchDocumentRevisionFailure, e.Message, e);
             }
@@ -371,7 +274,7 @@ namespace IBM.Cloudant.Client
 
                 // Read in the response JSON into a Dictionary
                 var content = await response.Content.ReadAsStringAsync().ConfigureAwait(continueOnCapturedContext: false);
-                Dictionary<string, object> responseJSON = JsonConvert.DeserializeObject<Dictionary<string, object>>(content); 
+                Dictionary<string, object> responseJSON = Database.DeserializeObject<Dictionary<string, object>>(content); 
 
                 Debug.WriteLine("Cloudant delete document response.  Relative URI: " + requestUrl.ToString() + ". " +
                     "Document: " + revision.docId + "\nResponse content:" + content);
@@ -523,17 +426,18 @@ namespace IBM.Cloudant.Client
             Uri indexUri = new Uri (dbNameUrlEncoded + "/_index", UriKind.Relative);
             Debug.WriteLine("index relative URI: " + indexUri);
 
-            var response = await client.httpHelper.sendPost(indexUri, null, indexDefinition).ConfigureAwait(continueOnCapturedContext: false);
+            var payload = Database.SerializeObject(indexDefinition);
+            var response = await client.httpHelper.sendPost(indexUri, null, payload).ConfigureAwait(continueOnCapturedContext: false);
 
             if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created) { //Status code 200 or 201
-                Debug.WriteLine(string.Format("Created Index: '{0}'", JsonConvert.SerializeObject(indexDefinition)));
+                Debug.WriteLine(string.Format("Created Index: '{0}'", Database.SerializeObject(indexDefinition)));
                 return;
             } else {
                 Debug.WriteLine(string.Format(
                         "Error creating index : '{0}'",
-                        JsonConvert.SerializeObject(indexDefinition)));
+                        Database.SerializeObject(indexDefinition)));
                 throw new DataException (DataException.Database_IndexModificationFailure,
-                    string.Format("Error creating index : '{0}'", JsonConvert.SerializeObject(indexDefinition))); 
+                    string.Format("Error creating index : '{0}'", Database.SerializeObject(indexDefinition))); 
             }
         }
 
@@ -613,8 +517,9 @@ namespace IBM.Cloudant.Client
                 
 
             Uri indexUri = new Uri (dbNameUrlEncoded + "/_find", UriKind.Relative);
+            var payload = Database.SerializeObject(body);
 
-            var response = await client.httpHelper.sendPost(indexUri, null, body).ConfigureAwait(continueOnCapturedContext: false);
+            var response = await client.httpHelper.sendPost(indexUri, null, payload).ConfigureAwait(continueOnCapturedContext: false);
 
             // Check the HTTP status code
             int httpStatus = (int)response.StatusCode;
@@ -627,94 +532,31 @@ namespace IBM.Cloudant.Client
 
             // Read in the response JSON into a Dictionary
             var content = await response.Content.ReadAsStringAsync().ConfigureAwait(continueOnCapturedContext: false);
-            Dictionary<string, object> responseJSON = JsonConvert.DeserializeObject<Dictionary<string, object>>(content); 
-            Debug.WriteLine("response JSON:{0}", JsonConvert.SerializeObject(responseJSON));
 
-            IList<DocumentRevision> documentList = new List<DocumentRevision> ();
-            Object documents;
-            responseJSON.TryGetValue("docs", out documents);
-            JArray doclist = (JArray)documents;
-            foreach (JToken token in doclist) {
-                String documentId = token.Value<String>(DOC_ID);
-                if (documentId == null || documentId.Equals("")) {
-                    string errorMessage = "\nJSON Response didn't contain a documentId.";
-                    Debug.WriteLine(errorMessage);
-                    throw new DataException (DataException.Database_SaveDocumentRevisionFailure, errorMessage);
-                }
+            var docs = Database.DeserializeObject<IList<DocumentRevision>>(content);
+            return docs;
 
-                String revisionId = token.Value<String>(DOC_REV);
-                if (revisionId == null || revisionId.Equals("")) {
-                    string errorMessage = "\nJSON Response didn't contain a revisionId.";
-                    Debug.WriteLine(errorMessage);
-                    throw new DataException (DataException.Database_SaveDocumentRevisionFailure, errorMessage);
-                }
-
-                // create new DocumentRevision with docId and revId returned
-                var documentBody = token.ToObject<Dictionary<String,Object>>();
-                DocumentRevision createdDoc = new DocumentRevision (documentId, revisionId, documentBody);
-                Debug.WriteLine("findByIndex() : adding DocumentRevision\n docId:{0}\n revId:{1}\n body:{2}",
-                    documentId,
-                    revisionId,
-                    JsonConvert.SerializeObject(documentBody));
-
-                documentList.Add(createdDoc);
-            }
-
-            return documentList;
         }
 
         /// <summary>
         /// Lists all indices.
         /// </summary>
         /// <returns>List of Index</returns>
-        public async Task<List<Index>> ListIndices ()
+        public async Task<IList<Index>> ListIndices ()
         {
-
-            List<Index> taskResult = new List<Index> ();
 
             Uri indexUri = new Uri (dbNameUrlEncoded + "/_index/", UriKind.Relative);
 
             var response = await client.httpHelper.sendGet(indexUri, null).ConfigureAwait(continueOnCapturedContext: false);
 
-            JObject jsonIndex = JsonConvert.DeserializeObject<JObject>(await response.Content.ReadAsStringAsync().ConfigureAwait(continueOnCapturedContext: false));
 
-            JToken indexes;
-            jsonIndex.TryGetValue("indexes", out indexes);
+            if (response.StatusCode != HttpStatusCode.OK) {
+                //temp exception, future PR for issues #30 and #27 will fix this
+                throw new DataException (-1, "Failed to list database indices"); 
+            }
 
-            if (indexes is Newtonsoft.Json.Linq.JArray) {
-                JArray indexesArray = (JArray)indexes;
-
-                foreach (JToken token in indexesArray) {
-                    Index index = new Index (token.SelectToken(INDEX_DESIGN_DOCUMENT_JSON_KEY).ToString(),
-                                      token.SelectToken(INDEX_NAME_JSON_KEY).ToString(), 
-                                      token.SelectToken(INDEX_TYPE_JSON_KEY).ToString());
-
-                    foreach (JObject indexArray in token.SelectToken("def.fields")) {
-
-                        foreach (JProperty prop in indexArray.Properties()) {
-                            var indexfield = new SortField ();
-                            indexfield.name = prop.Name;
-                            Sort sort = Sort.asc; // temp sort value to please compiler
-
-                            if (Enum.TryParse<Sort>(prop.Value.ToString(), out sort)) {
-                                indexfield.sort = sort;
-                                index.indexFields.Add(indexfield);
-                            } else {
-                                throw new DataException (DataException.Database_IndexModificationFailure,
-                                    "invalid index field sort order value.");
-                            }
-                        }
-                    }
-
-                    taskResult.Add(index);
-                } 
-            } else
-                throw new DataException (
-                    DataException.Database_IndexModificationFailure,
-                    "Got unexpected JSON for indexes. " + jsonIndex.ToString());
-
-            return taskResult;
-
+            var content = await response.Content.ReadAsStringAsync().ConfigureAwait(continueOnCapturedContext: false);
+            return Database.DeserializeObject < IList<Index>>(content);
         }
 
 
@@ -762,35 +604,25 @@ namespace IBM.Cloudant.Client
 
         // ======== PRIVATE HELPERS =============
 
-        private Dictionary<String,Object> ConvertDocToJSONPayload (DocumentRevision rev)
+        private static T DeserializeObject<T> (string json)
         {
-            Debug.WriteLine("==== enter Database::convertDocToJSONPayload(DocumentRevision)");
-            Dictionary<String,Object> result = new Dictionary<String, object> ();
+            return JsonConvert.DeserializeObject<T>(json, Database.converters());
+        }
 
-            if (rev.isDeleted) {
-                Debug.WriteLine("adding key:{0} value:true", DOC_DELETED);
-                result.Add(DOC_DELETED, true);
-            }
+        private static string SerializeObject (object obj)
+        {
+            return JsonConvert.SerializeObject(obj, Database.converters());
+        }
 
-            if (rev.docId != null) {
-                Debug.WriteLine("adding key:{0} value:{1}", DOC_ID, rev.docId);
-                result.Add(DOC_ID, rev.docId);
-            }
-
-            if (rev.revId != null) {
-                Debug.WriteLine("adding key:{0} value:{1}", DOC_REV, rev.revId);
-                result.Add(DOC_REV, rev.revId);
-            }
-
-            foreach (KeyValuePair<string,Object> entry in rev.body) {
-                Debug.WriteLine("document body key/value: {0}, {1}",
-                    entry.Key,
-                    entry.Value);
-                result.Add(entry.Key, entry.Value);
-            }
-
-            Debug.WriteLine("==== exit Database::convertDocToJSONPayload");
-            return result;
+        private static JsonConverter[] converters ()
+        {
+            return new JsonConverter[] {
+                new ListIndicesConverter (),
+                new QueryDocumentRevisionConverter (),
+                new SortFieldConverter (),
+                new DocumentRevisionConverter (),
+                new IndexConverter ()
+            };
         }
             
                         
