@@ -1,4 +1,4 @@
-﻿//
+//
 //  Copyright (c) 2015 IBM Corp. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
@@ -52,7 +52,7 @@ namespace Test.Shared
 			try
 			{
 				db = client.Database(DBName);
-				db.EnsureExists().Wait();
+				db.EnsureExistsAsync().Wait();
 				Assert.NotNull(db);
 			}
 			catch (AggregateException ae)
@@ -70,7 +70,7 @@ namespace Test.Shared
 		{
 			if (db != null)
 			{
-				Task deleteTask = db.Delete();
+				Task deleteTask = db.DeleteAsync();
 				deleteTask.Wait();
 
 				if (deleteTask.IsFaulted)
@@ -100,7 +100,7 @@ namespace Test.Shared
 			DocumentRevision revision = new DocumentRevision();
 			revision.body = dictionary;
 
-			Task<DocumentRevision> task = db.Create(revision);
+			Task<DocumentRevision> task = db.CreateAsync(revision);
 			task.Wait();
 
 			// Validate save result
@@ -111,7 +111,7 @@ namespace Test.Shared
 			Assert.NotNull(savedRevision.revId, "savedRevision.revId == null");
 
 			// perform find
-			task = db.Read(savedRevision.docId);
+			task = db.ReadAsync(savedRevision.docId);
 			task.Wait();
 
 			// Validate find result
@@ -123,7 +123,7 @@ namespace Test.Shared
 			fetchedRevision.body.Remove(stringKey);
 
 			// perform update
-			task = db.Update(fetchedRevision);
+			task = db.UpdateAsync(fetchedRevision);
 			task.Wait();
 
 			Assert.False(task.IsFaulted, "update unexpectedly failed");
@@ -135,7 +135,7 @@ namespace Test.Shared
 			Assert.False(updatedRevision.body.ContainsKey(stringKey), "updatedBody did contained stringKey when not expected");
 
 			// remove the document from the database
-			Task<String> deleteTask = db.Delete(updatedRevision);
+			Task<String> deleteTask = db.DeleteAsync(updatedRevision);
 			deleteTask.Wait();
 			Assert.False(deleteTask.IsFaulted, "delete unexpectedly failed");
 			Assert.NotNull(deleteTask.Result, "delete result not returned as expected.");
@@ -147,7 +147,7 @@ namespace Test.Shared
 		{
 			// Save DocumentRevision without a body
 			DocumentRevision revision = new DocumentRevision();
-			Task<DocumentRevision> saveTask = db.Create(revision);
+			Task<DocumentRevision> saveTask = db.CreateAsync(revision);
 			saveTask.Wait();
 			Assert.True(!saveTask.IsFaulted, "failed to save DocumentRevision with empty body");
 		}
@@ -161,7 +161,7 @@ namespace Test.Shared
 			revision.body = body;
 
 			// Save DocumentRevision with a body
-			Task<DocumentRevision> saveTask = db.Create(revision);
+			Task<DocumentRevision> saveTask = db.CreateAsync(revision);
 			saveTask.Wait();
 			Assert.True(!saveTask.IsFaulted, "failed to save DocumentRevision with body");
 		}
@@ -172,7 +172,7 @@ namespace Test.Shared
 			try
 			{
 				// Save null
-				Task<DocumentRevision> saveTask = db.Create(null);
+				Task<DocumentRevision> saveTask = db.CreateAsync(null);
 				saveTask.Wait();
 				Assert.False(true, "save should raise exception on save of null");
 			}
@@ -188,7 +188,7 @@ namespace Test.Shared
 			try
 			{
 				// fetch null
-				Task<DocumentRevision> fetchByIdTask = db.Read(null);
+				Task<DocumentRevision> fetchByIdTask = db.ReadAsync(null);
 				fetchByIdTask.Wait();
 				Assert.True(fetchByIdTask.IsFaulted, "find should produce fault on fetch of null");
 			}
@@ -204,7 +204,7 @@ namespace Test.Shared
 			try
 			{
 				// fetch empty string
-				Task<DocumentRevision> fetchByIdTask = db.Read("");
+				Task<DocumentRevision> fetchByIdTask = db.ReadAsync("");
 				fetchByIdTask.Wait();
 				Assert.True(fetchByIdTask.IsFaulted, "find should produce fault on find of empty string");
 			}
@@ -220,7 +220,7 @@ namespace Test.Shared
 			// fetch id that doesn't exist
 			Assert.Throws<AggregateException>(() =>
 				{
-					Task<DocumentRevision> fetchByIdTask = db.Read("1234");
+					Task<DocumentRevision> fetchByIdTask = db.ReadAsync("1234");
 					fetchByIdTask.Wait();
 
 				});   
@@ -232,7 +232,7 @@ namespace Test.Shared
 			try
 			{
 				// delete null
-				Task<String> deleteTask = db.Delete(null);
+				Task<String> deleteTask = db.DeleteAsync(null);
 				deleteTask.Wait();
 				Assert.True(deleteTask.IsFaulted, "remove should produce fault on remove of null");
 			}
@@ -250,7 +250,7 @@ namespace Test.Shared
 			{
 				// Save DocumentRevision without a body
 				DocumentRevision revision = new DocumentRevision();
-				Task <String> deleteTask = db.Delete(revision);
+				Task <String> deleteTask = db.DeleteAsync(revision);
 				deleteTask.Wait();
 				Assert.True(deleteTask.IsFaulted, "delete DocumentRevision that does not exist should fail");
 			}
@@ -267,7 +267,7 @@ namespace Test.Shared
 
 			var sortField = new SortField(){ sort = Sort.desc, name = ageKey };
 
-			var task = db.Query(selector: new Dictionary<string,object>()
+			var task = db.QueryAsync(selector: new Dictionary<string,object>()
 				{
                 [ageKey ] = 5
 				}, sort: new List<SortField>()
@@ -297,7 +297,7 @@ namespace Test.Shared
 			sortField.name = ageKey;
 			sortField.sort = Sort.desc;
 
-			var task = db.Query(selector: new Dictionary<string,object>()
+			var task = db.QueryAsync(selector: new Dictionary<string,object>()
 				{
                 [ageKey ] = new Dictionary<string,int>()
 					{
@@ -332,7 +332,7 @@ namespace Test.Shared
 				sort = Sort.desc
 			};
 
-			var task = db.Query(selector: new Dictionary<string,object>()
+			var task = db.QueryAsync(selector: new Dictionary<string,object>()
 				{
                 [ageKey ] = new Dictionary<string,int>()
 					{
@@ -363,7 +363,7 @@ namespace Test.Shared
 			var sortField = new SortField();
 			sortField.name = ageKey;
 
-			var task = db.Query(selector: new Dictionary<string,object>()
+			var task = db.QueryAsync(selector: new Dictionary<string,object>()
 				{
                 [ageKey ] = new Dictionary<string,int>()
 					{
@@ -418,7 +418,7 @@ namespace Test.Shared
 			var db = client.Database("my/database");
 			try
 			{
-				db.EnsureExists().Wait();
+				db.EnsureExistsAsync().Wait();
 
 				var document = new DocumentRevision()
 				{
@@ -442,7 +442,7 @@ namespace Test.Shared
 			}
 			finally
 			{
-				db.Delete().Wait();
+				db.DeleteAsync().Wait();
 			}
 
 		}
@@ -815,7 +815,7 @@ namespace Test.Shared
 
 		private DocumentRevision CreateAndAssert(DocumentRevision document)
 		{
-			Task<DocumentRevision> task = db.Create(document);
+			Task<DocumentRevision> task = db.CreateAsync(document);
 			task.Wait();
 			Assert.IsFalse(task.IsFaulted);
 			Assert.IsNotNull(task.Result);
@@ -829,7 +829,7 @@ namespace Test.Shared
 
 		private void ReadAndAssert(DocumentRevision document, DocumentRevision savedDocument)
 		{
-			var readDocumentTask = db.Read(document.docId);
+			var readDocumentTask = db.ReadAsync(document.docId);
 			readDocumentTask.Wait();
 			Assert.IsFalse(readDocumentTask.IsFaulted);
 			Assert.AreEqual(savedDocument, readDocumentTask.Result);
@@ -838,7 +838,7 @@ namespace Test.Shared
 		private DocumentRevision UpdateAndAssert(DocumentRevision document, DocumentRevision savedDocument)
 		{
 			savedDocument.body.Add("updated", true);
-			var updateTask = db.Update(savedDocument);
+			var updateTask = db.UpdateAsync(savedDocument);
 			updateTask.Wait();
 			Assert.IsFalse(updateTask.IsFaulted);
 			Assert.AreEqual(document.docId, updateTask.Result.docId);
@@ -847,7 +847,7 @@ namespace Test.Shared
 
 		private void DeleteAndAssert(DocumentRevision updated)
 		{
-			var deleteTask = db.Delete(updated);
+			var deleteTask = db.DeleteAsync(updated);
 			deleteTask.Wait();
 			Assert.IsFalse(deleteTask.IsFaulted);
 		}
@@ -856,7 +856,7 @@ namespace Test.Shared
 		private void doQuerySetupWithFields(String indexName, List<SortField> indexFields)
 		{
 
-			var indexTask = db.CreateJsonIndex(fields: indexFields, indexName: indexName);
+			var indexTask = db.CreateJsonIndexAsync(fields: indexFields, indexName: indexName);
 			indexTask.Wait();
 
 			for (int i = 0; i < 20; i++)
@@ -867,7 +867,7 @@ namespace Test.Shared
 
 				DocumentRevision revision = new DocumentRevision();
 				revision.body = dictionary;
-				Task<DocumentRevision> task = db.Create(revision);
+				Task<DocumentRevision> task = db.CreateAsync(revision);
 				task.Wait();
 			}               
 		}

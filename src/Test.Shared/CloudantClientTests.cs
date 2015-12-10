@@ -1,4 +1,4 @@
-﻿//
+//
 //  Copyright (c) 2015 IBM Corp. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
@@ -96,17 +96,17 @@ namespace Test.Shared
 		}
 
 
-		/// <summary>
-		/// Test a NoDocumentException is thrown when trying an operation on a DB that doesn't exist.
-		/// </summary>
-		[Test()]
-		public void NonExistentDatabaseException()
-		{
-			string DBName = "database_doesnt_exist";
-			var db = client.Database(DBName);
-			Assert.Throws<DataException>(async () => await db.ListIndices(),
-				"Test failed checking that exception is thrown when a database doesn't exist.");
-		}
+        /// <summary>
+        /// Test a NoDocumentException is thrown when trying an operation on a DB that doesn't exist.
+        /// </summary>
+        [Test()]
+        public void NonExistentDatabaseException()
+        {
+            string DBName = "database_doesnt_exist";
+            var db = client.Database (DBName);
+            Assert.Throws<DataException>(async () => await db.ListIndicesAsync (),
+                "Test failed checking that exception is thrown when a database doesn't exist.");
+        }
 
 
 		/// <summary>

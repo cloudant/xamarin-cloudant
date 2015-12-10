@@ -1,4 +1,4 @@
-﻿//
+//
 //  Copyright (c) 2015 IBM Corp. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
@@ -40,8 +40,8 @@ namespace Test.Shared
 		{
 			if (db != null)
 			{
-				Task deleteDBTask = db.Delete();
-				deleteDBTask.Wait();
+                Task deleteDBTask = db.DeleteAsync ();
+                deleteDBTask.Wait ();
 
 				if (deleteDBTask.IsFaulted)
 					Debug.WriteLine("Failed to delete remote DB name: " + DBName + "\nError: " + deleteDBTask.Exception.Message);
@@ -62,9 +62,9 @@ namespace Test.Shared
 
 			Assert.DoesNotThrow(async () =>
 				{
-					await db.EnsureExists().ConfigureAwait(continueOnCapturedContext: false);
-				},
-				"Exception thrown while creating database using BasicAuth interceptor. ");
+                await db.EnsureExistsAsync ().ConfigureAwait (continueOnCapturedContext: false);
+            },
+                "Exception thrown while creating database using BasicAuth interceptor. ");
 
 			Assert.NotNull(db);
 
@@ -84,9 +84,9 @@ namespace Test.Shared
 
 			Assert.DoesNotThrow(async () =>
 				{
-					await db.EnsureExists().ConfigureAwait(continueOnCapturedContext: false);
-				},
-				"Exception thrown while creating database using cookie interceptor. ");
+                await db.EnsureExistsAsync ().ConfigureAwait (continueOnCapturedContext: false);
+            },
+                "Exception thrown while creating database using cookie interceptor. ");
 
 			Assert.NotNull(db);
 		}
