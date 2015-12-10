@@ -14,41 +14,41 @@ using System;
 
 namespace IBM.Cloudant.Client
 {
-    /// <summary>
-    /// Search field.
-    /// </summary>
-    public struct TextIndexField
-    {
-        /// <summary>
-        /// Gets or sets the name.
-        /// </summary>
-        /// <value>The name.</value>
-        public String name { get; set; }
+	/// <summary>
+	/// Search field.
+	/// </summary>
+	public struct TextIndexField
+	{
+		/// <summary>
+		/// Gets or sets the name.
+		/// </summary>
+		/// <value>The name.</value>
+		public String name { get; set; }
 
-        /// <summary>
-        /// Gets or sets the type.
-        /// </summary>
-        /// <value>The type.</value>
-        public TextIndexFieldType type { get; set; }
-    }
+		/// <summary>
+		/// Gets or sets the type.
+		/// </summary>
+		/// <value>The type.</value>
+		public TextIndexFieldType type { get; set; }
+	}
 
-    /// <summary>
-    /// Search field type.
-    /// </summary>
-    public enum TextIndexFieldType
-    {
-        /// <summary>
-        /// The number.
-        /// </summary>
-        Number,
-        /// <summary>
-        /// The boolean.
-        /// </summary>
-        Boolean,
-        /// <summary>
-        /// The string.
-        /// </summary>
-        String
-    }
+	/// <summary>
+	/// Search field type.
+	/// </summary>
+	public enum TextIndexFieldType
+	{
+		/// <summary>
+		/// The number.
+		/// </summary>
+		Number,
+		/// <summary>
+		/// The boolean.
+		/// </summary>
+		Boolean,
+		/// <summary>
+		/// The string.
+		/// </summary>
+		String
+	}
 }
 

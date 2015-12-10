@@ -15,43 +15,43 @@ using System.Net.Http;
 
 namespace IBM.Cloudant.Client
 {
-    /// <summary>
-    /// Class used to pass the current state of an HTTP connection to <see cref="Com.Cloudant.Client.Internal.Http.IHttpConnectionInterceptor"/> 
-    /// </summary>
-    /// <remarks>
-    /// This class is used for passing the context for a HTTP connection.
-    /// </remarks>
-    public class HttpConnectionInterceptorContext
-    {
-        /// <summary>
-        /// Indicates whether the HttpRequest should be replayed when it has been intercepted.
-        /// </summary>
-        /// <value><c>true</c> if the request should be replayed.</value>
-        public bool replayRequest { set; get; }
+	/// <summary>
+	/// Class used to pass the current state of an HTTP connection to <see cref="Com.Cloudant.Client.Internal.Http.IHttpConnectionInterceptor"/> 
+	/// </summary>
+	/// <remarks>
+	/// This class is used for passing the context for a HTTP connection.
+	/// </remarks>
+	public class HttpConnectionInterceptorContext
+	{
+		/// <summary>
+		/// Indicates whether the HttpRequest should be replayed when it has been intercepted.
+		/// </summary>
+		/// <value><c>true</c> if the request should be replayed.</value>
+		public bool replayRequest { set; get; }
 
-        /// <summary>
-        /// The HttpRequestMessage being processed.
-        /// </summary>
-        /// <value>The request message.</value>
-        public HttpRequestMessage requestMsg { set; get; }
+		/// <summary>
+		/// The HttpRequestMessage being processed.
+		/// </summary>
+		/// <value>The request message.</value>
+		public HttpRequestMessage requestMsg { set; get; }
 
-        /// <summary>
-        /// The HttpResponseMessage being processed.
-        /// </summary>
-        /// <value>The response message.</value>
-        public HttpResponseMessage responseMsg { set; get; }
+		/// <summary>
+		/// The HttpResponseMessage being processed.
+		/// </summary>
+		/// <value>The response message.</value>
+		public HttpResponseMessage responseMsg { set; get; }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Com.Cloudant.Client.Internal.Http.HttpConnectionInterceptorContext"/> class with
-        /// the given HttpRequest and HttpResponse message.
-        /// </summary>
-        /// <param name="requestMessage">Request message.</param>
-        /// <param name="responseMessage">Response message.</param>
-        public HttpConnectionInterceptorContext (HttpRequestMessage requestMessage, HttpResponseMessage responseMessage)
-        {
-            this.requestMsg = requestMessage;
-            this.responseMsg = responseMessage;
-        }
-    }
+		/// <summary>
+		/// Initializes a new instance of the <see cref="Com.Cloudant.Client.Internal.Http.HttpConnectionInterceptorContext"/> class with
+		/// the given HttpRequest and HttpResponse message.
+		/// </summary>
+		/// <param name="requestMessage">Request message.</param>
+		/// <param name="responseMessage">Response message.</param>
+		public HttpConnectionInterceptorContext(HttpRequestMessage requestMessage, HttpResponseMessage responseMessage)
+		{
+			this.requestMsg = requestMessage;
+			this.responseMsg = responseMessage;
+		}
+	}
 }
 

@@ -14,55 +14,56 @@ using System;
 
 namespace Test.Shared
 {
-    public class TestConstants
-    {
-        /// <summary>
-        /// The cloudant.com account hostname to connect to. For example
-        /// sampleaccount.cloudant.com or http://sampleaccount.cloudant.com:1234
-        /// </summary>
-        public static readonly string account = "your-cloudant-account-name";
+	public class TestConstants
+	{
+		/// <summary>
+		/// The cloudant.com account hostname to connect to. For example
+		/// sampleaccount.cloudant.com or http://sampleaccount.cloudant.com:1234
+		/// </summary>
+		public static readonly string account = "your-cloudant-account-name";
 
-        /// <summary>
-        /// The cloudant user ID.
-        /// </summary>
-        public static readonly string username = "your-cloudant-username";
+		/// <summary>
+		/// The cloudant user ID.
+		/// </summary>
+		public static readonly string username = "your-cloudant-username";
 
-        /// <summary>
-        /// The password credential for user ID speficied in <see cref="Test.Shared.TestConstants.username"/>
-        /// </summary>
-        public static readonly string password = "your-cloudant-password";
+		/// <summary>
+		/// The password credential for user ID speficied in <see cref="Test.Shared.TestConstants.username"/>
+		/// </summary>
+		public static readonly string password = "your-cloudant-password";
 
-        /// <summary>
-        /// The default name of the database for all tests.  Most tests will append a date time stamp to make this name unique.
-        /// </summary>
-        public static readonly string defaultDatabaseName = "xamarintests";
+		/// <summary>
+		/// The default name of the database for all tests.  Most tests will append a date time stamp to make this name unique.
+		/// </summary>
+		public static readonly string defaultDatabaseName = "xamarintests";
 
 
 
-        /// <summary>
-        /// Initializes the <see cref="Test.Shared.TestConstants"/> class and validates the required test settings have been configured.
-        /// </summary>
-        static TestConstants ()
-        {
+		/// <summary>
+		/// Initializes the <see cref="Test.Shared.TestConstants"/> class and validates the required test settings have been configured.
+		/// </summary>
+		static TestConstants()
+		{
 
-            validateTestSettings ();
-        }
+			validateTestSettings();
+		}
 
-        public static void validateTestSettings ()
-        {
-            if (string.IsNullOrWhiteSpace (account) || account.StartsWith ("your-cloudant")
-                || string.IsNullOrWhiteSpace (username) || username.StartsWith ("your-cloudant")
-                || string.IsNullOrWhiteSpace (password) || password.StartsWith ("your-cloudant")) {
+		public static void validateTestSettings()
+		{
+			if (string.IsNullOrWhiteSpace(account) || account.StartsWith("your-cloudant")
+			    || string.IsNullOrWhiteSpace(username) || username.StartsWith("your-cloudant")
+			    || string.IsNullOrWhiteSpace(password) || password.StartsWith("your-cloudant"))
+			{
 
-                Console.Error.WriteLine ("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                Console.Error.WriteLine ("!!! ERROR: Tests failed because you have not configured the Cloudant !!!");
-                Console.Error.WriteLine ("!!!        account, username, or password in TestConstants.cs        !!!"); 
-                Console.Error.WriteLine ("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+				Console.Error.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+				Console.Error.WriteLine("!!! ERROR: Tests failed because you have not configured the Cloudant !!!");
+				Console.Error.WriteLine("!!!        account, username, or password in TestConstants.cs        !!!"); 
+				Console.Error.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
-                throw new Exception ("Tests failed because you have not configured your Cloudant account, username, or password in TestConstants.cs");
-            }
-        }
+				throw new Exception("Tests failed because you have not configured your Cloudant account, username, or password in TestConstants.cs");
+			}
+		}
 
-    }
+	}
 }
 

@@ -14,20 +14,20 @@ using System;
 
 namespace IBM.Cloudant.Client
 {
-    /// <summary>
-    /// This interface is not intended to be implemented by consumers. You must implement one of the sub-interfaces:
-    /// 
-    /// <list type="bullet">
-    ///     <item><term><see cref="Com.Cloudant.Client.Internal.Http.IHttpConnectionRequestInterceptor"/> or </term></item>
-    ///     <item><term><see cref="Com.Cloudant.Client.Internal.Http.IHttpConnectionResponseInterceptor"/></term></item>
-    /// </list>
-    /// </summary>
-    /// <remarks>
-    /// This is the base interface for HTTP connection interceptors.
-    /// </remarks>
-    public interface IHttpConnectionInterceptor
-    {
+	/// <summary>
+	/// This interface is not intended to be implemented by consumers. You must implement one of the sub-interfaces:
+	/// 
+	/// <list type="bullet">
+	///     <item><term><see cref="Com.Cloudant.Client.Internal.Http.IHttpConnectionRequestInterceptor"/> or </term></item>
+	///     <item><term><see cref="Com.Cloudant.Client.Internal.Http.IHttpConnectionResponseInterceptor"/></term></item>
+	/// </list>
+	/// </summary>
+	/// <remarks>
+	/// This is the base interface for HTTP connection interceptors.
+	/// </remarks>
+	public interface IHttpConnectionInterceptor
+	{
         
-    }
+	}
 }
 

@@ -17,50 +17,53 @@ using System.Collections.Generic;
 
 namespace IBM.Cloudant.Client
 {
-    /// <summary>
-    /// Marshals a list of <see cref="IBM.Cloudant.client.Index"/> objects from json.
-    /// </summary>
-    internal class ListIndicesConverter : JsonConverter
-    {
-        public ListIndicesConverter ()
-        {
-        }
+	/// <summary>
+	/// Marshals a list of <see cref="IBM.Cloudant.client.Index"/> objects from json.
+	/// </summary>
+	internal class ListIndicesConverter : JsonConverter
+	{
+		public ListIndicesConverter()
+		{
+		}
 
-        public override bool CanConvert (Type objectType)
-        {
-            return objectType == typeof(IList<Index>);
-        }
-
-
-        public override object ReadJson (JsonReader reader,
-                                         Type objectType,
-                                         object existingValue,
-                                         JsonSerializer serializer)
-        {
-            var jsonObject = JObject.Load(reader);
-            IList<Index> indexes = new List<Index> ();
-
-            var indexJsonObject = jsonObject.GetValue("indexes");
-            foreach (var obj in indexJsonObject) {
-                var indexReader = obj.CreateReader();
-                var index = serializer.Deserialize<Index>(indexReader);
-                indexes.Add(index);
-            }
-
-            return indexes;
-        }
+		public override bool CanConvert(Type objectType)
+		{
+			return objectType == typeof(IList<Index>);
+		}
 
 
-        public override bool CanWrite {
-            get {
-                return false;
-            }
-        }
+		public override object ReadJson(JsonReader reader,
+		                                Type objectType,
+		                                object existingValue,
+		                                JsonSerializer serializer)
+		{
+			var jsonObject = JObject.Load(reader);
+			IList<Index> indexes = new List<Index>();
 
-        public override void WriteJson (JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            throw new NotSupportedException ();
-        }
-    }
+			var indexJsonObject = jsonObject.GetValue("indexes");
+			foreach (var obj in indexJsonObject)
+			{
+				var indexReader = obj.CreateReader();
+				var index = serializer.Deserialize<Index>(indexReader);
+				indexes.Add(index);
+			}
+
+			return indexes;
+		}
+
+
+		public override bool CanWrite
+		{
+			get
+			{
+				return false;
+			}
+		}
+
+		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+		{
+			throw new NotSupportedException();
+		}
+	}
 }
 

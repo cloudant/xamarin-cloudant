@@ -21,796 +21,870 @@ using Newtonsoft.Json.Linq;
 
 namespace Test.Shared
 {
-    [TestFixture]
-    public class CRUDTests
-    {
-        private CloudantClient client;
-        private Database db;
-        private String DBName;
+	[TestFixture]
+	public class CRUDTests
+	{
+		private CloudantClient client;
+		private Database db;
+		private String DBName;
 
-        protected static String ageKey = "age";
-        protected static String ageIndex = "ageIndex";
-        protected static String designDocName = "designDocName";
-        protected static List<SortField> ageIndexFields = new List<SortField> ();
-        protected static int ageBaseValue = 0;
-        protected static String nameKey = "name";
-        protected static String nameValue = "data";
-
-
-        [SetUp]
-        public void Setup ()
-        {
-            DBName = TestConstants.defaultDatabaseName + DateTime.Now.Ticks;
-
-            client = new CloudantClientBuilder (TestConstants.account) {
-                username = TestConstants.username,
-                password = TestConstants.password
-            }.GetResult ();
-
-            // create the database
-            try {
-                db = client.Database (DBName);
-                db.EnsureExists ().Wait ();
-                Assert.NotNull (db);
-            } catch (AggregateException ae) {
-                Assert.Fail ("Create remote database failed.  Cause: " + ae.Message);
-            } catch (Exception e) {
-                Assert.Fail ("Unexpected failure: " + e.Message);
-            }
-        }
-
-        [TearDown] //Runs after each test.
-        protected void tearDown ()
-        {
-            if (db != null) {
-                Task deleteTask = db.Delete ();
-                deleteTask.Wait ();
-
-                if (deleteTask.IsFaulted)
-                    Debug.WriteLine ("Failed to delete remote DB name: " + DBName + "\nError: " + deleteTask.Exception.Message);
-            }
-        }
-
-        [Test]
-        public void testSaveFetchDeleteDocument ()
-        {
-
-            String stringKey = "stringKey";
-            String stringValue = "nicestringvalue";
-
-            String numberKey = "numberKey";
-            int numberValue = 42;
-
-            String newKey = "newKey";
-            int newValue = 43;
+		protected static String ageKey = "age";
+		protected static String ageIndex = "ageIndex";
+		protected static String designDocName = "designDocName";
+		protected static List<SortField> ageIndexFields = new List<SortField>();
+		protected static int ageBaseValue = 0;
+		protected static String nameKey = "name";
+		protected static String nameValue = "data";
 
 
-            Dictionary<String, Object> dictionary = new Dictionary<String, Object> ();
-            dictionary.Add (stringKey, stringValue);
-            dictionary.Add (numberKey, numberValue);
+		[SetUp]
+		public void Setup()
+		{
+			DBName = TestConstants.defaultDatabaseName + DateTime.Now.Ticks;
 
-            // Insert a document
-            DocumentRevision revision = new DocumentRevision ();
-            revision.body = dictionary;
+			client = new CloudantClientBuilder(TestConstants.account)
+			{
+				username = TestConstants.username,
+				password = TestConstants.password
+			}.GetResult();
 
-            Task<DocumentRevision> task = db.Create (revision);
-            task.Wait ();
+			// create the database
+			try
+			{
+				db = client.Database(DBName);
+				db.EnsureExists().Wait();
+				Assert.NotNull(db);
+			}
+			catch (AggregateException ae)
+			{
+				Assert.Fail("Create remote database failed.  Cause: " + ae.Message);
+			}
+			catch (Exception e)
+			{
+				Assert.Fail("Unexpected failure: " + e.Message);
+			}
+		}
 
-            // Validate save result
-            Assert.False (task.IsFaulted, "create unexpectedly failed");
-            Assert.True (task.Result is DocumentRevision, "DocumentRevision not returned on create");
-            DocumentRevision savedRevision = (DocumentRevision)task.Result;
-            Assert.NotNull (savedRevision.docId, "savedRevision.docId == null");
-            Assert.NotNull (savedRevision.revId, "savedRevision.revId == null");
+		[TearDown] //Runs after each test.
+        protected void tearDown()
+		{
+			if (db != null)
+			{
+				Task deleteTask = db.Delete();
+				deleteTask.Wait();
 
-            // perform find
-            task = db.Read (savedRevision.docId);
-            task.Wait ();
+				if (deleteTask.IsFaulted)
+					Debug.WriteLine("Failed to delete remote DB name: " + DBName + "\nError: " + deleteTask.Exception.Message);
+			}
+		}
 
-            // Validate find result
-            Assert.False (task.IsFaulted, "create unexpectedly failed");
-            Assert.True (task.Result is DocumentRevision, "DocumentRevision not returned on create");
-            DocumentRevision fetchedRevision = (DocumentRevision)task.Result;
+		[Test]
+		public void testSaveFetchDeleteDocument()
+		{
 
-            fetchedRevision.body.Add (newKey, newValue);
-            fetchedRevision.body.Remove (stringKey);
+			String stringKey = "stringKey";
+			String stringValue = "nicestringvalue";
 
-            // perform update
-            task = db.Update (fetchedRevision);
-            task.Wait ();
+			String numberKey = "numberKey";
+			int numberValue = 42;
 
-            Assert.False (task.IsFaulted, "update unexpectedly failed");
-            Assert.True (task.Result is DocumentRevision, "DocumentRevision not returned on create");
-            DocumentRevision updatedRevision = (DocumentRevision)task.Result;
-            Assert.NotNull (updatedRevision.docId, "updatedRevision.docId == null");
-            Assert.NotNull (updatedRevision.revId, "updatedRevision.revId == null");
-            Assert.True (updatedRevision.body.ContainsKey (newKey), "updatedBody did not contain newKey as expected");
-            Assert.False (updatedRevision.body.ContainsKey (stringKey), "updatedBody did contained stringKey when not expected");
+			String newKey = "newKey";
+			int newValue = 43;
 
-            // remove the document from the database
-            Task<String> deleteTask = db.Delete (updatedRevision);
-            deleteTask.Wait ();
-            Assert.False (deleteTask.IsFaulted, "delete unexpectedly failed");
-            Assert.NotNull (deleteTask.Result, "delete result not returned as expected.");
 
-        }
+			Dictionary<String, Object> dictionary = new Dictionary<String, Object>();
+			dictionary.Add(stringKey, stringValue);
+			dictionary.Add(numberKey, numberValue);
 
-        [Test]
-        public void testBasicSaveWithoutBody ()
-        {
-            // Save DocumentRevision without a body
-            DocumentRevision revision = new DocumentRevision ();
-            Task<DocumentRevision> saveTask = db.Create (revision);
-            saveTask.Wait ();
-            Assert.True (!saveTask.IsFaulted, "failed to save DocumentRevision with empty body");
-        }
+			// Insert a document
+			DocumentRevision revision = new DocumentRevision();
+			revision.body = dictionary;
 
-        [Test]
-        public void testBasicSaveWithBody ()
-        {
-            DocumentRevision revision = new DocumentRevision ();
-            Dictionary<String, Object> body = new Dictionary<String, Object> ();
-            body.Add ("key", "value");
-            revision.body = body;
+			Task<DocumentRevision> task = db.Create(revision);
+			task.Wait();
 
-            // Save DocumentRevision with a body
-            Task<DocumentRevision> saveTask = db.Create (revision);
-            saveTask.Wait ();
-            Assert.True (!saveTask.IsFaulted, "failed to save DocumentRevision with body");
-        }
+			// Validate save result
+			Assert.False(task.IsFaulted, "create unexpectedly failed");
+			Assert.True(task.Result is DocumentRevision, "DocumentRevision not returned on create");
+			DocumentRevision savedRevision = (DocumentRevision)task.Result;
+			Assert.NotNull(savedRevision.docId, "savedRevision.docId == null");
+			Assert.NotNull(savedRevision.revId, "savedRevision.revId == null");
 
-        [Test]
-        public void testInvalidSave ()
-        {
-            try {
-                // Save null
-                Task<DocumentRevision> saveTask = db.Create (null);
-                saveTask.Wait ();
-                Assert.False (true, "save should raise exception on save of null");
-            } catch (Exception e) {
-                Assert.Pass ("expected testInvalidSave exception caught.  Cause:" + e.Message);
-            }
-        }
+			// perform find
+			task = db.Read(savedRevision.docId);
+			task.Wait();
 
-        [Test]
-        public void testInvalidFetchWithNullInput ()
-        {
-            try {
-                // fetch null
-                Task<DocumentRevision> fetchByIdTask = db.Read (null);
-                fetchByIdTask.Wait ();
-                Assert.True (fetchByIdTask.IsFaulted, "find should produce fault on fetch of null");
-            } catch (Exception e) {
-                Assert.Pass ("expected testInvalidFetchWithNullInput exception caught.  Cause:" + e.Message);
-            }
-        }
+			// Validate find result
+			Assert.False(task.IsFaulted, "create unexpectedly failed");
+			Assert.True(task.Result is DocumentRevision, "DocumentRevision not returned on create");
+			DocumentRevision fetchedRevision = (DocumentRevision)task.Result;
 
-        [Test]
-        public void testInvalidFetchWithEmptyString ()
-        {
-            try {
-                // fetch empty string
-                Task<DocumentRevision> fetchByIdTask = db.Read ("");
-                fetchByIdTask.Wait ();
-                Assert.True (fetchByIdTask.IsFaulted, "find should produce fault on find of empty string");
-            } catch (Exception e) {
-                Assert.Pass ("expected testInvalidFetchWithEmptyString exception caught.  Cause:" + e.Message);
-            }
-        }
+			fetchedRevision.body.Add(newKey, newValue);
+			fetchedRevision.body.Remove(stringKey);
 
-        [Test]
-        public void testInvalidFetchNonexistId ()
-        {
-                // fetch id that doesn't exist
-            Assert.Throws<AggregateException>(() => {
-                Task<DocumentRevision> fetchByIdTask = db.Read ("1234");
-                fetchByIdTask.Wait ();
+			// perform update
+			task = db.Update(fetchedRevision);
+			task.Wait();
 
-                });   
-        }
+			Assert.False(task.IsFaulted, "update unexpectedly failed");
+			Assert.True(task.Result is DocumentRevision, "DocumentRevision not returned on create");
+			DocumentRevision updatedRevision = (DocumentRevision)task.Result;
+			Assert.NotNull(updatedRevision.docId, "updatedRevision.docId == null");
+			Assert.NotNull(updatedRevision.revId, "updatedRevision.revId == null");
+			Assert.True(updatedRevision.body.ContainsKey(newKey), "updatedBody did not contain newKey as expected");
+			Assert.False(updatedRevision.body.ContainsKey(stringKey), "updatedBody did contained stringKey when not expected");
 
-        [Test]
-        public void testInvalidDeleteWithNullInput ()
-        {
-            try {
-                // delete null
-                Task<String> deleteTask = db.Delete (null);
-                deleteTask.Wait ();
-                Assert.True (deleteTask.IsFaulted, "remove should produce fault on remove of null");
-            } catch (Exception e) {
-                Assert.Pass ("expected testInvalidDeleteWithNullInput exception caught.  Cause:" + e.Message);
-            }
+			// remove the document from the database
+			Task<String> deleteTask = db.Delete(updatedRevision);
+			deleteTask.Wait();
+			Assert.False(deleteTask.IsFaulted, "delete unexpectedly failed");
+			Assert.NotNull(deleteTask.Result, "delete result not returned as expected.");
 
-        }
+		}
 
-        [Test]
-        public void testInvalidDeleteWithoutBody ()
-        {
-            try {
-                // Save DocumentRevision without a body
-                DocumentRevision revision = new DocumentRevision ();
-                Task <String> deleteTask = db.Delete (revision);
-                deleteTask.Wait ();
-                Assert.True (deleteTask.IsFaulted, "delete DocumentRevision that does not exist should fail");
-            } catch (Exception e) {
-                Assert.Pass ("expected testInvalidDeleteWithoutBody exception caught.  Cause:" + e.InnerException.Message);
-            }
-        }
+		[Test]
+		public void testBasicSaveWithoutBody()
+		{
+			// Save DocumentRevision without a body
+			DocumentRevision revision = new DocumentRevision();
+			Task<DocumentRevision> saveTask = db.Create(revision);
+			saveTask.Wait();
+			Assert.True(!saveTask.IsFaulted, "failed to save DocumentRevision with empty body");
+		}
 
-        [Test]
-        public void testEqualityQueryTest ()
-        {
-            doQuerySetup ();
+		[Test]
+		public void testBasicSaveWithBody()
+		{
+			DocumentRevision revision = new DocumentRevision();
+			Dictionary<String, Object> body = new Dictionary<String, Object>();
+			body.Add("key", "value");
+			revision.body = body;
 
-            var sortField = new SortField (){ sort = Sort.desc, name = ageKey };
+			// Save DocumentRevision with a body
+			Task<DocumentRevision> saveTask = db.Create(revision);
+			saveTask.Wait();
+			Assert.True(!saveTask.IsFaulted, "failed to save DocumentRevision with body");
+		}
 
-            var task = db.Query (selector: new Dictionary<string,object> () {
+		[Test]
+		public void testInvalidSave()
+		{
+			try
+			{
+				// Save null
+				Task<DocumentRevision> saveTask = db.Create(null);
+				saveTask.Wait();
+				Assert.False(true, "save should raise exception on save of null");
+			}
+			catch (Exception e)
+			{
+				Assert.Pass("expected testInvalidSave exception caught.  Cause:" + e.Message);
+			}
+		}
+
+		[Test]
+		public void testInvalidFetchWithNullInput()
+		{
+			try
+			{
+				// fetch null
+				Task<DocumentRevision> fetchByIdTask = db.Read(null);
+				fetchByIdTask.Wait();
+				Assert.True(fetchByIdTask.IsFaulted, "find should produce fault on fetch of null");
+			}
+			catch (Exception e)
+			{
+				Assert.Pass("expected testInvalidFetchWithNullInput exception caught.  Cause:" + e.Message);
+			}
+		}
+
+		[Test]
+		public void testInvalidFetchWithEmptyString()
+		{
+			try
+			{
+				// fetch empty string
+				Task<DocumentRevision> fetchByIdTask = db.Read("");
+				fetchByIdTask.Wait();
+				Assert.True(fetchByIdTask.IsFaulted, "find should produce fault on find of empty string");
+			}
+			catch (Exception e)
+			{
+				Assert.Pass("expected testInvalidFetchWithEmptyString exception caught.  Cause:" + e.Message);
+			}
+		}
+
+		[Test]
+		public void testInvalidFetchNonexistId()
+		{
+			// fetch id that doesn't exist
+			Assert.Throws<AggregateException>(() =>
+				{
+					Task<DocumentRevision> fetchByIdTask = db.Read("1234");
+					fetchByIdTask.Wait();
+
+				});   
+		}
+
+		[Test]
+		public void testInvalidDeleteWithNullInput()
+		{
+			try
+			{
+				// delete null
+				Task<String> deleteTask = db.Delete(null);
+				deleteTask.Wait();
+				Assert.True(deleteTask.IsFaulted, "remove should produce fault on remove of null");
+			}
+			catch (Exception e)
+			{
+				Assert.Pass("expected testInvalidDeleteWithNullInput exception caught.  Cause:" + e.Message);
+			}
+
+		}
+
+		[Test]
+		public void testInvalidDeleteWithoutBody()
+		{
+			try
+			{
+				// Save DocumentRevision without a body
+				DocumentRevision revision = new DocumentRevision();
+				Task <String> deleteTask = db.Delete(revision);
+				deleteTask.Wait();
+				Assert.True(deleteTask.IsFaulted, "delete DocumentRevision that does not exist should fail");
+			}
+			catch (Exception e)
+			{
+				Assert.Pass("expected testInvalidDeleteWithoutBody exception caught.  Cause:" + e.InnerException.Message);
+			}
+		}
+
+		[Test]
+		public void testEqualityQueryTest()
+		{
+			doQuerySetup();
+
+			var sortField = new SortField(){ sort = Sort.desc, name = ageKey };
+
+			var task = db.Query(selector: new Dictionary<string,object>()
+				{
                 [ageKey ] = 5
-            }, sort: new List<SortField> () {
-                sortField
-            });
+				}, sort: new List<SortField>()
+				{
+					sortField
+				});
             
-            task.Wait ();
-            IList<DocumentRevision> result = task.Result;
+			task.Wait();
+			IList<DocumentRevision> result = task.Result;
 
-            Assert.False (task.IsFaulted, "findByIndex() failed");
-            Assert.IsNotNull (task.Result, "Query result was null");
-            Assert.True (result.Count == 1);
+			Assert.False(task.IsFaulted, "findByIndex() failed");
+			Assert.IsNotNull(task.Result, "Query result was null");
+			Assert.True(result.Count == 1);
 
-            DocumentRevision revision = result [0];
-            Object age;
-            revision.body.TryGetValue (ageKey, out age);
-            Assert.True ((long)age == 5);
-        }
+			DocumentRevision revision = result[0];
+			Object age;
+			revision.body.TryGetValue(ageKey, out age);
+			Assert.True((long)age == 5);
+		}
 
-        [Test]
-        public void testGreaterThanQueryWithSortOptionTest ()
-        {
-            doQuerySetup ();
+		[Test]
+		public void testGreaterThanQueryWithSortOptionTest()
+		{
+			doQuerySetup();
 
-            var sortField = new SortField ();
-            sortField.name = ageKey;
-            sortField.sort = Sort.desc;
+			var sortField = new SortField();
+			sortField.name = ageKey;
+			sortField.sort = Sort.desc;
 
-            var task = db.Query (selector: new Dictionary<string,object> () {
-                [ageKey ] = new Dictionary<string,int> () {
+			var task = db.Query(selector: new Dictionary<string,object>()
+				{
+                [ageKey ] = new Dictionary<string,int>()
+					{
                     ["$gt" ] = 1
-                }
-            }, sort: new List<SortField> () {
-                sortField
-            });
+					}
+				}, sort: new List<SortField>()
+				{
+					sortField
+				});
                 
-            task.Wait ();
-            IList<DocumentRevision> result = task.Result;
+			task.Wait();
+			IList<DocumentRevision> result = task.Result;
 
-            Assert.False (task.IsFaulted, "findByIndex() failed");
-            Assert.IsNotNull (task.Result, "Query result was null");
-            Assert.True (result.Count == 18);
+			Assert.False(task.IsFaulted, "findByIndex() failed");
+			Assert.IsNotNull(task.Result, "Query result was null");
+			Assert.True(result.Count == 18);
 
-            DocumentRevision revision = result [0];
-            Object age;
-            revision.body.TryGetValue (ageKey, out age);
-            Assert.True ((long)age == 19);
-        }
+			DocumentRevision revision = result[0];
+			Object age;
+			revision.body.TryGetValue(ageKey, out age);
+			Assert.True((long)age == 19);
+		}
 
-        [Test]
-        public void testLimitQueryTest ()
-        {
-            doQuerySetup ();
+		[Test]
+		public void testLimitQueryTest()
+		{
+			doQuerySetup();
 
-            var sortField = new SortField () {
-                name = ageKey,
-                sort = Sort.desc
-            };
+			var sortField = new SortField()
+			{
+				name = ageKey,
+				sort = Sort.desc
+			};
 
-            var task = db.Query (selector: new Dictionary<string,object> () {
-                [ageKey ] = new Dictionary<string,int> () {
+			var task = db.Query(selector: new Dictionary<string,object>()
+				{
+                [ageKey ] = new Dictionary<string,int>()
+					{
                     ["$gt" ] = 10
-                }
-            }, limit: 5);
+					}
+				}, limit: 5);
                 
-            task.Wait ();
-            IList<DocumentRevision> result = task.Result;
+			task.Wait();
+			IList<DocumentRevision> result = task.Result;
 
-            Assert.False (task.IsFaulted, "findByIndex() failed");
-            Assert.IsNotNull (task.Result, "Query result was null");
-            Assert.True (result.Count == 5);
+			Assert.False(task.IsFaulted, "findByIndex() failed");
+			Assert.IsNotNull(task.Result, "Query result was null");
+			Assert.True(result.Count == 5);
 
-            foreach (DocumentRevision revision in result) {
-                Object age;
-                revision.body.TryGetValue (ageKey, out age);
-                Assert.True ((long)age > 10);
-            }
-        }
+			foreach (DocumentRevision revision in result)
+			{
+				Object age;
+				revision.body.TryGetValue(ageKey, out age);
+				Assert.True((long)age > 10);
+			}
+		}
 
-        [Test]
-        public void testSkipQueryTest ()
-        {
-            doQuerySetup ();
+		[Test]
+		public void testSkipQueryTest()
+		{
+			doQuerySetup();
 
-            var sortField = new SortField ();
-            sortField.name = ageKey;
+			var sortField = new SortField();
+			sortField.name = ageKey;
 
-            var task = db.Query (selector: new Dictionary<string,object> () {
-                [ageKey ] = new Dictionary<string,int> () {
+			var task = db.Query(selector: new Dictionary<string,object>()
+				{
+                [ageKey ] = new Dictionary<string,int>()
+					{
                     ["$gt" ] = 10
-                }
-            }, skip: 5);
+					}
+				}, skip: 5);
 
-            task.Wait ();
-            IList<DocumentRevision> result = task.Result;
+			task.Wait();
+			IList<DocumentRevision> result = task.Result;
 
-            Assert.False (task.IsFaulted, "findByIndex() failed");
-            Assert.IsNotNull (task.Result, "Query result was null");
-            Assert.True (result.Count == 4);
+			Assert.False(task.IsFaulted, "findByIndex() failed");
+			Assert.IsNotNull(task.Result, "Query result was null");
+			Assert.True(result.Count == 4);
 
-            foreach (DocumentRevision revision in result) {
-                Object age;
-                revision.body.TryGetValue (ageKey, out age);
-                Assert.True ((long)age > 10);
-            }
-        }
+			foreach (DocumentRevision revision in result)
+			{
+				Object age;
+				revision.body.TryGetValue(ageKey, out age);
+				Assert.True((long)age > 10);
+			}
+		}
 
-        [Test]
-        public void testCreateDocumentWithSlash ()
-        {
-            var document = new DocumentRevision () {
-                docId = "my/document",
-                body = new Dictionary<string,Object> () {
+		[Test]
+		public void testCreateDocumentWithSlash()
+		{
+			var document = new DocumentRevision()
+			{
+				docId = "my/document",
+				body = new Dictionary<string,Object>()
+				{
                     ["hello" ] = "world"
-                }
-            };
+				}
+			};
 
-            var savedDocument = CreateAndAssert (document);
+			var savedDocument = CreateAndAssert(document);
 
-            //read
-            ReadAndAssert (document, savedDocument);
+			//read
+			ReadAndAssert(document, savedDocument);
 
-            // update
-            var updated = UpdateAndAssert (document, savedDocument);
+			// update
+			var updated = UpdateAndAssert(document, savedDocument);
 
-            // delete
-            DeleteAndAssert (updated);
+			// delete
+			DeleteAndAssert(updated);
 
-        }
+		}
 
-        [Test]
-        public void testCreateDocumentInDbWithSlash ()
-        {
+		[Test]
+		public void testCreateDocumentInDbWithSlash()
+		{
             
-            var db = client.Database ("my/database");
-            try {
-                db.EnsureExists ().Wait ();
+			var db = client.Database("my/database");
+			try
+			{
+				db.EnsureExists().Wait();
 
-                var document = new DocumentRevision () {
-                    docId = "my/document",
-                    body = new Dictionary<string,Object> () {
+				var document = new DocumentRevision()
+				{
+					docId = "my/document",
+					body = new Dictionary<string,Object>()
+					{
                     ["hello" ] = "world"
-                    }
-                };
+					}
+				};
 
-                var savedDocument = CreateAndAssert (document);
+				var savedDocument = CreateAndAssert(document);
 
-                //read
-                ReadAndAssert (document, savedDocument);
+				//read
+				ReadAndAssert(document, savedDocument);
 
-                // update
-                var updated = UpdateAndAssert (document, savedDocument);
+				// update
+				var updated = UpdateAndAssert(document, savedDocument);
 
-                // delete
-                DeleteAndAssert (updated);
-            } finally {
-                db.Delete ().Wait ();
-            }
+				// delete
+				DeleteAndAssert(updated);
+			}
+			finally
+			{
+				db.Delete().Wait();
+			}
 
-        }
+		}
 
 
-        [Test]
-        public void testCreateDocumentWithColon ()
-        {
-            var document = new DocumentRevision () {
-                docId = "my:document",
-                body = new Dictionary<string,Object> () {
+		[Test]
+		public void testCreateDocumentWithColon()
+		{
+			var document = new DocumentRevision()
+			{
+				docId = "my:document",
+				body = new Dictionary<string,Object>()
+				{
                     ["hello" ] = "world"
-                }
-            };
+				}
+			};
 
-            var savedDocument = CreateAndAssert (document);
+			var savedDocument = CreateAndAssert(document);
 
-            //read
-            ReadAndAssert (document, savedDocument);
+			//read
+			ReadAndAssert(document, savedDocument);
 
-            // update
-            var updated = UpdateAndAssert (document, savedDocument);
+			// update
+			var updated = UpdateAndAssert(document, savedDocument);
 
-            // delete
-            DeleteAndAssert (updated);
-        }
+			// delete
+			DeleteAndAssert(updated);
+		}
 
-        [Test]
-        public void testCreateDocumentWithQuestionMark ()
-        {
-            var document = new DocumentRevision () {
-                docId = "my?document",
-                body = new Dictionary<string,Object> () {
+		[Test]
+		public void testCreateDocumentWithQuestionMark()
+		{
+			var document = new DocumentRevision()
+			{
+				docId = "my?document",
+				body = new Dictionary<string,Object>()
+				{
                     ["hello" ] = "world"
-                }
-            };
+				}
+			};
 
-            var savedDocument = CreateAndAssert (document);
+			var savedDocument = CreateAndAssert(document);
 
-            //read
-            ReadAndAssert (document, savedDocument);
+			//read
+			ReadAndAssert(document, savedDocument);
 
-            // update
-            var updated = UpdateAndAssert (document, savedDocument);
+			// update
+			var updated = UpdateAndAssert(document, savedDocument);
 
-            // delete
-            DeleteAndAssert (updated);
-        }
+			// delete
+			DeleteAndAssert(updated);
+		}
 
-        [Test]
-        public void testCreateDocumentWithAt ()
-        {
-            var document = new DocumentRevision () {
-                docId = "my@document",
-                body = new Dictionary<string,Object> () {
+		[Test]
+		public void testCreateDocumentWithAt()
+		{
+			var document = new DocumentRevision()
+			{
+				docId = "my@document",
+				body = new Dictionary<string,Object>()
+				{
                     ["hello" ] = "world"
-                }
-            };
+				}
+			};
 
-            var savedDocument = CreateAndAssert (document);
+			var savedDocument = CreateAndAssert(document);
 
-            //read
-            ReadAndAssert (document, savedDocument);
+			//read
+			ReadAndAssert(document, savedDocument);
 
-            // update
-            var updated = UpdateAndAssert (document, savedDocument);
+			// update
+			var updated = UpdateAndAssert(document, savedDocument);
 
-            // delete
-            DeleteAndAssert (updated);
-        }
+			// delete
+			DeleteAndAssert(updated);
+		}
 
-        [Test]
-        public void testCreateDocumentWithHash ()
-        {
-            var document = new DocumentRevision () {
-                docId = "my#document",
-                body = new Dictionary<string,Object> () {
+		[Test]
+		public void testCreateDocumentWithHash()
+		{
+			var document = new DocumentRevision()
+			{
+				docId = "my#document",
+				body = new Dictionary<string,Object>()
+				{
                     ["hello" ] = "world"
-                }
-            };
+				}
+			};
 
-            var savedDocument = CreateAndAssert (document);
+			var savedDocument = CreateAndAssert(document);
 
-            //read
-            ReadAndAssert (document, savedDocument);
+			//read
+			ReadAndAssert(document, savedDocument);
 
-            // update
-            var updated = UpdateAndAssert (document, savedDocument);
+			// update
+			var updated = UpdateAndAssert(document, savedDocument);
 
-            // delete
-            DeleteAndAssert (updated);
-        }
+			// delete
+			DeleteAndAssert(updated);
+		}
 
-        [Test]
-        public void testCreateDocumentWithSquareBrackets ()
-        {
-            var document = new DocumentRevision () {
-                docId = "my[document]",
-                body = new Dictionary<string,Object> () {
+		[Test]
+		public void testCreateDocumentWithSquareBrackets()
+		{
+			var document = new DocumentRevision()
+			{
+				docId = "my[document]",
+				body = new Dictionary<string,Object>()
+				{
                     ["hello" ] = "world"
-                }
-            };
+				}
+			};
 
-            var savedDocument = CreateAndAssert (document);
+			var savedDocument = CreateAndAssert(document);
 
-            //read
-            ReadAndAssert (document, savedDocument);
+			//read
+			ReadAndAssert(document, savedDocument);
 
-            // update
-            var updated = UpdateAndAssert (document, savedDocument);
+			// update
+			var updated = UpdateAndAssert(document, savedDocument);
 
-            // delete
-            DeleteAndAssert (updated);
-        }
+			// delete
+			DeleteAndAssert(updated);
+		}
 
-        [Test]
-        public void testCreateDocumentWithDollar ()
-        {
-            var document = new DocumentRevision () {
-                docId = "my$document",
-                body = new Dictionary<string,Object> () {
+		[Test]
+		public void testCreateDocumentWithDollar()
+		{
+			var document = new DocumentRevision()
+			{
+				docId = "my$document",
+				body = new Dictionary<string,Object>()
+				{
                     ["hello" ] = "world"
-                }
-            };
+				}
+			};
 
-            var savedDocument = CreateAndAssert (document);
+			var savedDocument = CreateAndAssert(document);
 
-            //read
-            ReadAndAssert (document, savedDocument);
+			//read
+			ReadAndAssert(document, savedDocument);
 
-            // update
-            var updated = UpdateAndAssert (document, savedDocument);
+			// update
+			var updated = UpdateAndAssert(document, savedDocument);
 
-            // delete
-            DeleteAndAssert (updated);
-        }
+			// delete
+			DeleteAndAssert(updated);
+		}
 
-        [Test]
-        public void testCreateDocumentWithApostrophe ()
-        {
-            var document = new DocumentRevision () {
-                docId = "my'document",
-                body = new Dictionary<string,Object> () {
+		[Test]
+		public void testCreateDocumentWithApostrophe()
+		{
+			var document = new DocumentRevision()
+			{
+				docId = "my'document",
+				body = new Dictionary<string,Object>()
+				{
                     ["hello" ] = "world"
-                }
-            };
+				}
+			};
 
-            var savedDocument = CreateAndAssert (document);
+			var savedDocument = CreateAndAssert(document);
 
-            //read
-            ReadAndAssert (document, savedDocument);
+			//read
+			ReadAndAssert(document, savedDocument);
 
-            // update
-            var updated = UpdateAndAssert (document, savedDocument);
+			// update
+			var updated = UpdateAndAssert(document, savedDocument);
 
-            // delete
-            DeleteAndAssert (updated);
-        }
+			// delete
+			DeleteAndAssert(updated);
+		}
 
-        [Test]
-        public void testCreateDocumentWithAmpersand ()
-        {
-            var document = new DocumentRevision () {
-                docId = "my&document",
-                body = new Dictionary<string,Object> () {
+		[Test]
+		public void testCreateDocumentWithAmpersand()
+		{
+			var document = new DocumentRevision()
+			{
+				docId = "my&document",
+				body = new Dictionary<string,Object>()
+				{
                     ["hello" ] = "world"
-                }
-            };
+				}
+			};
 
-            var savedDocument = CreateAndAssert (document);
+			var savedDocument = CreateAndAssert(document);
 
-            //read
-            ReadAndAssert (document, savedDocument);
+			//read
+			ReadAndAssert(document, savedDocument);
 
-            // update
-            var updated = UpdateAndAssert (document, savedDocument);
+			// update
+			var updated = UpdateAndAssert(document, savedDocument);
 
-            // delete
-            DeleteAndAssert (updated);
-        }
+			// delete
+			DeleteAndAssert(updated);
+		}
 
-        [Test]
-        public void testCreateDocumentWithRoundBrackets ()
-        {
-            var document = new DocumentRevision () {
-                docId = "my(document)",
-                body = new Dictionary<string,Object> () {
+		[Test]
+		public void testCreateDocumentWithRoundBrackets()
+		{
+			var document = new DocumentRevision()
+			{
+				docId = "my(document)",
+				body = new Dictionary<string,Object>()
+				{
                     ["hello" ] = "world"
-                }
-            };
+				}
+			};
 
-            var savedDocument = CreateAndAssert (document);
+			var savedDocument = CreateAndAssert(document);
 
-            //read
-            ReadAndAssert (document, savedDocument);
+			//read
+			ReadAndAssert(document, savedDocument);
 
-            // update
-            var updated = UpdateAndAssert (document, savedDocument);
+			// update
+			var updated = UpdateAndAssert(document, savedDocument);
 
-            // delete
-            DeleteAndAssert (updated);
-        }
+			// delete
+			DeleteAndAssert(updated);
+		}
 
 
-        [Test]
-        public void testCreateDocumentWithEquals ()
-        {
-            var document = new DocumentRevision () {
-                docId = "my=document",
-                body = new Dictionary<string,Object> () {
+		[Test]
+		public void testCreateDocumentWithEquals()
+		{
+			var document = new DocumentRevision()
+			{
+				docId = "my=document",
+				body = new Dictionary<string,Object>()
+				{
                     ["hello" ] = "world"
-                }
-            };
+				}
+			};
 
-            var savedDocument = CreateAndAssert (document);
+			var savedDocument = CreateAndAssert(document);
 
-            //read
-            ReadAndAssert (document, savedDocument);
+			//read
+			ReadAndAssert(document, savedDocument);
 
-            // update
-            var updated = UpdateAndAssert (document, savedDocument);
+			// update
+			var updated = UpdateAndAssert(document, savedDocument);
 
-            // delete
-            DeleteAndAssert (updated);
-        }
+			// delete
+			DeleteAndAssert(updated);
+		}
 
-        [Test]
-        public void testCreateDocumentWithSemiColon ()
-        {
-            var document = new DocumentRevision () {
-                docId = "my;document",
-                body = new Dictionary<string,Object> () {
+		[Test]
+		public void testCreateDocumentWithSemiColon()
+		{
+			var document = new DocumentRevision()
+			{
+				docId = "my;document",
+				body = new Dictionary<string,Object>()
+				{
                     ["hello" ] = "world"
-                }
-            };
+				}
+			};
 
-            var savedDocument = CreateAndAssert (document);
+			var savedDocument = CreateAndAssert(document);
 
-            //read
-            ReadAndAssert (document, savedDocument);
+			//read
+			ReadAndAssert(document, savedDocument);
 
-            // update
-            var updated = UpdateAndAssert (document, savedDocument);
+			// update
+			var updated = UpdateAndAssert(document, savedDocument);
 
-            // delete
-            DeleteAndAssert (updated);
-        }
+			// delete
+			DeleteAndAssert(updated);
+		}
 
-        [Test]
-        public void testCreateDocumentWithComma ()
-        {
-            var document = new DocumentRevision () {
-                docId = "my,document",
-                body = new Dictionary<string,Object> () {
+		[Test]
+		public void testCreateDocumentWithComma()
+		{
+			var document = new DocumentRevision()
+			{
+				docId = "my,document",
+				body = new Dictionary<string,Object>()
+				{
                     ["hello" ] = "world"
-                }
-            };
+				}
+			};
 
-            var savedDocument = CreateAndAssert (document);
+			var savedDocument = CreateAndAssert(document);
 
-            //read
-            ReadAndAssert (document, savedDocument);
+			//read
+			ReadAndAssert(document, savedDocument);
 
-            // update
-            var updated = UpdateAndAssert (document, savedDocument);
+			// update
+			var updated = UpdateAndAssert(document, savedDocument);
 
-            // delete
-            DeleteAndAssert (updated);
-        }
+			// delete
+			DeleteAndAssert(updated);
+		}
 
-        [Test]
-        public void testCreateDocumentWithPlus ()
-        {
-            var document = new DocumentRevision () {
-                docId = "my+document",
-                body = new Dictionary<string,Object> () {
+		[Test]
+		public void testCreateDocumentWithPlus()
+		{
+			var document = new DocumentRevision()
+			{
+				docId = "my+document",
+				body = new Dictionary<string,Object>()
+				{
                     ["hello" ] = "world"
-                }
-            };
+				}
+			};
 
-            var savedDocument = CreateAndAssert (document);
+			var savedDocument = CreateAndAssert(document);
 
-            //read
-            ReadAndAssert (document, savedDocument);
+			//read
+			ReadAndAssert(document, savedDocument);
 
-            // update
-            var updated = UpdateAndAssert (document, savedDocument);
+			// update
+			var updated = UpdateAndAssert(document, savedDocument);
 
-            // delete
-            DeleteAndAssert (updated);
-        }
+			// delete
+			DeleteAndAssert(updated);
+		}
 
-        [Test]
-        public void testCreateDocumentWithStar ()
-        {
-            var document = new DocumentRevision () {
-                docId = "my*document",
-                body = new Dictionary<string,Object> () {
+		[Test]
+		public void testCreateDocumentWithStar()
+		{
+			var document = new DocumentRevision()
+			{
+				docId = "my*document",
+				body = new Dictionary<string,Object>()
+				{
                     ["hello" ] = "world"
-                }
-            };
+				}
+			};
 
-            var savedDocument = CreateAndAssert (document);
+			var savedDocument = CreateAndAssert(document);
 
-            //read
-            ReadAndAssert (document, savedDocument);
+			//read
+			ReadAndAssert(document, savedDocument);
 
-            // update
-            var updated = UpdateAndAssert (document, savedDocument);
+			// update
+			var updated = UpdateAndAssert(document, savedDocument);
 
-            // delete
-            DeleteAndAssert (updated);
-        }
+			// delete
+			DeleteAndAssert(updated);
+		}
 
-        [Test]
-        public void testCreateDocumentWithExclamation ()
-        {
-            var document = new DocumentRevision () {
-                docId = "my!document",
-                body = new Dictionary<string,Object> () {
+		[Test]
+		public void testCreateDocumentWithExclamation()
+		{
+			var document = new DocumentRevision()
+			{
+				docId = "my!document",
+				body = new Dictionary<string,Object>()
+				{
                     ["hello" ] = "world"
-                }
-            };
+				}
+			};
 
-            var savedDocument = CreateAndAssert (document);
+			var savedDocument = CreateAndAssert(document);
 
-            //read
-            ReadAndAssert (document, savedDocument);
+			//read
+			ReadAndAssert(document, savedDocument);
 
-            // update
-            var updated = UpdateAndAssert (document, savedDocument);
+			// update
+			var updated = UpdateAndAssert(document, savedDocument);
 
-            // delete
-            DeleteAndAssert (updated);
-        }
-
-
-
-        // Private helpers
-
-        private DocumentRevision CreateAndAssert (DocumentRevision document)
-        {
-            Task<DocumentRevision> task = db.Create (document);
-            task.Wait ();
-            Assert.IsFalse (task.IsFaulted);
-            Assert.IsNotNull (task.Result);
-            var savedDocument = task.Result;
-
-            Assert.AreEqual (document.docId, savedDocument.docId);
-            Assert.AreEqual (document.body, savedDocument.body);
-
-            return savedDocument;
-        }
-
-        private void ReadAndAssert (DocumentRevision document, DocumentRevision savedDocument)
-        {
-            var readDocumentTask = db.Read (document.docId);
-            readDocumentTask.Wait ();
-            Assert.IsFalse (readDocumentTask.IsFaulted);
-            Assert.AreEqual (savedDocument, readDocumentTask.Result);
-        }
-
-        private DocumentRevision UpdateAndAssert (DocumentRevision document, DocumentRevision savedDocument)
-        {
-            savedDocument.body.Add ("updated", true);
-            var updateTask = db.Update (savedDocument);
-            updateTask.Wait ();
-            Assert.IsFalse (updateTask.IsFaulted);
-            Assert.AreEqual (document.docId, updateTask.Result.docId);
-            return updateTask.Result;
-        }
-
-        private void DeleteAndAssert (DocumentRevision updated)
-        {
-            var deleteTask = db.Delete (updated);
-            deleteTask.Wait ();
-            Assert.IsFalse (deleteTask.IsFaulted);
-        }
-
-
-        private void doQuerySetupWithFields (String indexName, List<SortField> indexFields)
-        {
-
-            var indexTask = db.CreateJsonIndex (fields: indexFields, indexName: indexName);
-            indexTask.Wait ();
-
-            for (int i = 0; i < 20; i++) {
-                Dictionary<String, Object> dictionary = new Dictionary<String, Object> ();
-                dictionary.Add (nameKey, nameValue + i);
-                dictionary.Add (ageKey, ageBaseValue + i);
-
-                DocumentRevision revision = new DocumentRevision ();
-                revision.body = dictionary;
-                Task<DocumentRevision> task = db.Create (revision);
-                task.Wait ();
-            }               
-        }
-
-        private void doQuerySetup ()
-        {
-            var indexField = new SortField () {
-                name = ageKey
-            };
-            ageIndexFields.Add (indexField);
-            doQuerySetupWithFields (ageIndex, ageIndexFields);
-        }
+			// delete
+			DeleteAndAssert(updated);
+		}
 
 
 
-    }
+		// Private helpers
+
+		private DocumentRevision CreateAndAssert(DocumentRevision document)
+		{
+			Task<DocumentRevision> task = db.Create(document);
+			task.Wait();
+			Assert.IsFalse(task.IsFaulted);
+			Assert.IsNotNull(task.Result);
+			var savedDocument = task.Result;
+
+			Assert.AreEqual(document.docId, savedDocument.docId);
+			Assert.AreEqual(document.body, savedDocument.body);
+
+			return savedDocument;
+		}
+
+		private void ReadAndAssert(DocumentRevision document, DocumentRevision savedDocument)
+		{
+			var readDocumentTask = db.Read(document.docId);
+			readDocumentTask.Wait();
+			Assert.IsFalse(readDocumentTask.IsFaulted);
+			Assert.AreEqual(savedDocument, readDocumentTask.Result);
+		}
+
+		private DocumentRevision UpdateAndAssert(DocumentRevision document, DocumentRevision savedDocument)
+		{
+			savedDocument.body.Add("updated", true);
+			var updateTask = db.Update(savedDocument);
+			updateTask.Wait();
+			Assert.IsFalse(updateTask.IsFaulted);
+			Assert.AreEqual(document.docId, updateTask.Result.docId);
+			return updateTask.Result;
+		}
+
+		private void DeleteAndAssert(DocumentRevision updated)
+		{
+			var deleteTask = db.Delete(updated);
+			deleteTask.Wait();
+			Assert.IsFalse(deleteTask.IsFaulted);
+		}
+
+
+		private void doQuerySetupWithFields(String indexName, List<SortField> indexFields)
+		{
+
+			var indexTask = db.CreateJsonIndex(fields: indexFields, indexName: indexName);
+			indexTask.Wait();
+
+			for (int i = 0; i < 20; i++)
+			{
+				Dictionary<String, Object> dictionary = new Dictionary<String, Object>();
+				dictionary.Add(nameKey, nameValue + i);
+				dictionary.Add(ageKey, ageBaseValue + i);
+
+				DocumentRevision revision = new DocumentRevision();
+				revision.body = dictionary;
+				Task<DocumentRevision> task = db.Create(revision);
+				task.Wait();
+			}               
+		}
+
+		private void doQuerySetup()
+		{
+			var indexField = new SortField()
+			{
+				name = ageKey
+			};
+			ageIndexFields.Add(indexField);
+			doQuerySetupWithFields(ageIndex, ageIndexFields);
+		}
+
+
+
+	}
 
 
 }

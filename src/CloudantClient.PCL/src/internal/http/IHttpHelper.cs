@@ -17,55 +17,56 @@ using System.Threading.Tasks;
 
 namespace IBM.Cloudant.Client
 {
-    /// <summary>
-    /// Internal interface to define the http connection.
-    /// </summary>
-    /// <remarks>
-    /// This is the interface implemented by the HTTPHelper class.
-    /// </remarks>
-    public interface IHttpHelper {
+	/// <summary>
+	/// Internal interface to define the http connection.
+	/// </summary>
+	/// <remarks>
+	/// This is the interface implemented by the HTTPHelper class.
+	/// </remarks>
+	public interface IHttpHelper
+	{
 
-        /// <summary>
-        /// Sends an Http GET request to the given URI using the given headers.
-        /// </summary>
-        /// <returns>An async Task wich once completed contains the resulting HttpResponseMessage.</returns>
-        /// <param name="uri">URI for this request.</param>
-        /// <param name="headers">Http headers for this request.</param>
-        Task<HttpResponseMessage> sendGet(Uri uri, Dictionary<String,String> headers);
+		/// <summary>
+		/// Sends an Http GET request to the given URI using the given headers.
+		/// </summary>
+		/// <returns>An async Task wich once completed contains the resulting HttpResponseMessage.</returns>
+		/// <param name="uri">URI for this request.</param>
+		/// <param name="headers">Http headers for this request.</param>
+		Task<HttpResponseMessage> sendGet(Uri uri, Dictionary<String,String> headers);
 
-        /// <summary>
-        /// Sends an Http DELETE request to the given URI using the given headers.
-        /// </summary>
-        /// <returns>An async Task wich once completed contains the resulting HttpResponseMessage.</returns>
-        /// <param name="uri">URI for this request.</param>
-        /// <param name="headers">Http headers for this request.</param>
-        Task<HttpResponseMessage> sendDelete (Uri uri, Dictionary<String, String> headers);
-    
-        /// <summary>
-        /// Sends an Http PUT request to the given URI using the given headers and content.
-        /// </summary>
-        /// <returns>An async Task wich once completed contains the resulting HttpResponseMessage.</returns>
-        /// <param name="uri">URI for this request.</param>
-        /// <param name="headers">Http headers for this request.</param>
-        /// <param name="body">The request contents.</param>
-        Task<HttpResponseMessage> sendPut (Uri uri, Dictionary<String, String> headers, string body);
+		/// <summary>
+		/// Sends an Http DELETE request to the given URI using the given headers.
+		/// </summary>
+		/// <returns>An async Task wich once completed contains the resulting HttpResponseMessage.</returns>
+		/// <param name="uri">URI for this request.</param>
+		/// <param name="headers">Http headers for this request.</param>
+		Task<HttpResponseMessage> sendDelete(Uri uri, Dictionary<String, String> headers);
 
-        /// <summary>
-        /// Sends an Http POST request to the given URI using the given headers and content.
-        /// </summary>
-        /// <returns>An async Task wich once completed contains the resulting HttpResponseMessage.</returns>
-        /// <param name="uri">URI for this request.</param>
-        /// <param name="headers">Http headers for this request.</param>
-        /// <param name="body">The request contents.</param>
-        Task<HttpResponseMessage> sendPost (Uri uri, Dictionary<String, String> headers, string body);
+		/// <summary>
+		/// Sends an Http PUT request to the given URI using the given headers and content.
+		/// </summary>
+		/// <returns>An async Task wich once completed contains the resulting HttpResponseMessage.</returns>
+		/// <param name="uri">URI for this request.</param>
+		/// <param name="headers">Http headers for this request.</param>
+		/// <param name="body">The request contents.</param>
+		Task<HttpResponseMessage> sendPut(Uri uri, Dictionary<String, String> headers, string body);
 
-        /// <summary>
-        /// Adds global headers to be used by every request sent by this HttpHelper.
-        /// </summary>
-        /// <param name="name">Header name.</param>
-        /// <param name="value">Header value.</param>
-        void addGlobalHeaders (string name, string value);
+		/// <summary>
+		/// Sends an Http POST request to the given URI using the given headers and content.
+		/// </summary>
+		/// <returns>An async Task wich once completed contains the resulting HttpResponseMessage.</returns>
+		/// <param name="uri">URI for this request.</param>
+		/// <param name="headers">Http headers for this request.</param>
+		/// <param name="body">The request contents.</param>
+		Task<HttpResponseMessage> sendPost(Uri uri, Dictionary<String, String> headers, string body);
 
-    }
+		/// <summary>
+		/// Adds global headers to be used by every request sent by this HttpHelper.
+		/// </summary>
+		/// <param name="name">Header name.</param>
+		/// <param name="value">Header value.</param>
+		void addGlobalHeaders(string name, string value);
+
+	}
 }
 

@@ -45,12 +45,13 @@ namespace CrossPlatformSample
         /// Initializes a new instance of the <see cref="CrossPlatformSample.HomePage"/> class.
         /// </summary>
         /// <param name="client">Valid CloudantClient object initialized with the account information.</param>
-        public HomePage (CloudantClient client)
+        public HomePage(CloudantClient client)
         {
             this.client = client;
 
             //List of sample items.
-            List<CommandItem> items = new List<CommandItem> {
+            List<CommandItem> items = new List<CommandItem>
+            {
                 new CommandItem { Title = " 1. Create Database", ItemSelected = OnCreateDB },
                 new CommandItem { Title = " 2. Save Document", ItemSelected = OnSaveDocument },
                 new CommandItem { Title = " 3. Retrieve Document", ItemSelected = OnRetrieveDocument },
@@ -62,22 +63,25 @@ namespace CrossPlatformSample
                 new CommandItem { Title = " 9. Delete Database", ItemSelected = OnDeleteDB }
             };  
                 
-            InitializeUserInterface (items);
+            InitializeUserInterface(items);
         }
 
 
         /// <summary>
         /// Code sample to create a database.
         /// </summary>
-        private void OnCreateDB ()
+        private void OnCreateDB()
         {
-            try {
-                db = client.Database (dbName);
-                db.EnsureExists ();
-                DisplayAlert ("Database Created", "Database name: " + db.dbname, "OK");
+            try
+            {
+                db = client.Database(dbName);
+                db.EnsureExists();
+                DisplayAlert("Database Created", "Database name: " + db.dbname, "OK");
             
-            } catch (Exception e) {
-                HandleException (e, "Create Database Failed");
+            }
+            catch (Exception e)
+            {
+                HandleException(e, "Create Database Failed");
             }
         }
 
@@ -85,40 +89,49 @@ namespace CrossPlatformSample
         /// <summary>
         /// Code sample to save a document in the database.
         /// </summary>
-        private void OnSaveDocument ()
+        private void OnSaveDocument()
         {
             //Database must exist.
-            if (!ValidateDatabaseExists ())
+            if (!ValidateDatabaseExists())
                 return;
 
-            try {
+            try
+            {
                 //Data to be saved
-                Dictionary<string, object> docContents = new Dictionary<string, object> ();
-                docContents.Add ("Name", "Mike");
-                docContents.Add ("age", 28);
-                docContents.Add ("boolValue", true);
-                docContents.Add ("savedDate", DateTime.Now.ToString ());
+                Dictionary<string, object> docContents = new Dictionary<string, object>();
+                docContents.Add("Name", "Mike");
+                docContents.Add("age", 28);
+                docContents.Add("boolValue", true);
+                docContents.Add("savedDate", DateTime.Now.ToString());
 
                 //Create a DocumentRevision and set the data to be saved in the body.
-                DocumentRevision doc = new DocumentRevision () {
+                DocumentRevision doc = new DocumentRevision()
+                {
                     docId = docName,
                     body = docContents
                 };
 
                 //Save to the database.
-                Task<DocumentRevision> createTask = db.Create (doc);
-                createTask.Wait ();
+                Task<DocumentRevision> createTask = db.Create(doc);
+                createTask.Wait();
 
                 DocumentRevision rev = createTask.Result;
 
-                DisplayAlert ("Document Saved", DisplayDocument (rev), "OK");
+                DisplayAlert("Document Saved", DisplayDocument(rev), "OK");
 
-            } catch (AggregateException ae) {
+            }
+            catch (AggregateException ae)
+            {
 
-                DisplayAlert ("Error Saving Document", "The document already exists. To update an existing document use update ().", "OK");
+                DisplayAlert(
+                    "Error Saving Document",
+                    "The document already exists. To update an existing document use update ().",
+                    "OK");
 
-            } catch (Exception e) {
-                HandleException (e, "Error Saving Document");
+            }
+            catch (Exception e)
+            {
+                HandleException(e, "Error Saving Document");
             }
         }
 
@@ -126,68 +139,79 @@ namespace CrossPlatformSample
         /// <summary>
         /// Code sample to retrieve a document from the database.
         /// </summary>
-        private void OnRetrieveDocument ()
+        private void OnRetrieveDocument()
         {
             //Database must exist.
-            if (!ValidateDatabaseExists ())
+            if (!ValidateDatabaseExists())
                 return;
 
-            try {
-                Task<DocumentRevision> readTask = db.Read (docName);
-                readTask.Wait ();
+            try
+            {
+                Task<DocumentRevision> readTask = db.Read(docName);
+                readTask.Wait();
 
                 DocumentRevision rev = readTask.Result;
 
-                DisplayAlert ("Document Retrieved", DisplayDocument (rev), "OK");
+                DisplayAlert("Document Retrieved", DisplayDocument(rev), "OK");
 
-            } catch (AggregateException ae) {
+            }
+            catch (AggregateException ae)
+            {
 
-                DisplayAlert ("Error Rerieving Document", "Document does not exist, it must be created first.", "OK");
-            } catch (Exception e) {
-                HandleException (e, "Error Retrieving Document");
+                DisplayAlert("Error Rerieving Document", "Document does not exist, it must be created first.", "OK");
+            }
+            catch (Exception e)
+            {
+                HandleException(e, "Error Retrieving Document");
             }
         }
 
 
-        private void OnUpdateDocument ()
+        private void OnUpdateDocument()
         {
             //Database must exist.
-            if (!ValidateDatabaseExists ())
+            if (!ValidateDatabaseExists())
                 return;
 
             //Retrieve the latest document revision.
             DocumentRevision doc;
-            try {
-                Task<DocumentRevision> readTask = db.Read (docName);
-                readTask.Wait ();
+            try
+            {
+                Task<DocumentRevision> readTask = db.Read(docName);
+                readTask.Wait();
                 doc = readTask.Result;
-            } catch {
-                DisplayAlert ("Error Updating Document", "Document does not exist, it must be created first.", "OK");
+            }
+            catch
+            {
+                DisplayAlert("Error Updating Document", "Document does not exist, it must be created first.", "OK");
                 return;
             }
 
             //Update data in the DocumentRevision.
-            doc.body ["savedDate"] = DateTime.Now.ToString ();
+            doc.body["savedDate"] = DateTime.Now.ToString();
 
             //Save a new revision in the database.
-            try {
-                Task<DocumentRevision> updateTask = db.Update (doc);
-                updateTask.Wait ();
+            try
+            {
+                Task<DocumentRevision> updateTask = db.Update(doc);
+                updateTask.Wait();
 
                 DocumentRevision rev = updateTask.Result;
-                DisplayAlert ("Document Updated", DisplayDocument (rev), "OK");
-            } catch (Exception e) {
-                HandleException (e, "Error Updating Document");
+                DisplayAlert("Document Updated", DisplayDocument(rev), "OK");
+            }
+            catch (Exception e)
+            {
+                HandleException(e, "Error Updating Document");
             }
         }
 
         /// <summary>
         /// Sample code to create an index in the database.
         /// </summary>
-        private void OnCreateIndex ()
+        private void OnCreateIndex()
         {
             //Database must exist.
-            if (!ValidateDatabaseExists ())
+            if (!ValidateDatabaseExists())
                 return;
 
             string indexName = "sampleIndex";
@@ -195,102 +219,125 @@ namespace CrossPlatformSample
             string indexField = "sampleIndexField";
 
             // Create the index
-            try {
+            try
+            {
 
-                var indexTask = db.CreateJsonIndex (fields: new List<SortField> () {
-                    new SortField () {
-                        name = indexField
-                    }
-                }, indexName: indexName, designDocumentName: designDocName);
+                var indexTask = db.CreateJsonIndex(fields: new List<SortField>()
+                    {
+                        new SortField()
+                        {
+                            name = indexField
+                        }
+                    }, indexName: indexName, designDocumentName: designDocName);
 
-                indexTask.Wait ();
+                indexTask.Wait();
 
-                DisplayAlert ("Index Created", "index name: " + indexName, "OK");
-            } catch (Exception e) {
-                HandleException (e, "Error Creating Index");
+                DisplayAlert("Index Created", "index name: " + indexName, "OK");
+            }
+            catch (Exception e)
+            {
+                HandleException(e, "Error Creating Index");
             }
         }
 
         /// <summary>
         /// Sample code to list all existing indexes in the database.
         /// </summary>
-        private void OnListIndexes ()
+        private void OnListIndexes()
         {
             //Database must exist.
-            if (!ValidateDatabaseExists ())
+            if (!ValidateDatabaseExists())
                 return;
 
-            try {
-                Task<List<Index>> indexListTask = db.ListIndices ();
-                indexListTask.Wait ();
+            try
+            {
+                Task<List<Index>> indexListTask = db.ListIndices();
+                indexListTask.Wait();
 
                 List<Index> indexList = indexListTask.Result;
 
-                if (indexList != null && indexList.Count > 0) {
+                if (indexList != null && indexList.Count > 0)
+                {
                     string displayString = "";
-                    foreach (Index index in indexList) {
+                    foreach (Index index in indexList)
+                    {
                         displayString += index.name + "\n";
                     }
-                    DisplayAlert ("Indexes Found", displayString, "OK");
+                    DisplayAlert("Indexes Found", displayString, "OK");
 
-                } else {
-                    DisplayAlert ("No Indexes Found", "Database has no indexes.", "OK");
                 }
-            } catch (Exception e) {
-                HandleException (e, "Error Listing Indexes");
+                else
+                {
+                    DisplayAlert("No Indexes Found", "Database has no indexes.", "OK");
+                }
+            }
+            catch (Exception e)
+            {
+                HandleException(e, "Error Listing Indexes");
             }
         }
 
         /// <summary>
         /// Sample code to search for a document with a given index.
         /// </summary>
-        private void OnQuery ()
+        private void OnQuery()
         {
             //Database must exist.
-            if (!ValidateDatabaseExists ())
+            if (!ValidateDatabaseExists())
                 return;
             
             string indexName = "index1";
             string designDocName = "index1design";
             string indexField = "age";
 
-            try {
+            try
+            {
                 //Create an index for the field 'age'.
-                var indexTask = db.CreateJsonIndex (fields: new List<SortField> () {
-                    new SortField () {
-                        name = indexField
-                    }
-                },
+                var indexTask = db.CreateJsonIndex(fields: new List<SortField>()
+                    {
+                        new SortField()
+                        {
+                            name = indexField
+                        }
+                    },
                                     indexName: indexName, 
                                     designDocumentName: designDocName);
 
-                indexTask.Wait ();
+                indexTask.Wait();
 
 
                 // Find all documents with indexes that match the given selector.
                 // In this example it returns all documents where 'age' is 28.
-                var queryTask = db.Query (selector: new Dictionary<string,object> () {
+                var queryTask = db.Query(selector: new Dictionary<string,object>()
+                    {
                     ["age" ] = 28
-                }, sort: new List<SortField> () {
-                    new SortField () {
-                        name = indexField,
-                        sort = Sort.desc
-                    }
-                });
+                    }, sort: new List<SortField>()
+                    {
+                        new SortField()
+                        {
+                            name = indexField,
+                            sort = Sort.desc
+                        }
+                    });
 
 
-                queryTask.Wait ();
+                queryTask.Wait();
 
                 IList<DocumentRevision> queryResult = queryTask.Result;
 
-                if (queryResult.Count > 0) {
-                    DocumentRevision rev = queryResult [0];
-                    DisplayAlert ("Query Succeeded", DisplayDocument (rev), "OK");
-                } else {
-                    DisplayAlert ("Query Failed", "No documents were found, a document must be created first.", "OK");
+                if (queryResult.Count > 0)
+                {
+                    DocumentRevision rev = queryResult[0];
+                    DisplayAlert("Query Succeeded", DisplayDocument(rev), "OK");
                 }
-            } catch (Exception e) {
-                HandleException (e, "Error Querying Index");
+                else
+                {
+                    DisplayAlert("Query Failed", "No documents were found, a document must be created first.", "OK");
+                }
+            }
+            catch (Exception e)
+            {
+                HandleException(e, "Error Querying Index");
             }
         }
 
@@ -298,43 +345,49 @@ namespace CrossPlatformSample
         /// <summary>
         /// Sample code to delete an index from the database.
         /// </summary>
-        private void OnDeleteIndex ()
+        private void OnDeleteIndex()
         {
             //Database must exist.
-            if (!ValidateDatabaseExists ())
+            if (!ValidateDatabaseExists())
                 return;
             
             string indexName = "sampleIndex";
             string designDocName = "sampleIndexDoc";
 
-            try {
-                Task indexTask = db.DeleteIndex (indexName, designDocName, IndexType.json);
-                indexTask.Wait ();
+            try
+            {
+                Task indexTask = db.DeleteIndex(indexName, designDocName, IndexType.json);
+                indexTask.Wait();
 
-                DisplayAlert ("Index Deleted", "index name: " + indexName, "OK");
-            } catch (Exception e) {
-                HandleException (e, "Error Deleting Index");
+                DisplayAlert("Index Deleted", "index name: " + indexName, "OK");
+            }
+            catch (Exception e)
+            {
+                HandleException(e, "Error Deleting Index");
             }
         }
 
         /// <summary>
         /// Sample code to delete a database.
         /// </summary>
-        private void OnDeleteDB ()
+        private void OnDeleteDB()
         {
-            if (!ValidateDatabaseExists ())
+            if (!ValidateDatabaseExists())
                 return;
             
             string name = db.dbname;
 
-            try {
-                Task deleteDbTask = db.Delete ();
-                deleteDbTask.Wait ();
+            try
+            {
+                Task deleteDbTask = db.Delete();
+                deleteDbTask.Wait();
 
-                DisplayAlert ("Database Deleted", "Database name: " + name, "OK");
+                DisplayAlert("Database Deleted", "Database name: " + name, "OK");
                 db = null;
-            } catch (Exception e) {
-                HandleException (e, "Error Deleting Database");
+            }
+            catch (Exception e)
+            {
+                HandleException(e, "Error Deleting Database");
             }
         }
 
@@ -347,12 +400,12 @@ namespace CrossPlatformSample
         /// Helper method to validate if a the database already exist.
         /// </summary>
         /// <returns><c>true</c>, if the database exists and we have a reference to it, <c>false</c> otherwise.</returns>
-        private bool ValidateDatabaseExists ()
+        private bool ValidateDatabaseExists()
         {
             if (db != null)
                 return true;
 
-            DisplayAlert ("Database Doesn't Exist", "Database must be created first. Operation failed.", "OK");
+            DisplayAlert("Database Doesn't Exist", "Database must be created first. Operation failed.", "OK");
             return false;
         }
 
@@ -361,18 +414,19 @@ namespace CrossPlatformSample
         /// </summary>
         /// <returns>A string with the dictionary contents.</returns>
         /// <param name="d">A DocumentRevision object.</param>
-        private string DisplayDocument (DocumentRevision rev)
+        private string DisplayDocument(DocumentRevision rev)
         {
             Dictionary<string,object> dictionary = rev.body;
 
             string body = "";
-            foreach (string key in dictionary.Keys) {
+            foreach (string key in dictionary.Keys)
+            {
                 object value;
-                dictionary.TryGetValue (key, out value);
-                body += string.Format ("{0} : {1}\n", key, value.ToString ());
+                dictionary.TryGetValue(key, out value);
+                body += string.Format("{0} : {1}\n", key, value.ToString());
             }
 
-            return string.Format ("docId: {0}\nrevId: {1}\n\n--- Document data ---\n{2}", rev.docId, rev.revId, body);
+            return string.Format("docId: {0}\nrevId: {1}\n\n--- Document data ---\n{2}", rev.docId, rev.revId, body);
         }
 
         /// <summary>
@@ -380,17 +434,24 @@ namespace CrossPlatformSample
         /// </summary>
         /// <param name="e">Exception.</param>
         /// <param name="dialogTitle">Title for the error dialog. Should contain the operation where the error occurred.</param>
-        private void HandleException (Exception e, string dialogTitle)
+        private void HandleException(Exception e, string dialogTitle)
         {
-            if (e is AggregateException) {
-                if ((e.GetBaseException () is WebException) || (e.GetBaseException () is DataException)) {
-                    DisplayAlert (dialogTitle, e.GetBaseException ().Message, "OK");
-                } else
-                    throw e.GetBaseException ();
-            } else if (e is DataException) {
-                DisplayAlert (dialogTitle, e.Message, "OK");
-            } else {
-                Debug.WriteLine ("Unexpected exception: " + e.Message);
+            if (e is AggregateException)
+            {
+                if ((e.GetBaseException() is WebException) || (e.GetBaseException() is DataException))
+                {
+                    DisplayAlert(dialogTitle, e.GetBaseException().Message, "OK");
+                }
+                else
+                    throw e.GetBaseException();
+            }
+            else if (e is DataException)
+            {
+                DisplayAlert(dialogTitle, e.Message, "OK");
+            }
+            else
+            {
+                Debug.WriteLine("Unexpected exception: " + e.Message);
                 throw e;
             }
         }
@@ -399,53 +460,63 @@ namespace CrossPlatformSample
         /// Helper method to initialize the user interface.
         /// </summary>
         /// <param name="items">List of CommandItems showcased by this app.</param>
-        private void InitializeUserInterface (List<CommandItem> items)
+        private void InitializeUserInterface(List<CommandItem> items)
         {
 
             Title = "Cloudant Client Sample";
-            BackgroundColor = Color.FromHex ("3B99D4");
+            BackgroundColor = Color.FromHex("3B99D4");
 
             //Defines how each cell in the list displays it's data.
-            DataTemplate dataTemplate = new DataTemplate (() => {
-                Label nameLabel = new Label {TextColor = Color.Black,
-                    YAlign = TextAlignment.Center,
-                    VerticalOptions = LayoutOptions.FillAndExpand
-                };
-                nameLabel.SetBinding (Label.TextProperty, "Title");
+            DataTemplate dataTemplate = new DataTemplate(() =>
+                {
+                    Label nameLabel = new Label
+                    {TextColor = Color.Black,
+                        YAlign = TextAlignment.Center,
+                        VerticalOptions = LayoutOptions.FillAndExpand
+                    };
+                    nameLabel.SetBinding(Label.TextProperty, "Title");
 
-                return new ViewCell {
-                    View = new StackLayout {
-                        Padding = new Thickness (10, 1),
+                    return new ViewCell
+                    {
+                        View = new StackLayout
+                        {
+                            Padding = new Thickness(10, 1),
 
-                        Children = {
-                            nameLabel,
+                            Children =
+                            {
+                                nameLabel,
+                            }
                         }
-                    }
-                };
-            }
+                    };
+                }
                                         );
 
             //Creates a list widget to display the app sample actions.
-            ListView listView = new ListView {
+            ListView listView = new ListView
+            {
                 ItemsSource = items,
                 ItemTemplate = dataTemplate,
                 BackgroundColor = Color.White
             };
 
             // Configures selection action on the list items.
-            listView.ItemSelected += (sender, e) => {
+            listView.ItemSelected += (sender, e) =>
+            {
                 if (e.SelectedItem == null)
                     return;
 
-                (e.SelectedItem as CommandItem).ItemSelected ();
+                (e.SelectedItem as CommandItem).ItemSelected();
                 listView.SelectedItem = null; 
             };
 
             //Creates a layout that displays the app header and the list widget.
-            Content = new StackLayout { 
-                Padding = new Thickness (0, 50),
-                Children = {
-                    new Label { Text = "Cloudant Client Sample", 
+            Content = new StackLayout
+            { 
+                Padding = new Thickness(0, 50),
+                Children =
+                {
+                    new Label
+                    { Text = "Cloudant Client Sample", 
                         XAlign = TextAlignment.Center, 
                         TextColor = Color.White, 
                         FontSize = 24

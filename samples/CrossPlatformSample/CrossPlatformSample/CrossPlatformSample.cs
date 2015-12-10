@@ -19,38 +19,42 @@ namespace CrossPlatformSample
 {
     public class App : Application
     {
-        public App ()
+        public App()
         {
             //Validate configuration on AppSettings.cs has been changed
-            if (AppSettings.account.StartsWith ("your-cloudant") || AppSettings.username.StartsWith ("your-cloudant") || AppSettings.password.StartsWith ("your-cloudant"))
-                MainPage = new ConfigErrorPage ("To run this sample, you must first modify AppSettings.cs to provide your Cloudant account.");
-
-            else {
-                try{
-                    CloudantClient client = new CloudantClientBuilder (AppSettings.account) {
+            if (AppSettings.account.StartsWith("your-cloudant") || AppSettings.username.StartsWith("your-cloudant") || AppSettings.password.StartsWith("your-cloudant"))
+                MainPage = new ConfigErrorPage("To run this sample, you must first modify AppSettings.cs to provide your Cloudant account.");
+            else
+            {
+                try
+                {
+                    CloudantClient client = new CloudantClientBuilder(AppSettings.account)
+                    {
                         username = AppSettings.username, 
                         password = AppSettings.password
-                    }.GetResult ();
+                    }.GetResult();
                             
-                    MainPage = new HomePage (client);
+                    MainPage = new HomePage(client);
 
-                } catch (Exception e){
-                    MainPage = new ConfigErrorPage ("Unable to create a CloudantClient. One or more account parameter in AppSettings.cs is incorrect. "+e.Message);    
+                }
+                catch (Exception e)
+                {
+                    MainPage = new ConfigErrorPage("Unable to create a CloudantClient. One or more account parameter in AppSettings.cs is incorrect. " + e.Message);    
                 }
             }
         }
 
-        protected override void OnStart ()
+        protected override void OnStart()
         {
             // Handle when your app starts
         }
 
-        protected override void OnSleep ()
+        protected override void OnSleep()
         {
             // Handle when your app sleeps
         }
 
-        protected override void OnResume ()
+        protected override void OnResume()
         {
             // Handle when your app resumes
         }

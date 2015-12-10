@@ -17,62 +17,65 @@ using System.Collections.Generic;
 
 namespace IBM.Cloudant.Client
 {
-    /// <summary>
-    /// Converts a JSON Query index definition to a <see cref="IBM.Cloudant.Client.Index"/> object.
-    /// </summary>
-    internal class IndexConverter : JsonConverter
-    {
-        public IndexConverter ()
-        {
-        }
+	/// <summary>
+	/// Converts a JSON Query index definition to a <see cref="IBM.Cloudant.Client.Index"/> object.
+	/// </summary>
+	internal class IndexConverter : JsonConverter
+	{
+		public IndexConverter()
+		{
+		}
 
 
-        public override bool CanConvert (Type objectType)
-        {
-            return objectType == typeof(Index);
-        }
+		public override bool CanConvert(Type objectType)
+		{
+			return objectType == typeof(Index);
+		}
 
 
-        public override object ReadJson (JsonReader reader,
-                                         Type objectType,
-                                         object existingValue,
-                                         JsonSerializer serializer)
-        {
-            var jsonObject = JObject.Load(reader);
-            IList<SortField> sortFields = new List<SortField> ();
+		public override object ReadJson(JsonReader reader,
+		                                Type objectType,
+		                                object existingValue,
+		                                JsonSerializer serializer)
+		{
+			var jsonObject = JObject.Load(reader);
+			IList<SortField> sortFields = new List<SortField>();
 
-            var designDoc = jsonObject.GetValue("ddoc").ToObject<string>();
-            var name = jsonObject.GetValue("name").ToObject<string>();
-            var type = jsonObject.GetValue("type").ToObject<string>();
+			var designDoc = jsonObject.GetValue("ddoc").ToObject<string>();
+			var name = jsonObject.GetValue("name").ToObject<string>();
+			var type = jsonObject.GetValue("type").ToObject<string>();
 
-            var def = jsonObject.GetValue("def") as JObject;
+			var def = jsonObject.GetValue("def") as JObject;
 
-            var indexFields = def.GetValue("fields");
+			var indexFields = def.GetValue("fields");
 
-            foreach (var field in indexFields) {
-                var sortField = serializer.Deserialize<SortField>(field.CreateReader());
-                sortFields.Add(sortField);         
-            }
+			foreach (var field in indexFields)
+			{
+				var sortField = serializer.Deserialize<SortField>(field.CreateReader());
+				sortFields.Add(sortField);         
+			}
 
-            var index = new Index (designDoc, name, type);
-            index.indexFields.AddRange(sortFields);
+			var index = new Index(designDoc, name, type);
+			index.indexFields.AddRange(sortFields);
 
-            return index;
-        }
-
-
-        public override void WriteJson (JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            throw new NotSupportedException ();
-        }
-
-        public override bool CanWrite {
-            get {
-                return false;
-            }
-        }
+			return index;
+		}
 
 
-    }
+		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+		{
+			throw new NotSupportedException();
+		}
+
+		public override bool CanWrite
+		{
+			get
+			{
+				return false;
+			}
+		}
+
+
+	}
 }
 

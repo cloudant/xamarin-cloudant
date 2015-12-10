@@ -16,40 +16,40 @@ using System.Collections.Generic;
 namespace IBM.Cloudant.Client
 {
 
-    /// <summary>
-    /// Sort item.
-    /// </summary>
-    public struct SortField
-    {
+	/// <summary>
+	/// Sort item.
+	/// </summary>
+	public struct SortField
+	{
 
-        /// <summary>
-        /// The name of the field/
-        /// </summary>
-        /// <value>The name of the field</value>
-        public string name { get; set; }
+		/// <summary>
+		/// The name of the field/
+		/// </summary>
+		/// <value>The name of the field</value>
+		public string name { get; set; }
 
-        /// <summary>
-        /// The sort order for the field
-        /// </summary>
-        /// <value>The sort order for the field</value>
-        public Sort? sort { get; set; }
+		/// <summary>
+		/// The sort order for the field
+		/// </summary>
+		/// <value>The sort order for the field</value>
+		public Sort? sort { get; set; }
 
-    }
+	}
 
-    /// <summary>
-    /// Sort ordering
-    /// </summary>
-    public enum Sort
-    {
+	/// <summary>
+	/// Sort ordering
+	/// </summary>
+	public enum Sort
+	{
 
-        /// <summary>
-        /// Ascending sort order.
-        /// </summary>
-        asc,
-        /// <summary>
-        /// Descending sort order.
-        /// </summary>
-        desc
-    }
+		/// <summary>
+		/// Ascending sort order.
+		/// </summary>
+		asc,
+		/// <summary>
+		/// Descending sort order.
+		/// </summary>
+		desc
+	}
 }
 

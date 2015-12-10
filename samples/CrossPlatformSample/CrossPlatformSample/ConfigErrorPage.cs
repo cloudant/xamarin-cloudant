@@ -19,18 +19,20 @@ namespace CrossPlatformSample
     public class ConfigErrorPage : ContentPage
     {
 
-        public ConfigErrorPage (string errorMessage)
+        public ConfigErrorPage(string errorMessage)
         {
             BackgroundColor = Color.FromHex("3B99D4");
             Title = "Cloudant Sample";
-            Content = new StackLayout { 
+            Content = new StackLayout
+            { 
                 Padding = new Thickness(10, 40),
-                Children = {
-                    new Label { Text = "Configure Cloudant Account" , TextColor=Color.White, HorizontalOptions=LayoutOptions.Center},
-                    new Label { Text = "", HeightRequest=30},
-                    new Label { Text = errorMessage , TextColor=Color.White},
-                    new Label { Text = "", HeightRequest=30},
-                    new Label { Text = "Please restart the application.", TextColor=Color.White}
+                Children =
+                {
+                    new Label { Text = "Configure Cloudant Account", TextColor = Color.White, HorizontalOptions = LayoutOptions.Center },
+                    new Label { Text = "", HeightRequest = 30 },
+                    new Label { Text = errorMessage, TextColor = Color.White },
+                    new Label { Text = "", HeightRequest = 30 },
+                    new Label { Text = "Please restart the application.", TextColor = Color.White }
                 }
             };
         }

@@ -14,13 +14,13 @@ using System;
 
 namespace IBM.Cloudant.Client
 {
-    public enum IndexType
-    {
+	public enum IndexType
+	{
 
-        json,
+		json,
 
-        text
+		text
 
-    }
+	}
 }
 
