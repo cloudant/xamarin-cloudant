@@ -17,59 +17,59 @@ using System.Collections.Generic;
 
 namespace IBM.Cloudant.Client
 {
-	/// <summary>
-	/// Marshals SortSyntax JSON objects into <see cref="IBM.Cloudant.client.SortField"/> struct.
-	/// </summary>
-	public class SortFieldConverter : JsonConverter
-	{
-		public SortFieldConverter()
-		{
-		}
+    /// <summary>
+    /// Marshals SortSyntax JSON objects into <see cref="IBM.Cloudant.client.SortField"/> struct.
+    /// </summary>
+    public class SortFieldConverter : JsonConverter
+    {
+        public SortFieldConverter()
+        {
+        }
 
-		/// <inheritdoc/>
-		public override bool CanConvert(Type objectType)
-		{
-			return objectType == typeof(SortField);
-		}
+        /// <inheritdoc/>
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(SortField);
+        }
 
-		/// <inheritdoc/>
-		public override object ReadJson(JsonReader reader,
-		                                Type objectType,
-		                                object existingValue,
-		                                JsonSerializer serializer)
-		{
-			var jsonObject = JObject.Load(reader);
+        /// <inheritdoc/>
+        public override object ReadJson(JsonReader reader,
+                                        Type objectType,
+                                        object existingValue,
+                                        JsonSerializer serializer)
+        {
+            var jsonObject = JObject.Load(reader);
 
-			var jsonProperty = (JProperty)jsonObject.First;
-			var name = jsonProperty.Name;
-			var sort = (string)jsonProperty.Value;
-			Sort sortEnum;
-			if (Enum.TryParse(sort, out sortEnum))
-			{
-				return new SortField() { name = name, sort = sortEnum };
-			}
-			else
-			{
-				throw new DataException(-1, "Unexpected json for Sort Field");
-			}
+            var jsonProperty = (JProperty)jsonObject.First;
+            var name = jsonProperty.Name;
+            var sort = (string)jsonProperty.Value;
+            Sort sortEnum;
+            if (Enum.TryParse(sort, out sortEnum))
+            {
+                return new SortField() { name = name, sort = sortEnum };
+            }
+            else
+            {
+                throw new DataException(-1, "Unexpected json for Sort Field");
+            }
 
               
-		}
+        }
 
-		/// <inheritdoc/>
-		public override bool CanWrite
-		{
-			get
-			{
-				return false;
-			}
-		}
+        /// <inheritdoc/>
+        public override bool CanWrite
+        {
+            get
+            {
+                return false;
+            }
+        }
 
-		/// <inheritdoc/>
-		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-		{
-			throw new NotSupportedException();
-		}
-	}
+        /// <inheritdoc/>
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            throw new NotSupportedException();
+        }
+    }
 }
 

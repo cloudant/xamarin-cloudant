@@ -15,60 +15,60 @@ using System.Net.Http.Headers;
 
 namespace IBM.Cloudant.Client
 {
-	/// <summary>
-	/// Sample interceptor implementation that adds basic authentication to HTTP requests.
-	/// 
-	/// It does this by adding an Authentication header with Basic authentication using the provided username and password.
-	/// </summary>
-	/// <remarks>
-	/// This class is used for adding basic authentication to HTTP requests.
-	/// </remarks>
-	public class BasicAuthenticationInterceptor : IHttpConnectionRequestInterceptor, IHttpConnectionResponseInterceptor
-	{
+    /// <summary>
+    /// Sample interceptor implementation that adds basic authentication to HTTP requests.
+    /// 
+    /// It does this by adding an Authentication header with Basic authentication using the provided username and password.
+    /// </summary>
+    /// <remarks>
+    /// This class is used for adding basic authentication to HTTP requests.
+    /// </remarks>
+    public class BasicAuthenticationInterceptor : IHttpConnectionRequestInterceptor, IHttpConnectionResponseInterceptor
+    {
         
-		private AuthenticationHeaderValue authHeader;
+        private AuthenticationHeaderValue authHeader;
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="Com.Cloudant.Client.Internal.Http.BasicAuthenticationInterceptor"/> class 
-		/// with the specified username and password. 
-		/// </summary>
-		/// <param name="username">Username for the http request.</param>
-		/// <param name="password">Password for the user specified by username.</param>
-		public BasicAuthenticationInterceptor(string username, string password)
-		{
-			authHeader = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(System.Text.UTF8Encoding.UTF8.GetBytes(username + ":" + password)));
-		}
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Com.Cloudant.Client.Internal.Http.BasicAuthenticationInterceptor"/> class 
+        /// with the specified username and password. 
+        /// </summary>
+        /// <param name="username">Username for the http request.</param>
+        /// <param name="password">Password for the user specified by username.</param>
+        public BasicAuthenticationInterceptor(string username, string password)
+        {
+            authHeader = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(System.Text.UTF8Encoding.UTF8.GetBytes(username + ":" + password)));
+        }
 
 
-		/// <summary>
-		/// Intercepts the HttpRequest before it is sent.
-		/// </summary>
-		/// <returns>The http connection interceptor context with any modifications.</returns>
-		/// <param name="context">Http connection interceptor context with the current state.</param>
-		public HttpConnectionInterceptorContext InterceptRequest(HttpConnectionInterceptorContext context)
-		{
+        /// <summary>
+        /// Intercepts the HttpRequest before it is sent.
+        /// </summary>
+        /// <returns>The http connection interceptor context with any modifications.</returns>
+        /// <param name="context">Http connection interceptor context with the current state.</param>
+        public HttpConnectionInterceptorContext InterceptRequest(HttpConnectionInterceptorContext context)
+        {
             
-			context.requestMsg.Headers.Authorization = authHeader;
-			return context;
-		}
+            context.requestMsg.Headers.Authorization = authHeader;
+            return context;
+        }
 
-		/// <summary>
-		/// Intercepts the HttpResponse before it is consumed.
-		/// </summary>
-		/// <returns>The http connection interceptor context</returns>
-		/// <param name="context">Http connection interceptor context with the current state.</param>
-		public HttpConnectionInterceptorContext InterceptResponse(HttpConnectionInterceptorContext context)
-		{
+        /// <summary>
+        /// Intercepts the HttpResponse before it is consumed.
+        /// </summary>
+        /// <returns>The http connection interceptor context</returns>
+        /// <param name="context">Http connection interceptor context with the current state.</param>
+        public HttpConnectionInterceptorContext InterceptResponse(HttpConnectionInterceptorContext context)
+        {
 
-			if (context.responseMsg.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-			{
+            if (context.responseMsg.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
 
-				//Handle authentication error here.
+                //Handle authentication error here.
 
-				context.replayRequest = true;
-			}
-			return context;
-		}
-	}
+                context.replayRequest = true;
+            }
+            return context;
+        }
+    }
 }
 

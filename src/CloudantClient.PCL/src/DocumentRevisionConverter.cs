@@ -17,90 +17,90 @@ using System.Collections.Generic;
 
 namespace IBM.Cloudant.Client
 {
-	/// <summary>
-	/// Marshalls a <see cref="IBM.Cloudant.Client.DocumentRevision"/> object to and from JSON.
-	/// </summary>
-	internal class DocumentRevisionConverter : JsonConverter
-	{
-		public DocumentRevisionConverter()
-		{
-		}
+    /// <summary>
+    /// Marshalls a <see cref="IBM.Cloudant.Client.DocumentRevision"/> object to and from JSON.
+    /// </summary>
+    internal class DocumentRevisionConverter : JsonConverter
+    {
+        public DocumentRevisionConverter()
+        {
+        }
 
 
-		public override bool CanConvert(Type objectType)
-		{
-			return objectType == typeof(DocumentRevision);
-		}
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(DocumentRevision);
+        }
 
 
-		public override object ReadJson(JsonReader reader,
-		                                Type objectType,
-		                                object existingValue,
-		                                JsonSerializer serializer)
-		{
-			var jsonObject = JObject.Load(reader);
-			var document = new DocumentRevision();
-			document.body = new Dictionary<string,object>();
+        public override object ReadJson(JsonReader reader,
+                                        Type objectType,
+                                        object existingValue,
+                                        JsonSerializer serializer)
+        {
+            var jsonObject = JObject.Load(reader);
+            var document = new DocumentRevision();
+            document.body = new Dictionary<string,object>();
 
-			foreach (var kv in jsonObject)
-			{
-				switch (kv.Key)
-				{
-					case "_id":
-					case "id":
-						document.docId = kv.Value.ToObject<string>();
-						break;
-					case "_rev":
-					case "rev":
-						document.revId = kv.Value.ToObject<string>();
-						break;
-					case "_deleted":
-						document.isDeleted = kv.Value.ToObject<bool>();
-						break;
-					default:
+            foreach (var kv in jsonObject)
+            {
+                switch (kv.Key)
+                {
+                    case "_id":
+                    case "id":
+                        document.docId = kv.Value.ToObject<string>();
+                        break;
+                    case "_rev":
+                    case "rev":
+                        document.revId = kv.Value.ToObject<string>();
+                        break;
+                    case "_deleted":
+                        document.isDeleted = kv.Value.ToObject<bool>();
+                        break;
+                    default:
                     // Other values go in the body
-						document.body.Add(kv.Key, kv.Value.ToObject<dynamic>());
-						break;
-				}
-			}
+                        document.body.Add(kv.Key, kv.Value.ToObject<dynamic>());
+                        break;
+                }
+            }
                 
 
-			return document;
-		}
+            return document;
+        }
 
 
-		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-		{
-			var document = value as DocumentRevision;
-			writer.WriteStartObject();
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            var document = value as DocumentRevision;
+            writer.WriteStartObject();
 
-			if (document.docId != null)
-			{
-				writer.WritePropertyName("_id");
-				serializer.Serialize(writer, document.docId);
-			}
+            if (document.docId != null)
+            {
+                writer.WritePropertyName("_id");
+                serializer.Serialize(writer, document.docId);
+            }
 
-			if (document.revId != null)
-			{
-				writer.WritePropertyName("_rev");
-				serializer.Serialize(writer, document.revId);
-			}
-			if (document.isDeleted)
-			{
-				writer.WritePropertyName("_deleted");
-				serializer.Serialize(writer, document.isDeleted);
-			}
+            if (document.revId != null)
+            {
+                writer.WritePropertyName("_rev");
+                serializer.Serialize(writer, document.revId);
+            }
+            if (document.isDeleted)
+            {
+                writer.WritePropertyName("_deleted");
+                serializer.Serialize(writer, document.isDeleted);
+            }
 
-			foreach (var pair in document.body)
-			{
-				writer.WritePropertyName(pair.Key);
-				serializer.Serialize(writer, pair.Value);
-			}
+            foreach (var pair in document.body)
+            {
+                writer.WritePropertyName(pair.Key);
+                serializer.Serialize(writer, pair.Value);
+            }
 
-			writer.WriteEnd();
-		}
+            writer.WriteEnd();
+        }
 
 
-	}
+    }
 }
 

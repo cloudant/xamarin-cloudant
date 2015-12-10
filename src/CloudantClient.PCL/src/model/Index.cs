@@ -16,51 +16,51 @@ using System.Collections;
 
 namespace IBM.Cloudant.Client
 {
-	/// <summary>
-	/// Encapsulates a Cloudant Index definition.
-	/// Additional information about indexes in the Cloudant documentation at: 
-	/// <a href="https://docs.cloudant.com/cloudant_query.html#creating-an-index">https://docs.cloudant.com/cloudant_query.html#creating-an-index</a>
-	/// </summary>
-	/// <remarks>
-	/// This class contains metadata and information for a Cloudant Index.
-	/// </remarks>
-	public class Index
-	{
-		/// <summary>
-		/// Design document identifier for this index
-		/// </summary>
-		public string ddoc { get; private set; }
+    /// <summary>
+    /// Encapsulates a Cloudant Index definition.
+    /// Additional information about indexes in the Cloudant documentation at: 
+    /// <a href="https://docs.cloudant.com/cloudant_query.html#creating-an-index">https://docs.cloudant.com/cloudant_query.html#creating-an-index</a>
+    /// </summary>
+    /// <remarks>
+    /// This class contains metadata and information for a Cloudant Index.
+    /// </remarks>
+    public class Index
+    {
+        /// <summary>
+        /// Design document identifier for this index
+        /// </summary>
+        public string ddoc { get; private set; }
 
-		/// <summary>
-		/// Name of the index
-		/// </summary>
-		public string name { get; private set; }
+        /// <summary>
+        /// Name of the index
+        /// </summary>
+        public string name { get; private set; }
 
-		/// <summary>
-		/// Index type e.g. json
-		/// </summary>
-		public string type { get; private set; }
+        /// <summary>
+        /// Index type e.g. json
+        /// </summary>
+        public string type { get; private set; }
 
-		/// <summary>
-		/// Index Fields for this index 
-		/// </summary>
-		public List<SortField> indexFields { get; private set; }
+        /// <summary>
+        /// Index Fields for this index 
+        /// </summary>
+        public List<SortField> indexFields { get; private set; }
 
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="Com.Cloudant.Client.Model.Index"/> class.
-		/// </summary>
-		/// <param name="designDocId">Design document identifier</param>
-		/// <param name="name">Name of the index</param>
-		/// <param name="type">Index type e.g. json</param>
-		public Index(string designDocId, string name, string type)
-		{
-			this.ddoc = designDocId;
-			this.name = name;
-			this.type = type;
-			this.indexFields = new List<SortField>();
-		}
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Com.Cloudant.Client.Model.Index"/> class.
+        /// </summary>
+        /// <param name="designDocId">Design document identifier</param>
+        /// <param name="name">Name of the index</param>
+        /// <param name="type">Index type e.g. json</param>
+        public Index(string designDocId, string name, string type)
+        {
+            this.ddoc = designDocId;
+            this.name = name;
+            this.type = type;
+            this.indexFields = new List<SortField>();
+        }
 
-	}
+    }
 }
 
