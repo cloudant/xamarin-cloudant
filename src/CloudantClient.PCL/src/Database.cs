@@ -369,12 +369,12 @@ namespace IBM.Cloudant.Client
             requestDict.Add("index", index);
 
 
-            if (indexName != null)
+            if (!string.IsNullOrEmpty(indexName))
             {
                 requestDict.Add("name", indexName);
             }
 
-            if (designDocumentName != null)
+            if (!string.IsNullOrEmpty(designDocumentName))
             {
                 requestDict.Add("ddoc", designDocumentName);
             }
@@ -410,12 +410,12 @@ namespace IBM.Cloudant.Client
 
             };
 
-            if (indexName != null)
+            if (!string.IsNullOrEmpty(indexName))
             {
                 requestDict.Add("name", indexName);
             }
 
-            if (designDocumentName != null)
+            if (!string.IsNullOrEmpty(designDocumentName))
             {
                 requestDict.Add("ddoc", designDocumentName);
             }
@@ -453,7 +453,7 @@ namespace IBM.Cloudant.Client
                 ["enabled" ] = defaultFieldEnabled
             };
 
-            if (defaultFieldAnalyzer != null)
+            if (!string.IsNullOrEmpty(defaultFieldAnalyzer))
             {
                 default_field.Add("analyzer", defaultFieldAnalyzer);
             }
@@ -560,12 +560,12 @@ namespace IBM.Cloudant.Client
                 body.Add("sort", convertedSortList);
             }
 
-            if (bookmark != null)
+            if (!string.IsNullOrEmpty(bookmark))
             {
                 body.Add("bookmark", bookmark);
             }
 
-            if (useIndex != null)
+            if (!string.IsNullOrEmpty(useIndex))
             {
                 body.Add("use_index", useIndex);
             }
