@@ -74,13 +74,13 @@ namespace IBM.Cloudant.Client
             var document = value as DocumentRevision;
             writer.WriteStartObject();
 
-            if (document.docId != null)
+            if (!string.IsNullOrEmpty(document.docId))
             {
                 writer.WritePropertyName("_id");
                 serializer.Serialize(writer, document.docId);
             }
 
-            if (document.revId != null)
+            if (!string.IsNullOrEmpty(document.revId))
             {
                 writer.WritePropertyName("_rev");
                 serializer.Serialize(writer, document.revId);

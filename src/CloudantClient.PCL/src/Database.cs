@@ -124,7 +124,7 @@ namespace IBM.Cloudant.Client
             }
                 
             string encodedDocId = null;
-            if (revision.docId != null)
+            if (!string.IsNullOrEmpty(revision.docId))
             {
                 encodedDocId = Uri.EscapeDataString(revision.docId);
             }
@@ -137,7 +137,7 @@ namespace IBM.Cloudant.Client
             // Send the HTTP request
             HttpResponseMessage response;
 
-            if (revision.docId != null)
+            if (!string.IsNullOrEmpty(revision.docId))
             {
                 response = await client.httpHelper.sendPut(uri, null, payload).ConfigureAwait(continueOnCapturedContext: false);
             }
@@ -179,23 +179,20 @@ namespace IBM.Cloudant.Client
 
             }                
 
-            if (revision.revId == null)
+            if (string.IsNullOrEmpty(revision.revId))
             {
                 throw new DataException(DataException.Database_SaveDocumentRevisionFailure,
                     "The document revision must contain a revId to perform an update");
             }
                 
-            Uri uri = null;
 
-            if (revision.docId != null)
-            {
-                uri = new Uri(dbNameUrlEncoded + "/" + Uri.EscapeDataString(revision.docId), UriKind.Relative);
-            }
-            else
+            if (string.IsNullOrEmpty(revision.docId))
             {
                 var errorMessage = "HTTP request to update document failed: the document revision must contain docId";
                 throw new DataException(DataException.Database_SaveDocumentRevisionFailure, errorMessage);
             }
+
+            var uri = new Uri(dbNameUrlEncoded + "/" + Uri.EscapeDataString(revision.docId), UriKind.Relative);
             Debug.WriteLine("relative URI is: " + uri.ToString());
 
             if (revision.body == null)
