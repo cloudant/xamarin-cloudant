@@ -79,6 +79,56 @@ namespace Test.Shared
         }
 
         [Test]
+        public void testCreateWithEmptyDocId()
+        {
+            var document = new DocumentRevision()
+            {
+                docId = "",
+                body = new Dictionary<string,object>()
+                {
+                    ["hello" ] = "world"
+                }
+                    
+            };
+
+            Assert.DoesNotThrow(() => db.CreateAsync(document).Wait());
+        }
+
+        [Test]
+        public void testUpdateWithEmptyDocId()
+        {
+            var document = new DocumentRevision()
+            {
+                docId = "",
+                revId = "1-blhjyurbgufbhfuonUJFB",
+                body = new Dictionary<string,object>()
+                {
+                        ["hello" ] = "world"
+                }
+
+            };
+            Assert.Throws<AggregateException>(() => db.UpdateAsync(document).Wait());
+        }
+
+        [Test]
+        public void testUpdateWithEmptyRevId()
+        {
+            var document = new DocumentRevision()
+            {
+                docId = "helloworld",
+                revId = "",
+                body = new Dictionary<string,object>()
+                {
+                        ["hello" ] = "world"
+                }
+
+            };
+            Assert.Throws<AggregateException>(() => 
+            db.UpdateAsync(document).Wait()
+            );
+        }
+
+        [Test]
         public void testSaveFetchDeleteDocument()
         {
 
