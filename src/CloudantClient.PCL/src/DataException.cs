@@ -44,14 +44,14 @@ namespace IBM.Cloudant.Client
         public static readonly int Database_DatabaseModificationFailure = 100;
 
         /// <summary>
-        /// Exception code: Error happened while saving a document.
+        /// Exception code: Error happened while creating a document.
         /// </summary>
-        public static readonly int Database_SaveDocumentRevisionFailure = 102;
+        public static readonly int Database_CreateDocumentRevisionFailure = 102;
 
         /// <summary>
         /// Exception code: Error happened while fetching a document.
         /// </summary>
-        public static readonly int Database_FetchDocumentRevisionFailure = 103;
+        public static readonly int Database_ReadDocumentRevisionFailure = 103;
 
         /// <summary>
         /// Exception code: Error happened while deleting a document.

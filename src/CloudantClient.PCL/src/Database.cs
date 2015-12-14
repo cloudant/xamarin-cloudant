@@ -152,7 +152,7 @@ namespace IBM.Cloudant.Client
                 var errorMessage = String.Format("Failed to create a new document.\nHTTP_Status: {0}\nErrorMessage: {1}",
                                        httpStatus, response.ReasonPhrase);
                 Debug.WriteLine(errorMessage);
-                throw new DataException(DataException.Database_SaveDocumentRevisionFailure, errorMessage);
+                throw new DataException(DataException.Database_CreateDocumentRevisionFailure, errorMessage);
             }
 
             // Read in the response JSON into a Dictionary
@@ -210,7 +210,7 @@ namespace IBM.Cloudant.Client
                 var errorMessage = String.Format("Failed to update document.\nHTTP_Status: {0}\nErrorMessage: {1}",
                                        httpStatus, response.ReasonPhrase);
                 Debug.WriteLine(errorMessage);
-                throw new DataException(DataException.Database_SaveDocumentRevisionFailure, errorMessage);
+                throw new DataException(DataException.Database_CreateDocumentRevisionFailure, errorMessage);
             }
 
             // Read in the response JSON into a Dictionary
@@ -246,7 +246,7 @@ namespace IBM.Cloudant.Client
                 {
                     // temp exception should be fixed as part of the common http handling issues #30 and #27
                     throw new DataException(
-                        DataException.Database_FetchDocumentRevisionFailure,
+                        DataException.Database_ReadDocumentRevisionFailure,
                         "Error occured reading document");
                 }
 
@@ -261,7 +261,7 @@ namespace IBM.Cloudant.Client
             }
             catch (Exception e)
             {
-                throw new DataException(DataException.Database_FetchDocumentRevisionFailure, e.Message, e);
+                throw new DataException(DataException.Database_ReadDocumentRevisionFailure, e.Message, e);
             }
         }
 
