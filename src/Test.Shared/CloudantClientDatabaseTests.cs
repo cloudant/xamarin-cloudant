@@ -82,48 +82,55 @@ namespace Test.Shared
                 "Test failed to create a database with name " + databaseName);
         }
 
+
+
+        [Test]
+        public void TestDBCreationFailsWithNullName()
+        {
+            Assert.Throws<ArgumentException>(async () => await client.Database(null)
+                .EnsureExistsAsync()
+                .ConfigureAwait(continueOnCapturedContext: false));
+        }
+
+        [Test]
+        public void TestDBCreationFailsWithEmptyName()
+        {
+            Assert.Throws<ArgumentException>(async () => await client.Database("")
+                .EnsureExistsAsync()
+                .ConfigureAwait(continueOnCapturedContext: false));
+        }
+
+        [Test]
+        public void TestDBCreationFailsWithSpacesInName()
+        {
+            Assert.Throws<ArgumentException>(async () => await client.Database("name with spaces")
+                .EnsureExistsAsync()
+                .ConfigureAwait(continueOnCapturedContext: false));
+        }
+
+        [Test]
+        public void TestDBCreationFailsnameStartingWithCaptial()
+        {
+            Assert.Throws<ArgumentException>(async () => await client.Database("Invalid")
+                .EnsureExistsAsync()
+                .ConfigureAwait(continueOnCapturedContext: false));
+        }
+
+        [Test]
+        public void testDBCreationFailsWithAtSymbol()
+        {
+            Assert.Throws<ArgumentException>(async () => await client.Database("invalid@")
+                .EnsureExistsAsync()
+                .ConfigureAwait(continueOnCapturedContext: false));
+        }
+
             
         [Test]
-        /// <summary>
-        /// Tests validation of incorrect database names.
-        /// </summary>
-        public void testDBCreationInvalidNames()
+        public void testDBCreationFailsWithExclamation()
         {
-            
-            // These invalid names produce a DataException 
-            string[] invalidNames_DataException = new string[] { null, string.Empty };
-
-            foreach (string name in invalidNames_DataException)
-            {
-
-                Assert.Throws<DataException>(async () =>
-                    {
-                        var db = client.Database(name);
-                        await db.EnsureExistsAsync().ConfigureAwait(continueOnCapturedContext: false);
-                    },
-                    "Test failed because invalid database name {0} should have produced an error. ", new []{ name });
-            }
-
-
-            // The following invalid names produce an AggregateException because these are detected when an Http connection is attempted. 
-            string[] invalidNames_AggreggateException = new string[]
-            {
-                "name with spaces",
-                "InVaLidName",
-                "inv@lid",
-                "inval!d"
-            };
-
-            foreach (string name in invalidNames_AggreggateException)
-            {
-
-                Assert.Throws<ArgumentException>(async () =>
-                    {
-                        var db = client.Database(name);
-                        await db.EnsureExistsAsync().ConfigureAwait(continueOnCapturedContext: false);
-                    },
-                    "Test failed because invalid database name {0} should have produced an error. ", new []{ name });
-            }
+            Assert.Throws<ArgumentException>(async () => await client.Database("invalid!")
+                .EnsureExistsAsync()
+                .ConfigureAwait(continueOnCapturedContext: false));
         }
     }
 }

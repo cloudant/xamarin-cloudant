@@ -82,8 +82,7 @@ namespace IBM.Cloudant.Client
 
             if (string.IsNullOrEmpty(dbname))
             {
-                throw new DataException(DataException.Database_DatabaseModificationFailure, 
-                    "Database name parameter may not be null or empty.");
+                throw new ArgumentException("Database name parameter may not be null or empty.");
             }
 
             return new Database(this, dbname);
