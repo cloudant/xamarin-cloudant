@@ -1,4 +1,4 @@
-﻿//
+//
 //  Copyright (c) 2015 IBM Corp. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
@@ -37,7 +37,7 @@ namespace Test.Shared
             DBName = "httphelpertests" + DateTime.Now.Ticks;
             baseUri = new Uri(string.Format(@"https://{0}.cloudant.com/", TestConstants.account));
             helper = new HttpHelper(baseUri);
-            helper.addGlobalHeaders("Authorization", "Basic " + Convert.ToBase64String(System.Text.UTF8Encoding.UTF8.GetBytes(TestConstants.username + ":" + TestConstants.password)));
+            helper.AddGlobalHeader("Authorization", "Basic " + Convert.ToBase64String(System.Text.UTF8Encoding.UTF8.GetBytes(TestConstants.username + ":" + TestConstants.password)));
         }
 
 
@@ -49,7 +49,7 @@ namespace Test.Shared
         public void testHttpHelper()
         {
             //Test PUT
-            Task<HttpResponseMessage> putResponse = helper.sendPut(new Uri(DBName, UriKind.Relative), null, null);
+            Task<HttpResponseMessage> putResponse = helper.PutAsync(new Uri(DBName, UriKind.Relative), null, null);
             putResponse.Wait();
             Assert.AreEqual(HttpStatusCode.Created, putResponse.Result.StatusCode);
         
@@ -59,12 +59,14 @@ namespace Test.Shared
             content.Add("stringKey", "nicestringvalue");
             content.Add("numberKey", 42);
 
+
             var payload = JsonConvert.SerializeObject(content);
-            Task<HttpResponseMessage> postResponse = helper.sendPost(
+            Task<HttpResponseMessage> postResponse = helper.PostAsync(
                                                          new Uri(DBName, UriKind.Relative),
                                                          null,
                                                          payload);
             postResponse.Wait();
+
 
             Debug.WriteLine("POST response: " + postResponse.Result.StatusCode);
             Assert.AreEqual(HttpStatusCode.Created, postResponse.Result.StatusCode);
@@ -74,14 +76,14 @@ namespace Test.Shared
 
 
             //Test GET
-            Task<HttpResponseMessage> getResponse = helper.sendGet(new Uri(DBName, UriKind.Relative), null);
+            Task<HttpResponseMessage> getResponse = helper.GetAsync(new Uri(DBName, UriKind.Relative), null);
             getResponse.Wait();
             Debug.WriteLine("GET response: " + getResponse.Result.StatusCode);
             Assert.AreEqual(HttpStatusCode.OK, getResponse.Result.StatusCode);
 
 
             //Test DELETE
-            Task<HttpResponseMessage> r = helper.sendDelete(new Uri(DBName, UriKind.Relative), null);
+            Task<HttpResponseMessage> r = helper.DeleteAsync(new Uri(DBName, UriKind.Relative), null);
             r.Wait();
             Assert.AreEqual(HttpStatusCode.OK, r.Result.StatusCode);
         }

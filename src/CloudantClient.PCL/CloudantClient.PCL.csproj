@@ -34,7 +34,6 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\internal\http\HttpHelper.cs" />
-    <Compile Include="src\internal\http\IHttpHelper.cs" />
     <Compile Include="src\internal\http\CookieInterceptor.cs" />
     <Compile Include="src\internal\http\HttpConnectionInterceptorContext.cs" />
     <Compile Include="src\internal\http\BasicAuthenticationInterceptor.cs" />

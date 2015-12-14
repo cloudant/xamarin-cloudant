@@ -73,7 +73,7 @@ namespace IBM.Cloudant.Client
         public async Task EnsureExistsAsync()
         {
             var dbUri = new Uri(client.accountUri.ToString() + dbNameUrlEncoded);
-            var response = await client.httpHelper.sendPut(dbUri, null, null).ConfigureAwait(continueOnCapturedContext: false);
+            var response = await client.httpHelper.PutAsync(dbUri, null, null).ConfigureAwait(continueOnCapturedContext: false);
 
             var httpStatus = (int)response.StatusCode;
             if (httpStatus != 200 && httpStatus != 201 && httpStatus != 412)
@@ -93,7 +93,7 @@ namespace IBM.Cloudant.Client
         /// <returns>A Task to monitor this action.</returns>
         public async Task DeleteAsync()
         {
-            var response = await client.httpHelper.sendDelete(
+            var response = await client.httpHelper.DeleteAsync(
                                new Uri(
                                    WebUtility.UrlEncode(dbname),
                                    UriKind.Relative),
@@ -139,11 +139,11 @@ namespace IBM.Cloudant.Client
 
             if (!string.IsNullOrEmpty(revision.docId))
             {
-                response = await client.httpHelper.sendPut(uri, null, payload).ConfigureAwait(continueOnCapturedContext: false);
+                response = await client.httpHelper.PutAsync(uri, null, payload).ConfigureAwait(continueOnCapturedContext: false);
             }
             else
             {
-                response = await client.httpHelper.sendPost(uri, null, payload).ConfigureAwait(continueOnCapturedContext: false);
+                response = await client.httpHelper.PostAsync(uri, null, payload).ConfigureAwait(continueOnCapturedContext: false);
             }
 
             // Check the HTTP status code
@@ -205,7 +205,7 @@ namespace IBM.Cloudant.Client
 
             Debug.WriteLine("Update document payload is: " + Database.SerializeObject(payload));
             // Send the HTTP request
-            var response = await client.httpHelper.sendPut(uri, null, payload).ConfigureAwait(continueOnCapturedContext: false);
+            var response = await client.httpHelper.PutAsync(uri, null, payload).ConfigureAwait(continueOnCapturedContext: false);
 
             // Check the HTTP status code
             int httpStatus = (int)response.StatusCode;
@@ -244,7 +244,7 @@ namespace IBM.Cloudant.Client
 
 
                 // Send the HTTP request
-                var response = await client.httpHelper.sendGet(requestUrl, null).ConfigureAwait(continueOnCapturedContext: false);
+                var response = await client.httpHelper.GetAsync(requestUrl, null).ConfigureAwait(continueOnCapturedContext: false);
 
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
@@ -290,7 +290,7 @@ namespace IBM.Cloudant.Client
                                      + Uri.EscapeDataString(revision.docId) + "?rev=" + Uri.EscapeDataString(revision.revId),
                                      UriKind.Relative);
                 // Send the HTTP request
-                var response = await client.httpHelper.sendDelete(requestUrl, null).ConfigureAwait(continueOnCapturedContext: false);
+                var response = await client.httpHelper.DeleteAsync(requestUrl, null).ConfigureAwait(continueOnCapturedContext: false);
 
                 // Read in the response JSON into a Dictionary
                 var content = await response.Content.ReadAsStringAsync().ConfigureAwait(continueOnCapturedContext: false);
@@ -451,6 +451,7 @@ namespace IBM.Cloudant.Client
             var default_field = new Dictionary<String,Object>()
             {
                 ["enabled" ] = defaultFieldEnabled
+
             };
 
             if (defaultFieldAnalyzer != null)
@@ -470,7 +471,7 @@ namespace IBM.Cloudant.Client
             Debug.WriteLine("index relative URI: " + indexUri);
 
             var payload = Database.SerializeObject(indexDefinition);
-            var response = await client.httpHelper.sendPost(indexUri, null, payload).ConfigureAwait(continueOnCapturedContext: false);
+            var response = await client.httpHelper.PostAsync(indexUri, null, payload).ConfigureAwait(continueOnCapturedContext: false);
 
             if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created)
             { //Status code 200 or 201
@@ -579,7 +580,7 @@ namespace IBM.Cloudant.Client
             Uri indexUri = new Uri(dbNameUrlEncoded + "/_find", UriKind.Relative);
             var payload = Database.SerializeObject(body);
 
-            var response = await client.httpHelper.sendPost(indexUri, null, payload).ConfigureAwait(continueOnCapturedContext: false);
+            var response = await client.httpHelper.PostAsync(indexUri, null, payload).ConfigureAwait(continueOnCapturedContext: false);
 
             // Check the HTTP status code
             int httpStatus = (int)response.StatusCode;
@@ -608,7 +609,7 @@ namespace IBM.Cloudant.Client
 
             Uri indexUri = new Uri(dbNameUrlEncoded + "/_index/", UriKind.Relative);
 
-            var response = await client.httpHelper.sendGet(indexUri, null).ConfigureAwait(continueOnCapturedContext: false);
+            var response = await client.httpHelper.GetAsync(indexUri, null).ConfigureAwait(continueOnCapturedContext: false);
 
 
             if (response.StatusCode != HttpStatusCode.OK)
@@ -648,7 +649,7 @@ namespace IBM.Cloudant.Client
                                dbNameUrlEncoded + "/_index/" + designDocId + "/" + indexTypeString + "/" + indexName,
                                UriKind.Relative);
 
-            var response = await client.httpHelper.sendDelete(indexUri, null);
+            var response = await client.httpHelper.DeleteAsync(indexUri, null);
 
             if (response.StatusCode == HttpStatusCode.OK)
                 return;
