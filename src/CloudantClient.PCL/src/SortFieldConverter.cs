@@ -14,6 +14,7 @@ using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace IBM.Cloudant.Client
 {
@@ -50,7 +51,7 @@ namespace IBM.Cloudant.Client
             }
             else
             {
-                throw new DataException(-1, "Unexpected json for Sort Field");
+                throw new SerializationException("Unexpected JSON for Sort Field");
             }
 
               
