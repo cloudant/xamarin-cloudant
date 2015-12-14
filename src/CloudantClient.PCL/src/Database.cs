@@ -119,8 +119,7 @@ namespace IBM.Cloudant.Client
             Debug.WriteLine("==== enter Database::Create(Object)");
             if (revision == null)
             {
-                string errorMessage = "The input parameter revision cannot be null.";
-                throw new DataException(DataException.Database_SaveDocumentRevisionFailure, errorMessage);
+                throw new ArgumentNullException("revision");
             }
                 
             string encodedDocId = null;
@@ -174,22 +173,19 @@ namespace IBM.Cloudant.Client
             Debug.WriteLine("==== enter Database::update(Object)"); 
             if (revision == null)
             {
-                var errorMessage = "The input parameter revision cannot be null.";
-                throw new DataException(DataException.Database_SaveDocumentRevisionFailure, errorMessage);
+                throw new ArgumentNullException("revision");
 
             }                
 
             if (string.IsNullOrEmpty(revision.revId))
             {
-                throw new DataException(DataException.Database_SaveDocumentRevisionFailure,
-                    "The document revision must contain a revId to perform an update");
+                throw new ArgumentException("The document revision must contain a revId to perform an update");
             }
                 
 
             if (string.IsNullOrEmpty(revision.docId))
             {
-                var errorMessage = "HTTP request to update document failed: the document revision must contain docId";
-                throw new DataException(DataException.Database_SaveDocumentRevisionFailure, errorMessage);
+                throw new ArgumentException("The document revision parameter docId must not be null or empty ");
             }
 
             var uri = new Uri(dbNameUrlEncoded + "/" + Uri.EscapeDataString(revision.docId), UriKind.Relative);
@@ -233,9 +229,9 @@ namespace IBM.Cloudant.Client
             Debug.WriteLine("==== enter Database::Read(String)");
             try
             {
-                if (string.IsNullOrWhiteSpace(documentId))
+                if (string.IsNullOrEmpty(documentId))
                 {
-                    throw new DataException(DataException.Database_FetchDocumentRevisionFailure, "Unable to fetch document revision.  documentId " +
+                    throw new ArgumentException("The documentId " +
                         "parameter must not be null or empty");
                 }
 
@@ -281,8 +277,7 @@ namespace IBM.Cloudant.Client
             {
                 if (revision == null)
                 {
-                    throw new DataException(DataException.Database_DeleteDocumentRevisionFailure,
-                        "Unable to delete document revision.  revision parameter must not be null");
+                    throw new ArgumentNullException("revision");
                 }
 
                 var requestUrl = new Uri(
@@ -369,12 +364,12 @@ namespace IBM.Cloudant.Client
             requestDict.Add("index", index);
 
 
-            if (indexName != null)
+            if (!string.IsNullOrEmpty(indexName))
             {
                 requestDict.Add("name", indexName);
             }
 
-            if (designDocumentName != null)
+            if (!string.IsNullOrEmpty(designDocumentName))
             {
                 requestDict.Add("ddoc", designDocumentName);
             }
@@ -410,12 +405,12 @@ namespace IBM.Cloudant.Client
 
             };
 
-            if (indexName != null)
+            if (!string.IsNullOrEmpty(indexName))
             {
                 requestDict.Add("name", indexName);
             }
 
-            if (designDocumentName != null)
+            if (!string.IsNullOrEmpty(designDocumentName))
             {
                 requestDict.Add("ddoc", designDocumentName);
             }
@@ -453,7 +448,7 @@ namespace IBM.Cloudant.Client
                 ["enabled" ] = defaultFieldEnabled
             };
 
-            if (defaultFieldAnalyzer != null)
+            if (!string.IsNullOrEmpty(defaultFieldAnalyzer))
             {
                 default_field.Add("analyzer", defaultFieldAnalyzer);
             }
@@ -515,7 +510,7 @@ namespace IBM.Cloudant.Client
         {
             if (selector == null)
             {
-                throw new DataException(DataException.Database_QueryError, "selectorparameter cannot be null");
+                throw new ArgumentNullException("selector");
             }
 
             // build the body
@@ -560,12 +555,12 @@ namespace IBM.Cloudant.Client
                 body.Add("sort", convertedSortList);
             }
 
-            if (bookmark != null)
+            if (!string.IsNullOrEmpty(bookmark))
             {
                 body.Add("bookmark", bookmark);
             }
 
-            if (useIndex != null)
+            if (!string.IsNullOrEmpty(useIndex))
             {
                 body.Add("use_index", useIndex);
             }
@@ -633,14 +628,13 @@ namespace IBM.Cloudant.Client
         {
 
             if (string.IsNullOrWhiteSpace(indexName))
-                throw new DataException(
-                    DataException.Database_IndexModificationFailure,
-                    "indexName may not be null or empty.");
+            {
+                throw new ArgumentException("The indexName parameter may not be null, empty or contain only whitespace.");
+            }
             if (string.IsNullOrWhiteSpace(designDocId))
-                throw new DataException(
-                    DataException.Database_IndexModificationFailure,
-                    "designDocId may not be null or empty");
-
+            {
+                throw new ArgumentException("The designDocId parameter may not be null, empty or contain only whitespace.");
+            }
 
             String indexTypeString = indexType.ToString();
 
