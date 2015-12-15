@@ -1,6 +1,0 @@
-<Namespace Name="Com.Cloudant.Client.Internal.Http">
-  <Docs>
-    <summary>Internal classes used to manage the http connection.</summary>
-    <remarks></remarks>
-  </Docs>
-</Namespace>
