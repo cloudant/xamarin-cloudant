@@ -1,25 +1,25 @@
 %YAML 1.2
 ---
 id: CloudantClient
-version: 0.1
+version: 0.2
 name: Cloudant Client
 summary: Integrate your Xamarin apps with IBM Cloudant.
 publisher: IBM Cloudant
 publisher-url: https://www.cloudant.com
 license: ./License.md
-icons: 
+icons:
   - ./CloudantClient_128x128.png
   - ./CloudantClient_512x512.png
 build:
   - ../src/CloudantClient-Xamarin.sln
-libraries: 
-  ios-unified: 
+libraries:
+  ios-unified:
     - ../src/CloudantClient.PCL/bin/Release/CloudantClient.PCL.dll
     - ../src/CloudantClient.PCL/bin/Release/CloudantClient.PCL.xml
-  ios: 
+  ios:
     - ../src/CloudantClient.PCL/bin/Release/CloudantClient.PCL.dll
     - ../src/CloudantClient.PCL/bin/Release/CloudantClient.PCL.xml
-  android: 
+  android:
     - ../src/CloudantClient.PCL/bin/Release/CloudantClient.PCL.dll
     - ../src/CloudantClient.PCL/bin/Release/CloudantClient.PCL.xml
   pcl:
@@ -31,9 +31,6 @@ getting-started: ./GettingStarted.md
 samples:
   - name: "Cross-platform Sample"
     path: ../samples/CrossPlatformSample/CrossPlatformSample.sln
-#
-#source:                             #TODO: Set to true to include the source.
-#src-url:                            #TODO: URL to github project
-#screenshots: 
-#  - screenshots/screenshot1.png
-...
+
+source: true
+src-url: https://github.com/cloudant/xamarin-cloudant
