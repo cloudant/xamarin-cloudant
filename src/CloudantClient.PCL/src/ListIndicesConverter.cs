@@ -18,7 +18,7 @@ using System.Collections.Generic;
 namespace IBM.Cloudant.Client
 {
     /// <summary>
-    /// Marshals a list of <see cref="IBM.Cloudant.client.Index"/> objects from json.
+    /// Marshals a list of <see cref="IBM.Cloudant.Client.Index"/> objects from json.
     /// </summary>
     internal class ListIndicesConverter : JsonConverter
     {

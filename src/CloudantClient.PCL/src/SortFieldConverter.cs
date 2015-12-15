@@ -19,10 +19,13 @@ using System.Runtime.Serialization;
 namespace IBM.Cloudant.Client
 {
     /// <summary>
-    /// Marshals SortSyntax JSON objects into <see cref="IBM.Cloudant.client.SortField"/> struct.
+    /// Marshals SortSyntax JSON objects into <see cref="IBM.Cloudant.Client.SortField"/> struct.
     /// </summary>
     public class SortFieldConverter : JsonConverter
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IBM.Cloudant.Client.SortFieldConverter"/> class.
+        /// </summary>
         public SortFieldConverter()
         {
         }

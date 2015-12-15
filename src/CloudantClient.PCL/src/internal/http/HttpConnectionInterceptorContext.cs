@@ -16,7 +16,7 @@ using System.Net.Http;
 namespace IBM.Cloudant.Client
 {
     /// <summary>
-    /// Class used to pass the current state of an HTTP connection to <see cref="Com.Cloudant.Client.Internal.Http.IHttpConnectionInterceptor"/> 
+    /// Class used to pass the current state of an HTTP connection to <see cref="IBM.Cloudant.Client.IHttpConnectionInterceptor"/> 
     /// </summary>
     /// <remarks>
     /// This class is used for passing the context for a HTTP connection.
@@ -42,7 +42,7 @@ namespace IBM.Cloudant.Client
         public HttpResponseMessage responseMsg { set; get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Com.Cloudant.Client.Internal.Http.HttpConnectionInterceptorContext"/> class with
+        /// Initializes a new instance of the <see cref="IBM.Cloudant.Client.HttpConnectionInterceptorContext"/> class with
         /// the given HttpRequest and HttpResponse message.
         /// </summary>
         /// <param name="requestMessage">Request message.</param>

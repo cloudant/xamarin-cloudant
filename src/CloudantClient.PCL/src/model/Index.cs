@@ -48,7 +48,7 @@ namespace IBM.Cloudant.Client
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Com.Cloudant.Client.Model.Index"/> class.
+        /// Initializes a new instance of the <see cref="IBM.Cloudant.Client.Index"/> class.
         /// </summary>
         /// <param name="designDocId">Design document identifier</param>
         /// <param name="name">Name of the index</param>

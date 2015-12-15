@@ -29,7 +29,7 @@ namespace IBM.Cloudant.Client
         private AuthenticationHeaderValue authHeader;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Com.Cloudant.Client.Internal.Http.BasicAuthenticationInterceptor"/> class 
+        /// Initializes a new instance of the <see cref="IBM.Cloudant.Client.BasicAuthenticationInterceptor"/> class 
         /// with the specified username and password. 
         /// </summary>
         /// <param name="username">Username for the http request.</param>

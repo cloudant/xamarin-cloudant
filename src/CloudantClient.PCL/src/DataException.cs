@@ -73,9 +73,9 @@ namespace IBM.Cloudant.Client
         public int code { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Com.Cloudant.Client.DataException"/> class.
+        /// Initializes a new instance of the <see cref="IBM.Cloudant.Client.DataException"/> class.
         /// </summary>
-        /// <param name="code">Code for the exception.  Must be one of the static values defined in <see cref="Com.Cloudant.Client.DataException"/></param>
+        /// <param name="code">Code for the exception.  Must be one of the static values defined in <see cref="IBM.Cloudant.Client.DataException"/></param>
         /// <param name="message">Message.</param>
         public DataException(int code, String message)
             : base(message)
@@ -84,9 +84,9 @@ namespace IBM.Cloudant.Client
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Com.Cloudant.Client.DataException"/> class.
+        /// Initializes a new instance of the <see cref="IBM.Cloudant.Client.DataException"/> class.
         /// </summary>
-        /// <param name="code">Code for the exception.  Must be one of the static values defined in <see cref="Com.Cloudant.Client.DataException"/></param>
+        /// <param name="code">Code for the exception.  Must be one of the static values defined in <see cref="IBM.Cloudant.Client.DataException"/></param>
         /// <param name="message">Message.</param>
         /// <param name="cause">Cause.</param>
         public DataException(int code, String message, Exception cause)

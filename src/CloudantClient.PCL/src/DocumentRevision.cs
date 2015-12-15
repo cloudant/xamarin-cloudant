@@ -65,7 +65,7 @@ namespace IBM.Cloudant.Client
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Com.Cloudant.Client.DocumentRevision"/> class with document contents.
+        /// Initializes a new instance of the <see cref="IBM.Cloudant.Client.DocumentRevision"/> class with document contents.
         /// </summary>
         /// <param name="documentId">Document identifier.</param>
         /// <param name="revisionId">Revision identifier.</param>
@@ -94,6 +94,7 @@ namespace IBM.Cloudant.Client
             }
         }
 
+        /// <inheritdoc/>
         public bool Equals(DocumentRevision other)
         {
 
@@ -103,6 +104,7 @@ namespace IBM.Cloudant.Client
             return this.docId.Equals(other.docId) && this.revId.Equals(other.revId) && JToken.DeepEquals(thisBody, otherBody);
         }
 
+        /// <inheritdoc/>
         override public string ToString()
         {
 

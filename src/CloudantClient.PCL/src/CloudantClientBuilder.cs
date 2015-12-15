@@ -48,7 +48,7 @@ namespace IBM.Cloudant.Client
 
 
         /// <summary>
-        /// The HTTP connection interceptors. <see cref="IBM.Cloudant.Client.Internal.Http.IHttpConnectionInterceptor"/>
+        /// The HTTP connection interceptors. <see cref="IBM.Cloudant.Client.IHttpConnectionInterceptor"/>
         /// </summary>
         public List<IHttpConnectionInterceptor> interceptors  { set; get; }
 

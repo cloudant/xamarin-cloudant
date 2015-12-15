@@ -167,7 +167,7 @@ namespace IBM.Cloudant.Client
         /// The revision must have the id and revId of the document being updated.
         /// 
         /// </summary>
-        /// <param name="revisionToUpdate">Revision to update.</param>
+        /// <param name="revision">Revision to update.</param>
         public async Task<DocumentRevision> UpdateAsync(DocumentRevision revision)
         {
             Debug.WriteLine("==== enter Database::update(Object)"); 
