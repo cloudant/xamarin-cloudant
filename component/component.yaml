@@ -25,6 +25,8 @@ libraries:
   pcl:
     - ../src/CloudantClient.PCL/bin/Release/CloudantClient.PCL.dll
     - ../src/CloudantClient.PCL/bin/Release/CloudantClient.PCL.xml
+packages:
+  "": Newtonsoft.Json, Version=7.0.1
 monodocs: ../doc
 details: ./Details.md
 getting-started: ./GettingStarted.md
