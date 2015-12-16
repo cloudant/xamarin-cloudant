@@ -75,7 +75,7 @@ namespace CrossPlatformSample
             try
             {
                 db = client.Database(dbName);
-                db.EnsureExists();
+                db.EnsureExistsAsync();
                 DisplayAlert("Database Created", "Database name: " + db.dbname, "OK");
             
             }
@@ -112,7 +112,7 @@ namespace CrossPlatformSample
                 };
 
                 //Save to the database.
-                Task<DocumentRevision> createTask = db.Create(doc);
+                Task<DocumentRevision> createTask = db.CreateAsync(doc);
                 createTask.Wait();
 
                 DocumentRevision rev = createTask.Result;
@@ -147,7 +147,7 @@ namespace CrossPlatformSample
 
             try
             {
-                Task<DocumentRevision> readTask = db.Read(docName);
+                Task<DocumentRevision> readTask = db.ReadAsync(docName);
                 readTask.Wait();
 
                 DocumentRevision rev = readTask.Result;
@@ -177,7 +177,7 @@ namespace CrossPlatformSample
             DocumentRevision doc;
             try
             {
-                Task<DocumentRevision> readTask = db.Read(docName);
+                Task<DocumentRevision> readTask = db.ReadAsync(docName);
                 readTask.Wait();
                 doc = readTask.Result;
             }
@@ -193,7 +193,7 @@ namespace CrossPlatformSample
             //Save a new revision in the database.
             try
             {
-                Task<DocumentRevision> updateTask = db.Update(doc);
+                Task<DocumentRevision> updateTask = db.UpdateAsync(doc);
                 updateTask.Wait();
 
                 DocumentRevision rev = updateTask.Result;
@@ -222,7 +222,7 @@ namespace CrossPlatformSample
             try
             {
 
-                var indexTask = db.CreateJsonIndex(fields: new List<SortField>()
+                var indexTask = db.CreateJsonIndexAsync(fields: new List<SortField>()
                     {
                         new SortField()
                         {
@@ -251,10 +251,10 @@ namespace CrossPlatformSample
 
             try
             {
-                Task<List<Index>> indexListTask = db.ListIndices();
+                Task<IList<Index>> indexListTask = db.ListIndicesAsync();
                 indexListTask.Wait();
 
-                List<Index> indexList = indexListTask.Result;
+                IList<Index> indexList = indexListTask.Result;
 
                 if (indexList != null && indexList.Count > 0)
                 {
@@ -293,7 +293,7 @@ namespace CrossPlatformSample
             try
             {
                 //Create an index for the field 'age'.
-                var indexTask = db.CreateJsonIndex(fields: new List<SortField>()
+                var indexTask = db.CreateJsonIndexAsync(fields: new List<SortField>()
                     {
                         new SortField()
                         {
@@ -308,7 +308,7 @@ namespace CrossPlatformSample
 
                 // Find all documents with indexes that match the given selector.
                 // In this example it returns all documents where 'age' is 28.
-                var queryTask = db.Query(selector: new Dictionary<string,object>()
+                var queryTask = db.QueryAsync(selector: new Dictionary<string,object>()
                     {
                     ["age" ] = 28
                     }, sort: new List<SortField>()
@@ -356,7 +356,7 @@ namespace CrossPlatformSample
 
             try
             {
-                Task indexTask = db.DeleteIndex(indexName, designDocName, IndexType.json);
+                Task indexTask = db.DeleteIndexAsync(indexName, designDocName, IndexType.json);
                 indexTask.Wait();
 
                 DisplayAlert("Index Deleted", "index name: " + indexName, "OK");
@@ -379,7 +379,7 @@ namespace CrossPlatformSample
 
             try
             {
-                Task deleteDbTask = db.Delete();
+                Task deleteDbTask = db.DeleteAsync();
                 deleteDbTask.Wait();
 
                 DisplayAlert("Database Deleted", "Database name: " + name, "OK");
