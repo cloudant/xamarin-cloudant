@@ -26,11 +26,11 @@ namespace IBM.Cloudant.Client
     /// Adds cookie authentication support to http requests.
     ///
     /// It does this by adding the cookie header for CouchDB
-    ///    using request interceptor pipeline in <see cref="Com.Cloudant.Client.Internal.Http.HttpHelper"/>.
+    ///    using request interceptor pipeline in <see cref="IBM.Cloudant.Client.HttpHelper"/>.
     ///
     /// If a response has a response code of 401, it will fetch a cookie from
-    /// the server using provided credentials and tell <see cref="Com.Cloudant.Client.Internal.Http.HttpHelper"/>
-    /// to reply the request by setting <see cref="Com.Cloudant.Client.Internal.Http.HttpConnectionInterceptorContext.replayRequest"/>
+    /// the server using provided credentials and tell <see cref="IBM.Cloudant.Client.HttpHelper"/>
+    /// to reply the request by setting <see cref="IBM.Cloudant.Client.HttpConnectionInterceptorContext.replayRequest"/>
     /// property to true.
     ///
     /// If the request to get the cookie for use in future request fails with a 401 status code
@@ -49,7 +49,7 @@ namespace IBM.Cloudant.Client
         private string password;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Com.Cloudant.Client.Internal.Http.CookieInterceptor"/> class.
+        /// Initializes a new instance of the <see cref="IBM.Cloudant.Client.CookieInterceptor"/> class.
         /// </summary>
         /// <param name="username">The username to use when getting the cookie</param>
         /// <param name="password">The password to use when getting the cookie</param>

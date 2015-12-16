@@ -18,8 +18,8 @@ namespace IBM.Cloudant.Client
     /// This interface is not intended to be implemented by consumers. You must implement one of the sub-interfaces:
     /// 
     /// <list type="bullet">
-    ///     <item><term><see cref="Com.Cloudant.Client.Internal.Http.IHttpConnectionRequestInterceptor"/> or </term></item>
-    ///     <item><term><see cref="Com.Cloudant.Client.Internal.Http.IHttpConnectionResponseInterceptor"/></term></item>
+    ///     <item><term><see cref="IBM.Cloudant.Client.IHttpConnectionRequestInterceptor"/> or </term></item>
+    ///     <item><term><see cref="IBM.Cloudant.Client.IHttpConnectionResponseInterceptor"/></term></item>
     /// </list>
     /// </summary>
     /// <remarks>

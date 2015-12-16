@@ -71,7 +71,7 @@ namespace IBM.Cloudant.Client
         /// <summary>
         /// Creates a database object that represents a database on the server. 
         /// However the database may not exist on the server yet. You should
-        /// call <see cref="IBM.Cloudant.Client.Database.EnsureExists"/> to
+        /// call <see cref="IBM.Cloudant.Client.Database.EnsureExistsAsync"/> to
         /// ensure the database exists on the server before performing
         /// reads or writes.
         /// </summary>

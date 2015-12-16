@@ -14,11 +14,19 @@ using System;
 
 namespace IBM.Cloudant.Client
 {
+    /// <summary>
+    /// The type of Query Index.
+    /// </summary>
     public enum IndexType
     {
-
+        /// <summary>
+        /// JSON Query Index Type
+        /// </summary>
         json,
 
+        /// <summary>
+        /// Text Query Index Type
+        /// </summary>
         text
 
     }

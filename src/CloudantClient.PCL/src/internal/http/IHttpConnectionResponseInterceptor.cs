@@ -25,7 +25,7 @@ namespace IBM.Cloudant.Client
     ///
     ///    Interceptors are executed in a pipeline and modify the context in a serial fashion.
     /// 
-    /// See <see cref="Com.Cloudant.Client.Internal.Http.CookieInterceptor"/> for an example.
+    /// See <see cref="IBM.Cloudant.Client.CookieInterceptor"/> for an example.
     /// </summary>
     /// <remarks>
     /// This is the interface for HTTP response interceptors.
