@@ -6,7 +6,7 @@ name: Cloudant Client
 summary: Integrate your Xamarin apps with IBM Cloudant.
 publisher: IBM Cloudant
 publisher-url: https://www.cloudant.com
-license: ./License.md
+license: ./License.txt
 icons:
   - ./CloudantClient_128x128.png
   - ./CloudantClient_512x512.png
