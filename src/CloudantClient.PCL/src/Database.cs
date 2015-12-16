@@ -643,7 +643,7 @@ namespace IBM.Cloudant.Client
                                dbNameUrlEncoded + "/_index/" + designDocId + "/" + indexTypeString + "/" + indexName,
                                UriKind.Relative);
 
-            var response = await client.httpHelper.DeleteAsync(indexUri, null);
+            var response = await client.httpHelper.DeleteAsync(indexUri, null).ConfigureAwait(continueOnCapturedContext: false);
 
             if (response.StatusCode == HttpStatusCode.OK)
                 return;
