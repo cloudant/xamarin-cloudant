@@ -18,9 +18,9 @@ namespace CrossPlatformSample
     {
         /// <summary>
         /// The cloudant.com account hostname to connect to. For example
-        /// sampleaccount.cloudant.com
+        /// sampleaccount
         /// </summary>
-        public static readonly string account = "your-cloudant-username.cloudant.com";
+        public static readonly string account = "your-cloudant-username";
 
         /// <summary>
         /// The cloudant user ID.
