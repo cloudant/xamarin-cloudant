@@ -205,6 +205,8 @@ namespace IBM.Cloudant.Client
                         }
                     }
 
+                    request.Headers.TryAddWithoutValidation("User-Agent", "xamarin-cloudant/0.2");
+
                     request.Content = content;
 
 
