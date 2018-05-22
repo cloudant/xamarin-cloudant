@@ -1,3 +1,5 @@
+# THIS LIBRARY IS NOT SUPPORTED AND IS NO LONGER MAINTAINED
+
 # Cloudant C# Portable Class Library
 
 ### Overview
